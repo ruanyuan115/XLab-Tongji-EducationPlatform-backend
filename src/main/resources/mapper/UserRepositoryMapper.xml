@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.lab409.security.repository.UserRepository">
+    <resultMap id="userMap" type="org.lab409.model.security.User">
+        <id property="id" column="ID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="email" column="EMAIL"/>
+        <collection property="authorities" ofType="org.lab409.model.security.Authority">
+            <result column="name" property="name"/>
+        </collection>
+
+    </resultMap>
+    <select id="findByUsername" parameterType="String" resultMap="userMap">
+        select u.*
+        ,r.NAME
+        from USER u
+        LEFT JOIN USER_AUTHORITY sru on u.ID= sru.USER_ID
+        LEFT JOIN AUTHORITY r on sru.AUTHORITY_ID=r.ID
+        where USERNAME = #{username}
+    </select>
+
+</mapper>
