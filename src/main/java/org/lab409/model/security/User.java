@@ -5,16 +5,15 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class User {
-
+public class User
+{
     private Long id;
 
-    private String username;
+    private String mail;
 
     private String password;
 
-    private String email;
+    private String name;
 
     private List<Authority> authorities;
-
 }

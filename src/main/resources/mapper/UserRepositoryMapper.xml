@@ -2,22 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.lab409.security.repository.UserRepository">
     <resultMap id="userMap" type="org.lab409.model.security.User">
-        <id property="id" column="ID"/>
-        <result property="username" column="USERNAME"/>
-        <result property="password" column="PASSWORD"/>
-        <result property="email" column="EMAIL"/>
+        <id property="id" column="user_id"/>
+        <result property="mail" column="mail"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
         <collection property="authorities" ofType="org.lab409.model.security.Authority">
-            <result column="name" property="name"/>
+            <result column="r.NAME" property="name"/>
         </collection>
 
     </resultMap>
     <select id="findByUsername" parameterType="String" resultMap="userMap">
-        select u.*
+        select u.user_id,u.mail,u.password,u.name
         ,r.NAME
-        from USER u
-        LEFT JOIN USER_AUTHORITY sru on u.ID= sru.USER_ID
+        from user u
+        LEFT JOIN USER_AUTHORITY sru on u.user_id= sru.USER_ID
         LEFT JOIN AUTHORITY r on sru.AUTHORITY_ID=r.ID
-        where USERNAME = #{username}
+        where mail = #{mail}
     </select>
 
 </mapper>
