@@ -23,6 +23,17 @@ public class UserInfo
     @Column(name = "gender")
     private String gender;
 
+    public UserInfo(){}
+    public UserInfo(UserInfo userInfo) {
+        this.userID=userInfo.getUserID();
+        this.mail = userInfo.getMail();
+        this.password = userInfo.getPassword();
+        this.name = userInfo.getName();
+        this.role = userInfo.getRole();
+        this.workID = userInfo.getWorkID();
+        this.gender = userInfo.getGender();
+    }
+
     public Integer getUserID() {
         return userID;
     }

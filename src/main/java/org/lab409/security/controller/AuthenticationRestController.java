@@ -3,6 +3,7 @@ package org.lab409.security.controller;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 
+import org.lab409.entity.ResultEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,10 @@ public class AuthenticationRestController {
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         // Return the token
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(1);
+        resultEntity.setMessage("登陆成功！");
+        resultEntity.setData(new JwtAuthenticationResponse(token));
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
 
