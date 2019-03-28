@@ -38,7 +38,7 @@ public class UserServiceImp implements UserService
                 result.setPassword("");
                 resultEntity.setData(result);
 
-                if (resultEntity.getData()!=null&&authorityResult!=null)
+                if (result.getUserID()!=null&&authorityResult.getId()!=null)
                 {
                     resultEntity.setState(1);
                     resultEntity.setMessage("注册成功！");
