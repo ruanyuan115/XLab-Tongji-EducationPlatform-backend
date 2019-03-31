@@ -1,9 +1,12 @@
 package org.lab409.entity;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name="user")
+@Data
 public class UserInfo
 {
     @Id
@@ -32,61 +35,5 @@ public class UserInfo
         this.role = userInfo.getRole();
         this.workID = userInfo.getWorkID();
         this.gender = userInfo.getGender();
-    }
-
-    public Integer getUserID() {
-        return userID;
-    }
-
-    public void setUserID(Integer userID) {
-        this.userID = userID;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public Integer getWorkID() {
-        return workID;
-    }
-
-    public void setWorkID(Integer workID) {
-        this.workID = workID;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
     }
 }

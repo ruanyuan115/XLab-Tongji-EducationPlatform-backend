@@ -1,7 +1,6 @@
 package org.lab409.service;
 
-import org.lab409.entity.CourseInfo;
-import org.lab409.entity.ResultEntity;
+import org.lab409.entity.*;
 
 import java.util.ArrayList;
 
@@ -11,4 +10,12 @@ public interface CourseService
     ArrayList<CourseInfo> getStuCourseList(Integer studentID);
     CourseInfo getCourseByCode(String courseCode);
     Integer joinCourse(Integer studentID,Integer courseID);
+    Integer addCourseNotice(CourseNotice courseNotice);
+    CourseNotice getNoticeByCouID(Integer courseID);
+    CourseInfo getCourseInfoByID(Integer courseID);
+    Integer deleteCourse(Integer courseID);
+    Integer deleteCourseNotice(Integer courseID);
+    ChapterNode addChapter(ChapterNode chapterNode);
+    ChapterNode getChapterByID(Integer chapterID);
+    ArrayList<CourseCatalog> getCourseCatalog(Integer courseID);
 }

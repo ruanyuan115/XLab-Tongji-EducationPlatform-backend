@@ -2,15 +2,17 @@ package org.lab409.entity;
 
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "takes")
+@Table(name = "course_notice")
 @DynamicInsert
+@DynamicUpdate
 @Data
-public class Takes
+public class CourseNotice
 {
     @Id
     @Column(name = "id")
@@ -20,10 +22,8 @@ public class Takes
     private Timestamp createTime;
     @Column(name = "update_time")
     private Timestamp updateTime;
-    @Column(name = "student_id")
-    private Integer studentID;
     @Column(name = "course_id")
     private Integer courseID;
-    @Column(name = "current_progress")
-    private Integer currentProgress;
+    @Column(name = "course_notice")
+    private String courseNotice;
 }

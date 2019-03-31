@@ -13,39 +13,34 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "course_info")
+@Table(name = "chapter_content")
 @DynamicInsert
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class CourseInfo
+public class ChapterNode
 {
     @Id
-    @Column(name = "course_id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer courseID;
+    private Integer id;
     @Column(name = "create_time")
     @CreatedDate
     private Timestamp createTime;
     @Column(name = "update_time")
     @LastModifiedDate
     private Timestamp updateTime;
-    @Column(name = "teacher_id")
-    private Integer teacherID;
-    @Column(name = "course_name")
-    private String courseName;
-    @Column(name = "course_teacher")
-    private String teacherName;
-    @Column(name = "course_year")
-    private Integer courseYear;
-    @Column(name = "course_semester")
-    private String courseSemester;
-    @Column(name = "start_time")
-    private Date startTime;
-    @Column(name = "end_time")
-    private Date endTime;
-    @Column(name = "current_exercise")
-    private String currentExerciseChapter;
-    @Column(name = "course_code" )
-    private String courseCode;
-
+    @Column(name = "course_id")
+    private Integer courseID;
+    @Column(name = "content_name")
+    private String contentName;
+    @Column(name = "parent_id")
+    private Integer parentID;
+    @Column(name = "sibling_id")
+    private Integer siblingID;
+    @Column(name = "content")
+    private String content;
+    @Column(name = "exercise_visible")
+    private Boolean exerciseVisible;
+    @Column(name = "exercise_deadline")
+    private Date exerciseDeadline;
 }
