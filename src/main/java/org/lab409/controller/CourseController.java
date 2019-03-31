@@ -160,4 +160,30 @@ public class CourseController
         resultEntity.setMessage(resultEntity.getData()!=null?"":"该课程不存在目录！");
         return resultEntity;
     }
+    @GetMapping(value = "/getCourseScoreAndComment")
+    public ResultEntity getCourseScoreAndComment(Integer courseID,Integer studentID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCourseScoreAndComment(courseID,studentID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        resultEntity.setMessage(resultEntity.getData()!=null?"":"该学生尚未作出评论！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/getCurrentProgress")
+    public ResultEntity getCurrentProgress(Integer courseID,Integer studentID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCurrentProgress(courseID,studentID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        resultEntity.setMessage(resultEntity.getData()!=null?"":"选课状态有误！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/alertCurrentProgress")
+    public ResultEntity alertCurrentProgress(Integer courseID,Integer studentID,Integer chapterID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.alertCurrentProgress(courseID,studentID,chapterID));
+        resultEntity.setMessage(resultEntity.getState()==1?"修改成功！":"无该选课记录！");
+        return resultEntity;
+    }
 }

@@ -1,10 +1,6 @@
 package org.lab409.service.implement;
 
-import io.netty.channel.ChannelOption;
-import org.lab409.dao.ChapterContentDao;
-import org.lab409.dao.CourseInfoDao;
-import org.lab409.dao.CourseNoticeDao;
-import org.lab409.dao.TakesDao;
+import org.lab409.dao.*;
 import org.lab409.entity.*;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +24,10 @@ public class CourseServiceImp implements CourseService
     private CourseNoticeDao courseNoticeDao;
     @Autowired
     private ChapterContentDao chapterContentDao;
+    @Autowired
+    private StudentChapterDao studentChapterDao;
+    @Autowired
+    private UserDao userDao;
     @Override
     public Integer addNewCourse(CourseInfo courseInfo)
     {
@@ -73,7 +73,7 @@ public class CourseServiceImp implements CourseService
         takes.setCourseID(courseID);
         takes.setStudentID(studentID);
         if(takesDao.findByStudentIDAndCourseID(studentID,courseID)==null)//该学生之前没选过这门课,且该课程存在
-            return courseInfoDao.findByCourseID(courseID)!=null&&takesDao.saveAndFlush(takes).getId()!=null?1:0;
+            return (courseInfoDao.findByCourseID(courseID)!=null&&takesDao.saveAndFlush(takes).getId()!=null)?1:0;
         else
             return -1;
     }
@@ -188,5 +188,51 @@ public class CourseServiceImp implements CourseService
         {
             makeCatalog(it.next(),chapterNodes);
         }
+    }
+
+    @Override
+    public ArrayList<StudentChapter> getCourseScoreAndComment(Integer courseID, Integer studentID)
+    {
+        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(courseID,0);
+        if(chapterNodes!=null&&chapterNodes.size()>0&&userDao.findById(studentID).isPresent())
+        {
+            CourseCatalog bookCatalog = new CourseCatalog();
+            ChapterNode book = new ChapterNode();
+            book.setId(0);
+            bookCatalog.setChapterNode(book);
+
+            getSubNodes(bookCatalog,chapterNodes);
+
+            ArrayList<StudentChapter>arrayList=new ArrayList<>();
+            for(CourseCatalog i:bookCatalog.getSubCatalog())
+            {
+                StudentChapter temp=studentChapterDao.findByChapterIDAndStudentID(i.getChapterNode().getId(),studentID);
+                if (temp!=null)
+                    arrayList.add(temp);
+            }
+            return arrayList.size()>0?arrayList:null;
+        }
+        else
+            return null;
+    }
+
+    @Override
+    public Takes getCurrentProgress(Integer courseID, Integer studentID)
+    {
+        return takesDao.findByStudentIDAndCourseID(studentID,courseID);
+    }
+
+    @Override
+    public Integer alertCurrentProgress(Integer courseID, Integer studentID, Integer chapterID)
+    {
+        Takes t=takesDao.findByStudentIDAndCourseID(studentID,courseID);
+        if(t!=null)
+        {
+            t.setCurrentProgress(chapterID);
+            takesDao.saveAndFlush(t);
+            return 1;
+        }
+        else
+            return 0;
     }
 }

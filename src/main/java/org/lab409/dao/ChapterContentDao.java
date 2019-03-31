@@ -10,4 +10,5 @@ import java.util.ArrayList;
 public interface ChapterContentDao extends JpaRepository<ChapterNode,Integer>
 {
     ArrayList<ChapterNode> findByCourseID(Integer chapterID);
+    ArrayList<ChapterNode> findByCourseIDAndParentID(Integer courseID,Integer parentID);
 }

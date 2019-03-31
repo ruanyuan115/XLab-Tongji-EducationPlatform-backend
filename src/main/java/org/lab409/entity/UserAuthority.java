@@ -1,11 +1,14 @@
 package org.lab409.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "USER_AUTHORITY")
+@DynamicInsert
 @Data
 public class UserAuthority
 {

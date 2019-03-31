@@ -1,8 +1,6 @@
 package org.lab409.entity;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -39,8 +37,16 @@ public class ChapterNode
     private Integer siblingID;
     @Column(name = "content")
     private String content;
-    @Column(name = "exercise_visible")
-    private Boolean exerciseVisible;
-    @Column(name = "exercise_deadline")
-    private Date exerciseDeadline;
+    @Column(name = "exercise_visible_1")
+    private Boolean exerciseVisible_1;
+    @Column(name = "exercise_visible_2")
+    private Boolean exerciseVisible_2;
+    @Column(name = "exercise_deadline_1")
+    private Date exerciseDeadline_1;
+    @Column(name = "exercise_deadline_2")
+    private Date exerciseDeadline_2;
+    @Column(name = "exercise_total_1")
+    private Integer exerciseTotal_1;
+    @Column(name = "exercise_total_2")
+    private Integer exerciseTotal_2;
 }
