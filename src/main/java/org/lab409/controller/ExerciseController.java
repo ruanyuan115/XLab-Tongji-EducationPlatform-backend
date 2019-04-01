@@ -36,10 +36,7 @@ public class ExerciseController {
     }
 
     @PostMapping(value = "/addAnswer")
-    public ResultEntity addAnswer(String answer,Integer exerciseId){
-        String authToken = request.getHeader(this.tokenHeader);
-        String mail = this.jwtTokenUtil.getUsernameFromToken(authToken);
-        Integer userId=userDao.findByMail(mail).getUserID();
+    public ResultEntity addAnswer(String answer,Integer exerciseId,Integer userId){
         return exerciseService.answerOne(answer,exerciseId,userId);
     }
 

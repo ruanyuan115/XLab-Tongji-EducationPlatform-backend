@@ -28,7 +28,9 @@ public class ExerciseServiceImp implements ExerciseService{
     public ResultEntity addExercise(Exercise exercise){
         ResultEntity resultEntity=new ResultEntity();
         if(exercise!=null){
+            System.out.print(exercise.getExerciseType());
             resultEntity.setData(exerciseDao.saveAndFlush(exercise));
+
             if (resultEntity.getData()!=null)
             {
                 resultEntity.setState(1);
@@ -79,7 +81,7 @@ public class ExerciseServiceImp implements ExerciseService{
         Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
         if(studentExerciseScore!=null){
             if(exercise.getExerciseType()%2!=0){
-                if(answer==exercise.getExerciseAnswer())
+                if(answer.equals(exercise.getExerciseAnswer()))
                     studentExerciseScore.setExerciseScore(exercise.getExercisePoint());
             }
             resultEntity.setData(studentExerciseScoreDao.saveAndFlush(studentExerciseScore));
@@ -136,7 +138,7 @@ public class ExerciseServiceImp implements ExerciseService{
             List<ExerciseSet> exerciseSets=new ArrayList<>();
             int type1=0;
             int type2=0;
-            if(type=="preview"){
+            if(type.equals("preview")){
                 type1=1;
                 type2=2;
             }
