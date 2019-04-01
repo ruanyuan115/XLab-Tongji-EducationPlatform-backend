@@ -1,8 +1,15 @@
 package org.lab409.entity;
+import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name="student_exercise_score")
+@DynamicInsert
+@Data
+@EntityListeners(AuditingEntityListener.class)
 public class StudentExerciseScore {
     @Id
     @Column(name = "id")
@@ -16,47 +23,6 @@ public class StudentExerciseScore {
     private String studentAnswer;
     @Column(name = "exercise_score")
     private Integer exerciseScore;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getStudentId() {
-        return studentId;
-    }
-
-    public void setStudentId(Integer studentId) {
-        this.studentId = studentId;
-    }
-
-    public Integer getExerciseId() {
-        return exerciseId;
-    }
-
-    public void setExerciseId(Integer exerciseId) {
-        this.exerciseId = exerciseId;
-    }
-
-    public String getStudentAnswer() {
-        return studentAnswer;
-    }
-
-    public void setStudentAnswer(String studentAnswer) {
-        this.studentAnswer = studentAnswer;
-    }
-
-    public Integer getExerciseScore() {
-        return exerciseScore;
-    }
-
-    public void setExerciseScore(Integer exerciseScore) {
-        this.exerciseScore = exerciseScore;
-    }
-
     public StudentExerciseScore() {
     }
 

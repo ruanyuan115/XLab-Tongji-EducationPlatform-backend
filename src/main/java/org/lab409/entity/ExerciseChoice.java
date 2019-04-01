@@ -1,8 +1,15 @@
 package org.lab409.entity;
+import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name="exercise_choice")
+@DynamicInsert
+@Data
+@EntityListeners(AuditingEntityListener.class)
 public class ExerciseChoice {
     @Id
     @Column(name = "id")
@@ -14,39 +21,6 @@ public class ExerciseChoice {
     private String exerciceChoiceId;
     @Column(name = "choice")
     private String choice;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getExerciseId() {
-        return exerciseId;
-    }
-
-    public void setExerciseId(Integer exerciseId) {
-        this.exerciseId = exerciseId;
-    }
-
-    public String getExerciceChoiceId() {
-        return exerciceChoiceId;
-    }
-
-    public void setExerciceChoiceId(String exerciceChoiceId) {
-        this.exerciceChoiceId = exerciceChoiceId;
-    }
-
-    public String getChoice() {
-        return choice;
-    }
-
-    public void setChoice(String choice) {
-        this.choice = choice;
-    }
-
     public ExerciseChoice() {
     }
 

@@ -78,7 +78,7 @@ public class ExerciseServiceImp implements ExerciseService{
         StudentExerciseScore studentExerciseScore=new StudentExerciseScore(studentId,exerciseId,answer,0);
         Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
         if(studentExerciseScore!=null){
-            if(exercise.getExerciseType().contains("Choice")){
+            if(exercise.getExerciseType()%2!=0){
                 if(answer==exercise.getExerciseAnswer())
                     studentExerciseScore.setExerciseScore(exercise.getExercisePoint());
             }
@@ -133,9 +133,17 @@ public class ExerciseServiceImp implements ExerciseService{
     public ResultEntity viewExercise(Integer chapterId,String type){
         ResultEntity resultEntity=new ResultEntity();
         if(chapterId!=null){
-            String type1=type+"Choice";
-            String type2=type+"Object";
             List<ExerciseSet> exerciseSets=new ArrayList<>();
+            int type1=0;
+            int type2=0;
+            if(type=="preview"){
+                type1=1;
+                type2=2;
+            }
+            else{
+                type1=3;
+                type2=4;
+            }
             List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));

@@ -6,7 +6,7 @@ import java.util.List;
 
 @Repository
 public interface ExerciseDao extends JpaRepository<Exercise,Integer>{
-    List<Exercise> findByChapterIdAndExerciseTypeOrderByExerciseNumber(int chapterId,String exeerciseType);
+    List<Exercise> findByChapterIdAndExerciseTypeOrderByExerciseNumber(int chapterId,int exerciseType);
     Exercise findByExerciseId(int id);
     List<Exercise> findByChapterId(int id);
 }
