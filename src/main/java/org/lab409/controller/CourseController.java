@@ -1,9 +1,6 @@
 package org.lab409.controller;
 
-import org.lab409.entity.ChapterNode;
-import org.lab409.entity.CourseInfo;
-import org.lab409.entity.CourseNotice;
-import org.lab409.entity.ResultEntity;
+import org.lab409.entity.*;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -107,6 +104,12 @@ public class CourseController
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setState(courseService.deleteCourse(courseID));
         courseService.deleteCourseNotice(courseID);                        //删除对应的课程公告
+
+        CourseCatalog courseCatalog=new CourseCatalog();
+        courseCatalog.getChapterNode().setId(0);
+        courseCatalog.getChapterNode().setParentID(-1);
+        courseService.deleteChapter(courseCatalog);                        //级联删除章节和习题
+
         resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"该课程不存在，删除失败！");
         return resultEntity;
     }
@@ -184,6 +187,23 @@ public class CourseController
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setState(courseService.alertCurrentProgress(courseID,studentID,chapterID));
         resultEntity.setMessage(resultEntity.getState()==1?"修改成功！":"无该选课记录！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/deleteChapter")
+    public ResultEntity deleteChapter(Integer chapterID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        ChapterNode temp=courseService.getChapterByID(chapterID);
+        if(temp!=null)
+        {
+            CourseCatalog courseCatalog=new CourseCatalog();
+            courseCatalog.setChapterNode(temp);
+            courseService.deleteChapter(courseCatalog);
+            resultEntity.setState(courseService.getChapterByID(chapterID)==null?1:0);
+        }
+        else
+            resultEntity.setState(0);
+        resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"删除失败！");
         return resultEntity;
     }
 }

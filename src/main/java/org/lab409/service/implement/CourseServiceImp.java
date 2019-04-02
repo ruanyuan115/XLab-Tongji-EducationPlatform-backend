@@ -235,4 +235,22 @@ public class CourseServiceImp implements CourseService
         else
             return 0;
     }
+
+    @Override
+    public void deleteChapter(CourseCatalog courseCatalog)
+    {
+        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseID(courseCatalog.getChapterNode().getCourseID());
+        getSubNodes(courseCatalog,chapterNodes);
+        Iterator<CourseCatalog>it=courseCatalog.getSubCatalog().iterator();
+        while (it.hasNext())
+        {
+            deleteChapter(it.next());
+        }
+        if(courseCatalog.getChapterNode().getId()>0)
+            chapterContentDao.deleteById(courseCatalog.getChapterNode().getId());
+        if(courseCatalog.getChapterNode().getParentID()==0)//为章节点 需要删除习题
+        {
+            //删除习题
+        }
+    }
 }

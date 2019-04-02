@@ -21,4 +21,5 @@ public interface CourseService
     ArrayList<StudentChapter> getCourseScoreAndComment(Integer courseID,Integer studentID);
     Takes getCurrentProgress(Integer courseID,Integer studentID);
     Integer alertCurrentProgress(Integer courseID,Integer studentID,Integer chapterID);
+    void deleteChapter(CourseCatalog courseCatalog);
 }
