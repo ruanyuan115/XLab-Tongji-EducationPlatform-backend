@@ -154,6 +154,7 @@ public class ExerciseServiceImp implements ExerciseService{
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise));
             }
+            resultEntity.setData(exerciseSets);
             if (resultEntity.getData()!=null)
             {
                 resultEntity.setState(1);
