@@ -7,12 +7,14 @@ import java.util.ArrayList;
 public interface CourseService
 {
     Integer addNewCourse(CourseInfo courseInfo);
-    ArrayList<CourseInfo> getStuCourseList(Integer studentID);
-    CourseInfo getCourseByCode(String courseCode);
+    Integer addClass(CourseClass courseClass);
+    ArrayList<CourseAndClass> getStuCourseList(Integer studentID);
+    CourseAndClass getCourseByCode(String courseCode);
     Integer joinCourse(Integer studentID,Integer courseID);
     Integer addCourseNotice(CourseNotice courseNotice);
     CourseNotice getNoticeByCouID(Integer courseID);
     CourseInfo getCourseInfoByID(Integer courseID);
+    CourseClass getClassInfoByID(Integer courseClassID);
     Integer deleteCourse(Integer courseID);
     Integer deleteCourseNotice(Integer courseID);
     ChapterNode addChapter(ChapterNode chapterNode);
@@ -22,4 +24,6 @@ public interface CourseService
     Takes getCurrentProgress(Integer courseID,Integer studentID);
     Integer alertCurrentProgress(Integer courseID,Integer studentID,Integer chapterID);
     void deleteChapter(CourseCatalog courseCatalog);
+    ArrayList<CourseClass>getClassesByCourseID(Integer courseID);
+    Integer deleteClass(Integer courseClassID);
 }

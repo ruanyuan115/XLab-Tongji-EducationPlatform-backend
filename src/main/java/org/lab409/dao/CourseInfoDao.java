@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository;
 public interface CourseInfoDao extends JpaRepository<CourseInfo,Integer>
 {
     CourseInfo findByCourseID(Integer courseID);
-    CourseInfo findByCourseCode(String courseCode);
 }

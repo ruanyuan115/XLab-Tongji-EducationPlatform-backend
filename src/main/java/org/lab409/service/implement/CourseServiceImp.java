@@ -28,6 +28,8 @@ public class CourseServiceImp implements CourseService
     private StudentChapterDao studentChapterDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private CourseClassDao courseClassDao;
     @Override
     public Integer addNewCourse(CourseInfo courseInfo)
     {
@@ -40,19 +42,31 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<CourseInfo> getStuCourseList(Integer studentID)
+    public Integer addClass(CourseClass courseClass)
+    {
+        if (courseClass!=null)
+        {
+            return courseClassDao.saveAndFlush(courseClass).getId()!=null?1:0;
+        }
+        else
+            return 0;
+    }
+
+    @Override
+    public ArrayList<CourseAndClass> getStuCourseList(Integer studentID)
     {
         if(studentID>0)
         {
-            ArrayList<CourseInfo> courseList=new ArrayList<>();
+            ArrayList<CourseAndClass> courseList=new ArrayList<>();
             List<Takes> takesList=takesDao.findByStudentID(studentID);
             if(takesList!=null)
             {
                 for(Takes i:takesList)
                 {
-                    CourseInfo temp=courseInfoDao.findByCourseID(i.getCourseID());
+                    CourseClass courseClass=courseClassDao.findById(i.getCourseClassID()).get();
+                    CourseInfo temp=courseInfoDao.findByCourseID(courseClass.getCourseID());
                     if(temp!=null)
-                        courseList.add(temp);
+                        courseList.add(new CourseAndClass(temp,courseClass));
                 }
             }
             return courseList;
@@ -61,19 +75,21 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public CourseInfo getCourseByCode(String courseCode)
+    public CourseAndClass getCourseByCode(String courseCode)
     {
-        return courseCode!=null?courseInfoDao.findByCourseCode(courseCode):null;
+        CourseClass temp=courseClassDao.findByClassCode(courseCode);
+
+        return temp!=null?new CourseAndClass(courseInfoDao.findByCourseID(temp.getCourseID()),temp):null;
     }
 
     @Override
-    public Integer joinCourse(Integer studentID, Integer courseID)
+    public Integer joinCourse(Integer studentID, Integer courseClassID)
     {
         Takes takes=new Takes();
-        takes.setCourseID(courseID);
+        takes.setCourseClassID(courseClassID);
         takes.setStudentID(studentID);
-        if(takesDao.findByStudentIDAndCourseID(studentID,courseID)==null)//该学生之前没选过这门课,且该课程存在
-            return (courseInfoDao.findByCourseID(courseID)!=null&&takesDao.saveAndFlush(takes).getId()!=null)?1:0;
+        if(takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID)==null)//该学生之前没选过这门课,且该课程存在
+            return (courseClassDao.findById(courseClassID).isPresent()&&takesDao.saveAndFlush(takes).getId()!=null)?1:0;
         else
             return -1;
     }
@@ -96,6 +112,13 @@ public class CourseServiceImp implements CourseService
     public CourseInfo getCourseInfoByID(Integer courseID)
     {
         return courseID>0?courseInfoDao.findByCourseID(courseID):null;
+    }
+
+    @Override
+    public CourseClass getClassInfoByID(Integer courseClassID)
+    {
+        Optional<CourseClass>temp=courseClassDao.findById(courseClassID);
+        return courseClassID>0?(temp.isPresent()?temp.get():null):null;
     }
 
     @Override
@@ -217,15 +240,15 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public Takes getCurrentProgress(Integer courseID, Integer studentID)
+    public Takes getCurrentProgress(Integer courseClassID, Integer studentID)
     {
-        return takesDao.findByStudentIDAndCourseID(studentID,courseID);
+        return takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);
     }
 
     @Override
-    public Integer alertCurrentProgress(Integer courseID, Integer studentID, Integer chapterID)
+    public Integer alertCurrentProgress(Integer courseClassID, Integer studentID, Integer chapterID)
     {
-        Takes t=takesDao.findByStudentIDAndCourseID(studentID,courseID);
+        Takes t=takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);
         if(t!=null)
         {
             t.setCurrentProgress(chapterID);
@@ -252,5 +275,28 @@ public class CourseServiceImp implements CourseService
         {
             //删除习题
         }
+    }
+
+    @Override
+    public ArrayList<CourseClass> getClassesByCourseID(Integer courseID)
+    {
+        if(courseInfoDao.findByCourseID(courseID)!=null)
+        {
+            return courseClassDao.findByCourseID(courseID);
+        }
+        else
+            return null;
+    }
+
+    @Override
+    public Integer deleteClass(Integer courseClassID)
+    {
+        if(courseClassDao.findById(courseClassID).isPresent())
+        {
+            courseClassDao.deleteById(courseClassID);
+            return 1;
+        }
+        else
+            return 0;
     }
 }

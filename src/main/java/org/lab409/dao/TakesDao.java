@@ -10,5 +10,5 @@ import java.util.List;
 public interface TakesDao extends JpaRepository<Takes,Integer>
 {
     List<Takes>findByStudentID(Integer studentID);
-    Takes findByStudentIDAndCourseID(Integer studentID,Integer courseID);
+    Takes findByStudentIDAndCourseClassID(Integer studentID,Integer courseClassID);
 }

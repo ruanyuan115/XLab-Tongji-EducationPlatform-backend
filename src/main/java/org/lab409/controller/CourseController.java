@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+
 @RestController
 public class CourseController
 {
@@ -21,6 +23,15 @@ public class CourseController
         resultEntity.setMessage(resultEntity.getState()==1?"新增课程成功！":"新增课程失败！");
         return resultEntity;
     }
+    @PostMapping(value = "/addClass")
+    public ResultEntity addClass(CourseClass courseClass)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.addClass(courseClass));
+        resultEntity.setData(courseClass);
+        resultEntity.setMessage(resultEntity.getState()==1?"新增班级成功！":"新增班级失败！");
+        return resultEntity;
+    }
     @GetMapping(value = "/getCourseByCode")
     public ResultEntity getCourseByCode(String courseCode)
     {
@@ -31,10 +42,10 @@ public class CourseController
         return resultEntity;
     }
     @GetMapping(value = "/joinCourse")
-    public ResultEntity joinCourse(Integer studentID,Integer courseID)
+    public ResultEntity joinCourse(Integer studentID,Integer courseClassID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setState(courseService.joinCourse(studentID,courseID));
+        resultEntity.setState(courseService.joinCourse(studentID,courseClassID));
         resultEntity.setMessage(resultEntity.getState()==1?"选课成功！":"选课失败！");
         return resultEntity;
     }
@@ -89,6 +100,25 @@ public class CourseController
         }
         return resultEntity;
     }
+    @PostMapping(value = "/alterClassInfo")
+    public ResultEntity alterClassInfo(CourseClass courseClass)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        CourseClass temp=courseService.getClassInfoByID(courseClass.getId());
+        if (temp!=null)
+        {
+            courseClass.setCreateTime(temp.getCreateTime());
+            //courseInfo.setUpdateTime(temp.getUpdateTime());
+            resultEntity.setState(courseService.addClass(courseClass));
+            resultEntity.setMessage(resultEntity.getState()==1?"修改成功！":"修改失败！");
+        }
+        else
+        {
+            resultEntity.setState(0);
+            resultEntity.setMessage("该班级不存在！");
+        }
+        return resultEntity;
+    }
     @GetMapping(value = "/getCourseInfoByID")
     public ResultEntity getCourseInfoByID(Integer courseID)
     {
@@ -98,11 +128,20 @@ public class CourseController
         resultEntity.setMessage(resultEntity.getData()!=null?"":"不存在该课程！");
         return resultEntity;
     }
+    @GetMapping(value = "/getClassInfoByID")
+    public ResultEntity getClassInfoByID(Integer courseClassID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getClassInfoByID(courseClassID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        resultEntity.setMessage(resultEntity.getData()!=null?"":"不存在该班级！");
+        return resultEntity;
+    }
     @GetMapping(value = "/deleteCourse")
     public ResultEntity deleteCourse(Integer courseID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setState(courseService.deleteCourse(courseID));
+
         courseService.deleteCourseNotice(courseID);                        //删除对应的课程公告
 
         CourseCatalog courseCatalog=new CourseCatalog();
@@ -110,6 +149,10 @@ public class CourseController
         courseCatalog.getChapterNode().setParentID(-1);
         courseService.deleteChapter(courseCatalog);                        //级联删除章节和习题
 
+        ArrayList<CourseClass>arrayList=courseService.getClassesByCourseID(courseID);
+        for(CourseClass i:arrayList)
+            courseService.deleteClass(i.getId());                          //删除班级信息
+        resultEntity.setState(courseService.deleteCourse(courseID));       //最后删除课程信息
         resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"该课程不存在，删除失败！");
         return resultEntity;
     }
@@ -173,19 +216,19 @@ public class CourseController
         return resultEntity;
     }
     @GetMapping(value = "/getCurrentProgress")
-    public ResultEntity getCurrentProgress(Integer courseID,Integer studentID)
+    public ResultEntity getCurrentProgress(Integer courseClassID,Integer studentID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setData(courseService.getCurrentProgress(courseID,studentID));
+        resultEntity.setData(courseService.getCurrentProgress(courseClassID,studentID));
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         resultEntity.setMessage(resultEntity.getData()!=null?"":"选课状态有误！");
         return resultEntity;
     }
     @GetMapping(value = "/alertCurrentProgress")
-    public ResultEntity alertCurrentProgress(Integer courseID,Integer studentID,Integer chapterID)
+    public ResultEntity alertCurrentProgress(Integer courseClassID,Integer studentID,Integer chapterID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setState(courseService.alertCurrentProgress(courseID,studentID,chapterID));
+        resultEntity.setState(courseService.alertCurrentProgress(courseClassID,studentID,chapterID));
         resultEntity.setMessage(resultEntity.getState()==1?"修改成功！":"无该选课记录！");
         return resultEntity;
     }
@@ -204,6 +247,22 @@ public class CourseController
         else
             resultEntity.setState(0);
         resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"删除失败！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/getClassesByCourseID")
+    public ResultEntity getClassesByCourseID(Integer courseID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getClassesByCourseID(courseID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        return resultEntity;
+    }
+    @GetMapping(value = "/deleteClass")
+    public ResultEntity deleteClass(Integer courseClassID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.deleteClass(courseClassID));
+        resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"该班级并不存在！");
         return resultEntity;
     }
 }

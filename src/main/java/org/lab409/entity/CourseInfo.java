@@ -45,7 +45,5 @@ public class CourseInfo
     private Date endTime;
     @Column(name = "current_exercise")
     private String currentExerciseChapter;
-    @Column(name = "course_code" )
-    private String courseCode;
 
 }

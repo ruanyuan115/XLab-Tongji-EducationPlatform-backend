@@ -10,11 +10,11 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "takes")
+@Table(name = "course_class")
 @DynamicInsert
-@EntityListeners(AuditingEntityListener.class)
 @Data
-public class Takes
+@EntityListeners(AuditingEntityListener.class)
+public class CourseClass
 {
     @Id
     @Column(name = "id")
@@ -26,10 +26,10 @@ public class Takes
     @Column(name = "update_time")
     @LastModifiedDate
     private Timestamp updateTime;
-    @Column(name = "student_id")
-    private Integer studentID;
-    @Column(name = "course_class_id")
-    private Integer courseClassID;
-    @Column(name = "current_progress")
-    private Integer currentProgress;
+    @Column(name = "course_id")
+    private Integer courseID;
+    @Column(name = "class_num")
+    private Integer classNum;
+    @Column(name = "class_code")
+    private String classCode;
 }
