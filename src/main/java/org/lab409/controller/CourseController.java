@@ -145,8 +145,8 @@ public class CourseController
         courseService.deleteCourseNotice(courseID);                        //删除对应的课程公告
 
         CourseCatalog courseCatalog=new CourseCatalog();
-        courseCatalog.getChapterNode().setId(0);
-        courseCatalog.getChapterNode().setParentID(-1);
+        courseCatalog.setId(0);
+        courseCatalog.setParentID(-1);
         courseService.deleteChapter(courseCatalog);                        //级联删除章节和习题
 
         ArrayList<CourseClass>arrayList=courseService.getClassesByCourseID(courseID);

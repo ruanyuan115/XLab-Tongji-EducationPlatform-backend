@@ -183,7 +183,7 @@ public class CourseServiceImp implements CourseService
     }
     private void getSubNodes(CourseCatalog courseCatalog,ArrayList<ChapterNode>chapterNodes)
     {
-        Integer parentID=courseCatalog.getChapterNode().getId();
+        Integer parentID=courseCatalog.getId();
         Integer siblingID=0;
         Iterator<ChapterNode> it=chapterNodes.iterator();
         while (it.hasNext())//如果还有没被加入的节点
@@ -229,7 +229,7 @@ public class CourseServiceImp implements CourseService
             ArrayList<StudentChapter>arrayList=new ArrayList<>();
             for(CourseCatalog i:bookCatalog.getSubCatalog())
             {
-                StudentChapter temp=studentChapterDao.findByChapterIDAndStudentID(i.getChapterNode().getId(),studentID);
+                StudentChapter temp=studentChapterDao.findByChapterIDAndStudentID(i.getId(),studentID);
                 if (temp!=null)
                     arrayList.add(temp);
             }
@@ -262,16 +262,16 @@ public class CourseServiceImp implements CourseService
     @Override
     public void deleteChapter(CourseCatalog courseCatalog)
     {
-        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseID(courseCatalog.getChapterNode().getCourseID());
+        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseID(courseCatalog.getCourseID());
         getSubNodes(courseCatalog,chapterNodes);
         Iterator<CourseCatalog>it=courseCatalog.getSubCatalog().iterator();
         while (it.hasNext())
         {
             deleteChapter(it.next());
         }
-        if(courseCatalog.getChapterNode().getId()>0)
-            chapterContentDao.deleteById(courseCatalog.getChapterNode().getId());
-        if(courseCatalog.getChapterNode().getParentID()==0)//为章节点 需要删除习题
+        if(courseCatalog.getId()>0)
+            chapterContentDao.deleteById(courseCatalog.getId());
+        if(courseCatalog.getParentID()==0)//为章节点 需要删除习题
         {
             //删除习题
         }

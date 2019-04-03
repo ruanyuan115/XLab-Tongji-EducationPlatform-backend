@@ -44,6 +44,6 @@ public class CourseInfo
     @Column(name = "end_time")
     private Date endTime;
     @Column(name = "current_exercise")
-    private String currentExerciseChapter;
+    private Integer currentExerciseChapter;
 
 }
