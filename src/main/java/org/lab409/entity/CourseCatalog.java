@@ -17,6 +17,7 @@ public class CourseCatalog
     private Integer parentID;
     private Integer siblingID;
     private String content;
+    private String exerciseTitle;
     private Boolean exerciseVisible_1;
     private Boolean exerciseVisible_2;
     private Date exerciseDeadline_1;
@@ -38,6 +39,7 @@ public class CourseCatalog
         this.parentID=chapterNode.getParentID();
         this.siblingID=chapterNode.getSiblingID();
         this.content=chapterNode.getContent();
+        this.exerciseTitle=chapterNode.getExerciseTitle();
         this.exerciseVisible_1=chapterNode.getExerciseVisible_1();
         this.exerciseVisible_2=chapterNode.getExerciseVisible_2();
         this.exerciseDeadline_1=chapterNode.getExerciseDeadline_1();

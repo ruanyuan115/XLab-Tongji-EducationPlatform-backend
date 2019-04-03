@@ -37,6 +37,8 @@ public class ChapterNode
     private Integer siblingID;
     @Column(name = "content")
     private String content;
+    @Column(name = "exercise_title")
+    private String exerciseTitle;
     @Column(name = "exercise_visible_1")
     private Boolean exerciseVisible_1;
     @Column(name = "exercise_visible_2")
