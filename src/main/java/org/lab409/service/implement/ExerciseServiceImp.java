@@ -25,10 +25,39 @@ public class ExerciseServiceImp implements ExerciseService{
     private StudentExerciseScoreDao  studentExerciseScoreDao;
     @Override
     @Transactional
+    public ResultEntity findOneExerice(Integer exerciseId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(exerciseId!=null){
+            Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
+            if (exercise!=null)
+            {
+                if(exercise.getExerciseType()==1){
+                    List<ExerciseChoice> exerciseChoices=exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exerciseId);
+                    resultEntity.setData(new ExerciseSet(exercise,exerciseChoices));
+                }
+                else
+                    resultEntity.setData(new ExerciseSet(exercise));
+                resultEntity.setState(1);
+                resultEntity.setMessage("搜索习题成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("搜索习题失败！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+    @Override
+    @Transactional
     public ResultEntity addExercise(Exercise exercise){
         ResultEntity resultEntity=new ResultEntity();
         if(exercise!=null){
-            System.out.print(exercise.getExerciseType());
             resultEntity.setData(exerciseDao.saveAndFlush(exercise));
 
             if (resultEntity.getData()!=null)
@@ -39,6 +68,57 @@ public class ExerciseServiceImp implements ExerciseService{
             else
             {
                 resultEntity.setMessage("创建习题失败！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+    @Override
+    @Transactional
+    public ResultEntity deleteExercise(Integer exerciseId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(exerciseId!=null){
+            Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
+            if (exercise!=null)
+            {
+                exerciseDao.delete(exercise);
+                exerciseDao.flush();
+                resultEntity.setState(1);
+                resultEntity.setMessage("习题删除成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("未找到对应习题！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+    @Override
+    @Transactional
+    public ResultEntity alterExercise(Exercise exercise){
+        ResultEntity resultEntity=new ResultEntity();
+        if(exercise!=null){
+            Exercise exercise1=exerciseDao.findByExerciseId(exercise.getExerciseId());
+            resultEntity.setData(exerciseDao.saveAndFlush(exercise));
+            if (exercise1!=null)
+            {
+                resultEntity.setState(1);
+                resultEntity.setMessage("习题修改成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("未找到对应习题！");
                 resultEntity.setState(0);
             }
         }
@@ -63,6 +143,82 @@ public class ExerciseServiceImp implements ExerciseService{
             else
             {
                 resultEntity.setMessage("创建选项失败！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+    @Override
+    @Transactional
+    public ResultEntity deleteExerciseChoice(Integer exerciseChoiceId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(exerciseChoiceId!=null){
+            ExerciseChoice exerciseChoice=exerciseChoiceDao.findById(exerciseChoiceId.intValue());
+            if (exerciseChoice!=null)
+            {
+                exerciseChoiceDao.delete(exerciseChoice);
+                exerciseChoiceDao.flush();
+                resultEntity.setState(1);
+                resultEntity.setMessage("选项删除成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("未找到对应选项！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+    @Override
+    @Transactional
+    public ResultEntity alterExerciseChoice(ExerciseChoice exerciseChoice){
+        ResultEntity resultEntity=new ResultEntity();
+        if(exerciseChoice!=null){
+            ExerciseChoice exerciseChoice1=exerciseChoiceDao.findById(exerciseChoice.getId());
+            resultEntity.setData(exerciseChoiceDao.saveAndFlush(exerciseChoice));
+            if (exerciseChoice1!=null)
+            {
+                resultEntity.setState(1);
+                resultEntity.setMessage("选项修改成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("未找到对应选项！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+    @Override
+    @Transactional
+    public ResultEntity findOneAnswer(Integer exerciseId,Integer studentId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(exerciseId!=null&&studentId!=null){
+            StudentExerciseScore studentExerciseScore=studentExerciseScoreDao.findByExerciseIdAndStudentId(exerciseId,studentId);
+            if (studentExerciseScore!=null)
+            {
+                resultEntity.setData(studentExerciseScore);
+                resultEntity.setState(1);
+                resultEntity.setMessage("学生答案搜寻成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("未找到对应学生答案！");
                 resultEntity.setState(0);
             }
         }
@@ -103,6 +259,32 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         return resultEntity;
 
+    }
+    @Override
+    @Transactional
+    public ResultEntity alterAnswer(String answer,Integer exerciseId,Integer studentId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(exerciseId!=null&&studentId!=null){
+            StudentExerciseScore studentExerciseScore=studentExerciseScoreDao.findByExerciseIdAndStudentId(exerciseId,studentId);
+            if (studentExerciseScore!=null)
+            {
+                studentExerciseScore.setStudentAnswer(answer);
+                resultEntity.setData(studentExerciseScoreDao.saveAndFlush(studentExerciseScore));
+                resultEntity.setState(1);
+                resultEntity.setMessage("学生答案修改成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("未找到对应学生答案！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
     }
     @Override
     @Transactional

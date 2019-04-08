@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
+
 @RestController
 @RequestMapping("/question")
 public class ExerciseController {
@@ -25,9 +27,24 @@ public class ExerciseController {
     @Autowired
     private HttpServletRequest request;
 
+    @GetMapping(value = "/findOneExercise")
+    public ResultEntity findOneExercise(Integer exerciseId){
+        return exerciseService.findOneExerice(exerciseId);
+    }
+
     @PostMapping(value = "/addExercise")
     public ResultEntity addExercise(Exercise exercise){
         return exerciseService.addExercise(exercise);
+    }
+
+    @PutMapping(value = "/deleteExercise")
+    public ResultEntity deleteExercise(Integer exerciseId){
+        return exerciseService.deleteExercise(exerciseId);
+    }
+
+    @PutMapping(value = "/alterExercise")
+    public ResultEntity alterExercise(Exercise exercise){
+        return exerciseService.alterExercise(exercise);
     }
 
     @PostMapping(value = "/addChoice")
@@ -35,9 +52,29 @@ public class ExerciseController {
         return exerciseService.addExerciseChoice(exerciseChoice);
     }
 
+    @PutMapping(value = "/deleteChoice")
+    public ResultEntity deleteChoice(Integer exerciseChoiceId){
+        return exerciseService.deleteExerciseChoice(exerciseChoiceId);
+    }
+
+    @PutMapping(value = "/alterChoice")
+    public ResultEntity alterChoice(ExerciseChoice exerciseChoice){
+        return exerciseService.alterExerciseChoice(exerciseChoice);
+    }
+
+    @PostMapping(value = "/findOneAnswer")
+    public ResultEntity findOneAnswer(Integer exerciseId,Integer studentId){
+        return exerciseService.findOneAnswer(exerciseId,studentId);
+    }
+
     @PostMapping(value = "/addAnswer")
     public ResultEntity addAnswer(String answer,Integer exerciseId,Integer userId){
         return exerciseService.answerOne(answer,exerciseId,userId);
+    }
+
+    @PutMapping(value = "/alterAnswer")
+    public ResultEntity alterAnswer(String answer,Integer exerciseId,Integer studentId){
+        return exerciseService.alterAnswer(answer,exerciseId,studentId);
     }
 
     @PutMapping(value = "/correctOne")
@@ -48,5 +85,19 @@ public class ExerciseController {
     @GetMapping(value = "/view")
     public ResultEntity viewExercise(Integer chapterId,String type){
         return exerciseService.viewExercise(chapterId,type);
+    }
+
+    @GetMapping(value = "/getScore")
+    public ResultEntity getScore(Integer chapterId,Integer studentId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(chapterId!=null&&studentId!=null){
+            resultEntity.setData(exerciseService.calculateScore(chapterId,studentId));
+            resultEntity.setState(1);
+            resultEntity.setMessage("查看成功！");
+        }
+        else{
+            resultEntity.setMessage("有输入为空！");
+            resultEntity.setState(0);
+        }
     }
 }
