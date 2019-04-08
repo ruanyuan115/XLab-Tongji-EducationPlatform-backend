@@ -26,4 +26,8 @@ public interface CourseService
     void deleteChapter(CourseCatalog courseCatalog);
     ArrayList<CourseClass>getClassesByCourseID(Integer courseID);
     Integer deleteClass(Integer courseClassID);
+    ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID);
+    ArrayList<UserInfo>getStudentsByClassID(Integer courseClassId);
+    StudyInfo getStudyInfo(Integer studentID,Integer courseClassID);
+
 }

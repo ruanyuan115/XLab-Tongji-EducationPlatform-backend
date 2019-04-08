@@ -265,4 +265,41 @@ public class CourseController
         resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"该班级并不存在！");
         return resultEntity;
     }
+    @GetMapping(value = "/getCoursesByTeacherID")
+    public ResultEntity getCoursesByTeacherID(Integer teacherID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCoursesByTeacherID(teacherID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        resultEntity.setMessage(resultEntity.getData()!=null?"":"无该老师的课程！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/getStudentsByClassID")
+    public ResultEntity getStudentsByClassID(Integer courseClassID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getStudentsByClassID(courseClassID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        resultEntity.setMessage(resultEntity.getData()!=null?"":"尚无学生进入该班级！");
+        return resultEntity;
+    }
+    @PostMapping(value = "/alertChapterExerciseTitle")
+    public ResultEntity alertChapterExerciseTitle(Integer chapterID,String title)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        ChapterNode temp=courseService.getChapterByID(chapterID);
+        if(temp!=null)//如果有该章节
+        {
+            temp.setExerciseTitle(title);
+            resultEntity.setData(courseService.addChapter(temp));
+            resultEntity.setState(1);
+            resultEntity.setMessage("修改成功！");
+        }
+        else
+        {
+            resultEntity.setState(0);
+            resultEntity.setMessage("该章节不存在！");
+        }
+        return resultEntity;
+    }
 }

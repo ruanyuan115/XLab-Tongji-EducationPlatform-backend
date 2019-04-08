@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -298,5 +299,52 @@ public class CourseServiceImp implements CourseService
         }
         else
             return 0;
+    }
+
+    @Override
+    public ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID)
+    {
+        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByTeacherID(teacherID);
+        if (courseInfos.size()>0)
+        {
+            ArrayList<CourseAndClass>courseAndClasses=new ArrayList<>();
+            for (CourseInfo i:courseInfos)
+            {
+                ArrayList<CourseClass>classes=courseClassDao.findByCourseID(i.getCourseID());
+                for (CourseClass j:classes)
+                {
+                    courseAndClasses.add(new CourseAndClass(i,j));
+                }
+            }
+            return courseAndClasses;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    @Override
+    public ArrayList<UserInfo> getStudentsByClassID(Integer courseClassId)
+    {
+        ArrayList<Takes>takes=takesDao.findByCourseClassID(courseClassId);
+        if (takes.size()>0)
+        {
+            ArrayList<UserInfo>userInfos=new ArrayList<>();
+            for (Takes i:takes)
+            {
+                UserInfo userInfo=new UserInfo(userDao.findById(i.getStudentID()).get());
+                userInfos.add(userInfo);
+            }
+            return userInfos;
+        }
+        else
+            return null;
+    }
+
+    @Override
+    public StudyInfo getStudyInfo(Integer studentID, Integer courseClassID)
+    {
+         return null;
     }
 }

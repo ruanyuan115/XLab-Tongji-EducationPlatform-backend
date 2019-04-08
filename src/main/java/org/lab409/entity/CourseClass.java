@@ -32,4 +32,6 @@ public class CourseClass
     private Integer classNum;
     @Column(name = "class_code")
     private String classCode;
+    @Column(name = "current_exercise")
+    private Integer currentExerciseChapter;
 }
