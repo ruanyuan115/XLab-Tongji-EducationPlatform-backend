@@ -19,5 +19,6 @@ public interface ExerciseService {
     ResultEntity alterAnswer(String answer,Integer exerciseId,Integer studentId);
     ResultEntity correctOne(Integer studentExerciseScoreId,Integer score);
     ResultEntity viewExercise(Integer chapterId,String type);
+    ResultEntity viewSomeAnswer(Integer chapterId,Integer studentId,String type);
     int calculateScore(Integer chapterId,Integer studentId);
 }

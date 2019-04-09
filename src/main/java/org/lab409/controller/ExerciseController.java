@@ -92,6 +92,11 @@ public class ExerciseController {
         return exerciseService.viewExercise(chapterId,type);
     }
 
+    @GetMapping(value = "/viewSomeAnswer")
+    public ResultEntity viewSomeAnswer(Integer chapterId,Integer studentId,String type){
+        return exerciseService.viewSomeAnswer(chapterId,studentId,type);
+    }
+
     @GetMapping(value = "/getScore")
     public ResultEntity getScore(Integer chapterId,Integer studentId){
         ResultEntity resultEntity=new ResultEntity();

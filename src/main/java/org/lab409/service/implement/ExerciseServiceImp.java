@@ -382,6 +382,50 @@ public class ExerciseServiceImp implements ExerciseService{
     }
     @Override
     @Transactional
+    public ResultEntity viewSomeAnswer(Integer chapterId,Integer studentId,String type){
+        ResultEntity resultEntity=new ResultEntity();
+        if(chapterId!=null&&studentId!=null){
+            List<ExerciseSet> exerciseSets=new ArrayList<>();
+            int type1=0;
+            int type2=0;
+            if(type.equals("preview")){
+                type1=1;
+                type2=2;
+            }
+            else{
+                type1=3;
+                type2=4;
+            }
+            List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+            for (Exercise exercise:exercises){
+                exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId()),studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getStudentAnswer()));
+            }
+            exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
+            for (Exercise exercise:exercises){
+                exerciseSets.add(new ExerciseSet(exercise,studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getStudentAnswer()));
+            }
+            resultEntity.setData(exerciseSets);
+            if (resultEntity.getData()!=null)
+            {
+                resultEntity.setState(1);
+                resultEntity.setMessage("查看成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("查看失败！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @Override
+    @Transactional
     public int calculateScore(Integer chapterId,Integer studentId){
         List<Exercise> exercises=exerciseDao.findByChapterId(chapterId);
         int score=0;
