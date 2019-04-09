@@ -343,6 +343,12 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    public List<CourseInfo> getAllCourses()
+    {
+        return courseInfoDao.findAll();
+    }
+
+    @Override
     public StudyInfo getStudyInfo(Integer studentID, Integer courseClassID)
     {
          return null;

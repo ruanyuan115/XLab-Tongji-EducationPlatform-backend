@@ -302,4 +302,12 @@ public class CourseController
         }
         return resultEntity;
     }
+    @GetMapping(value = "/getAllCourses")
+    public ResultEntity getAllCourses()
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getAllCourses());
+        resultEntity.setState(1);
+        return resultEntity;
+    }
 }

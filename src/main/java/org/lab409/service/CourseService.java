@@ -3,6 +3,7 @@ package org.lab409.service;
 import org.lab409.entity.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface CourseService
 {
@@ -29,5 +30,5 @@ public interface CourseService
     ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID);
     ArrayList<UserInfo>getStudentsByClassID(Integer courseClassId);
     StudyInfo getStudyInfo(Integer studentID,Integer courseClassID);
-
+    List<CourseInfo> getAllCourses();
 }
