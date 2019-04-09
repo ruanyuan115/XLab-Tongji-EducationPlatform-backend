@@ -109,5 +109,6 @@ public class ExerciseController {
             resultEntity.setMessage("有输入为空！");
             resultEntity.setState(0);
         }
+        return resultEntity;
     }
 }

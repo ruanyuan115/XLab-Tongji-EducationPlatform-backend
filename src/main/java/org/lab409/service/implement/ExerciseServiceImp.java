@@ -184,7 +184,7 @@ public class ExerciseServiceImp implements ExerciseService{
     public ResultEntity alterExerciseChoice(ExerciseChoice exerciseChoice){
         ResultEntity resultEntity=new ResultEntity();
         if(exerciseChoice!=null){
-            ExerciseChoice exerciseChoice1=exerciseChoiceDao.findById(exerciseChoice.getId());
+            ExerciseChoice exerciseChoice1=exerciseChoiceDao.findById(exerciseChoice.getId().intValue());
             resultEntity.setData(exerciseChoiceDao.saveAndFlush(exerciseChoice));
             if (exerciseChoice1!=null)
             {
