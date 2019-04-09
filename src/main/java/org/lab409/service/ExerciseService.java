@@ -14,6 +14,7 @@ public interface ExerciseService {
     ResultEntity deleteExerciseChoice(Integer exerciseChoiceId);
     ResultEntity alterExerciseChoice(ExerciseChoice exerciseChoice);
     ResultEntity findOneAnswer(Integer exerciseId,Integer studentId);
+    ResultEntity findOneAnswerById(Integer studentExerciseScoreId);
     ResultEntity answerOne(String answer,Integer exerciseId,Integer studentId);
     ResultEntity alterAnswer(String answer,Integer exerciseId,Integer studentId);
     ResultEntity correctOne(Integer studentExerciseScoreId,Integer score);

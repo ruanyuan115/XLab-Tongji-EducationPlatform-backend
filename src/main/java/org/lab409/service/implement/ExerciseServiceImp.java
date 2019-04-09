@@ -206,6 +206,31 @@ public class ExerciseServiceImp implements ExerciseService{
     }
     @Override
     @Transactional
+    public ResultEntity findOneAnswerById(Integer studentExerciseScoreId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(studentExerciseScoreId!=null){
+            StudentExerciseScore studentExerciseScore=studentExerciseScoreDao.findById(studentExerciseScoreId.intValue());
+            if (studentExerciseScore!=null)
+            {
+                resultEntity.setData(studentExerciseScore);
+                resultEntity.setState(1);
+                resultEntity.setMessage("学生答案搜寻成功！");
+            }
+            else
+            {
+                resultEntity.setMessage("未找到对应学生答案！");
+                resultEntity.setState(0);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+    @Override
+    @Transactional
     public ResultEntity findOneAnswer(Integer exerciseId,Integer studentId){
         ResultEntity resultEntity=new ResultEntity();
         if(exerciseId!=null&&studentId!=null){

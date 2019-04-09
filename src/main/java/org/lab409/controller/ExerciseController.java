@@ -62,9 +62,14 @@ public class ExerciseController {
         return exerciseService.alterExerciseChoice(exerciseChoice);
     }
 
-    @PostMapping(value = "/findOneAnswer")
+    @GetMapping(value = "/findOneAnswer")
     public ResultEntity findOneAnswer(Integer exerciseId,Integer studentId){
         return exerciseService.findOneAnswer(exerciseId,studentId);
+    }
+
+    @GetMapping(value = "/findOneAnswerById")
+    public ResultEntity findOneAnswerById(Integer studentExerciseScoreId){
+        return exerciseService.findOneAnswerById(studentExerciseScoreId);
     }
 
     @PostMapping(value = "/addAnswer")
