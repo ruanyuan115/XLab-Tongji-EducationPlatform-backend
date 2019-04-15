@@ -315,7 +315,8 @@ public class ExerciseServiceImp implements ExerciseService{
             StudentChapter studentChapter=new StudentChapter();
             studentChapter.setChapterID(chapterId);
             studentChapter.setStudentID(studentId);
-            studentChapter.setRate(rate);
+            if(type.equals("review"))
+                studentChapter.setRate(rate);
             studentChapterDao.saveAndFlush(studentChapter);
         }
         else
