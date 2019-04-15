@@ -1,12 +1,9 @@
 package org.lab409.service.implement;
 import org.lab409.dao.ExerciseDao;
 import org.lab409.dao.ExerciseChoiceDao;
+import org.lab409.dao.StudentChapterDao;
 import org.lab409.dao.StudentExerciseScoreDao;
-import org.lab409.entity.ResultEntity;
-import org.lab409.entity.Exercise;
-import org.lab409.entity.ExerciseChoice;
-import org.lab409.entity.StudentExerciseScore;
-import org.lab409.entity.ExerciseSet;
+import org.lab409.entity.*;
 import org.lab409.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +20,8 @@ public class ExerciseServiceImp implements ExerciseService{
     private ExerciseChoiceDao  exerciseChoiceDao;
     @Autowired
     private StudentExerciseScoreDao  studentExerciseScoreDao;
+    @Autowired
+    private StudentChapterDao studentChapterDao;
     @Override
     @Transactional
     public ResultEntity findOneExerice(Integer exerciseId){
@@ -31,7 +30,7 @@ public class ExerciseServiceImp implements ExerciseService{
             Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
             if (exercise!=null)
             {
-                if(exercise.getExerciseType()==1){
+                if(exercise.getExerciseType()%2==1){
                     List<ExerciseChoice> exerciseChoices=exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exerciseId);
                     resultEntity.setData(new ExerciseSet(exercise,exerciseChoices));
                 }
@@ -284,6 +283,47 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         return resultEntity;
 
+    }
+    @Override
+    @Transactional
+    public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, Integer rate){
+        ResultEntity resultEntity=new ResultEntity();
+        if(answers!=null&&rate!=null&&chapterId!=null&&studentId!=null){
+            List<ExerciseSet> exerciseSets=new ArrayList<>();
+            int type1=0;
+            int type2=0;
+            if(type.equals("preview")){
+                type1=1;
+                type2=2;
+            }
+            else{
+                type1=3;
+                type2=4;
+            }
+            List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+            for (Exercise exercise:exercises){
+                exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));
+            }
+            exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
+            for (Exercise exercise:exercises){
+                exerciseSets.add(new ExerciseSet(exercise));
+            }
+            int count=0;
+            for(String answer:answers){
+                answerOne(answer,exerciseSets.get(count).getExercise().getExerciseId(),studentId);
+            }
+            StudentChapter studentChapter=new StudentChapter();
+            studentChapter.setChapterID(chapterId);
+            studentChapter.setStudentID(studentId);
+            studentChapter.setRate(rate);
+            studentChapterDao.saveAndFlush(studentChapter);
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数有空值！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
     }
     @Override
     @Transactional

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/question")
@@ -75,6 +76,11 @@ public class ExerciseController {
     @PostMapping(value = "/addAnswer")
     public ResultEntity addAnswer(String answer,Integer exerciseId,Integer userId){
         return exerciseService.answerOne(answer,exerciseId,userId);
+    }
+
+    @PostMapping(value= "/AnswerAll")
+    public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, Integer rate){
+        return exerciseService.answerAll(answers,studentId,chapterId,type,rate);
     }
 
     @PutMapping(value = "/alterAnswer")

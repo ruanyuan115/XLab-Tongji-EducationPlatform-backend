@@ -5,9 +5,12 @@ import org.lab409.entity.ExerciseChoice;
 import org.lab409.entity.StudentExerciseScore;
 import org.lab409.entity.ResultEntity;
 
+import java.util.List;
+
 public interface ExerciseService {
     ResultEntity findOneExerice(Integer exerciseId);
     ResultEntity addExercise(Exercise exercise);
+    ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, Integer rate);
     ResultEntity deleteExercise(Integer exerciseId);
     ResultEntity alterExercise(Exercise exercise);
     ResultEntity addExerciseChoice(ExerciseChoice exerciseChoice);
