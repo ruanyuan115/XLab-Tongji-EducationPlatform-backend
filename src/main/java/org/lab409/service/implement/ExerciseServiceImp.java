@@ -30,7 +30,7 @@ public class ExerciseServiceImp implements ExerciseService{
             Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
             if (exercise!=null)
             {
-                if(exercise.getExerciseType()%2==1){
+                if(exercise.getExerciseType()%3!=0){
                     List<ExerciseChoice> exerciseChoices=exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exerciseId);
                     resultEntity.setData(new ExerciseSet(exercise,exerciseChoices));
                 }
@@ -260,7 +260,7 @@ public class ExerciseServiceImp implements ExerciseService{
         StudentExerciseScore studentExerciseScore=new StudentExerciseScore(studentId,exerciseId,answer,0);
         Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
         if(studentExerciseScore!=null){
-            if(exercise.getExerciseType()%2!=0){
+            if(exercise.getExerciseType()%3!=0){
                 if(answer.equals(exercise.getExerciseAnswer()))
                     studentExerciseScore.setExerciseScore(exercise.getExercisePoint());
             }
@@ -292,15 +292,22 @@ public class ExerciseServiceImp implements ExerciseService{
             List<ExerciseSet> exerciseSets=new ArrayList<>();
             int type1=0;
             int type2=0;
+            int type3=0;
             if(type.equals("preview")){
                 type1=1;
-                type2=2;
+                type3=2;
+                type2=3;
             }
             else{
-                type1=3;
-                type2=4;
+                type1=4;
+                type3=5;
+                type2=6;
             }
             List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+            for (Exercise exercise:exercises){
+                exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));
+            }
+            exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type3);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));
             }
@@ -386,15 +393,22 @@ public class ExerciseServiceImp implements ExerciseService{
             List<ExerciseSet> exerciseSets=new ArrayList<>();
             int type1=0;
             int type2=0;
+            int type3=0;
             if(type.equals("preview")){
                 type1=1;
-                type2=2;
+                type3=2;
+                type2=3;
             }
             else{
-                type1=3;
-                type2=4;
+                type1=4;
+                type3=5;
+                type2=6;
             }
             List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+            for (Exercise exercise:exercises){
+                exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));
+            }
+            exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type3);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));
             }
@@ -429,15 +443,22 @@ public class ExerciseServiceImp implements ExerciseService{
             List<ExerciseSet> exerciseSets=new ArrayList<>();
             int type1=0;
             int type2=0;
+            int type3=0;
             if(type.equals("preview")){
                 type1=1;
-                type2=2;
+                type2=3;
+                type3=2;
             }
             else{
-                type1=3;
-                type2=4;
+                type1=4;
+                type2=6;
+                type3=5;
             }
             List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+            for (Exercise exercise:exercises){
+                exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId()),studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getStudentAnswer()));
+            }
+            exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type3);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId()),studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getStudentAnswer()));
             }
