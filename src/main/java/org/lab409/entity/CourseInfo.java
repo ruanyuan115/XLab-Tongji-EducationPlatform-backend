@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 @DynamicInsert
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class CourseInfo
+public class CourseInfo implements Cloneable
 {
     @Id
     @Column(name = "course_id")
@@ -44,4 +44,18 @@ public class CourseInfo
     @Column(name = "end_time")
     private Date endTime;
 
+    public CourseInfo clone()throws CloneNotSupportedException
+    {
+        CourseInfo o =null;
+        try
+        {
+            o=(CourseInfo)super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            e.printStackTrace();
+        }
+        return o;
+
+    }
 }

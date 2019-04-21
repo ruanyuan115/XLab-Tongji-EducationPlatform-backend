@@ -48,8 +48,9 @@ public class CourseServiceImp implements CourseService
     @Override
     public Integer addClass(CourseClass courseClass)
     {
-        if (courseClass!=null)
+        if (courseClass!=null&&courseClassDao.findByCourseIDAndClassNum(courseClass.getCourseID(),courseClass.getClassNum())==null)
         {
+            courseClass.setClassCode(""+new Date().hashCode());
             return courseClassDao.saveAndFlush(courseClass).getId()!=null?1:0;
         }
         else
@@ -57,7 +58,22 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<CourseAndClass> getStuCourseList(Integer studentID)
+    public Integer alertClassInfo(CourseClass courseClass)
+    {
+        if (courseClass!=null)
+        {
+            CourseClass temp=courseClassDao.findByCourseIDAndClassNum(courseClass.getCourseID(),courseClass.getClassNum());
+            if(temp==null||temp.getId().equals(courseClass.getId()))//要么是更改第几班 要么更改当前作业进度
+                return courseClassDao.saveAndFlush(courseClass).getId()!=null?1:0;
+            else
+                return -1;
+        }
+        else
+            return 0;
+    }
+
+    @Override
+    public ArrayList<CourseAndClass> getStuCourseList(Integer studentID)throws CloneNotSupportedException
     {
         if(studentID>0)
         {
@@ -79,7 +95,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public CourseAndClass getCourseByCode(String courseCode)
+    public CourseAndClass getCourseByCode(String courseCode)throws CloneNotSupportedException
     {
         CourseClass temp=courseClassDao.findByClassCode(courseCode);
 
@@ -305,7 +321,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID)
+    public ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID)throws CloneNotSupportedException
     {
         ArrayList<CourseInfo>courseInfos=courseInfoDao.findByTeacherID(teacherID);
         if (courseInfos.size()>0)

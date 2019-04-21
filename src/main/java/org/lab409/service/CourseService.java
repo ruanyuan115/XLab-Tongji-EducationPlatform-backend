@@ -9,8 +9,9 @@ public interface CourseService
 {
     Integer addNewCourse(CourseInfo courseInfo);
     Integer addClass(CourseClass courseClass);
-    ArrayList<CourseAndClass> getStuCourseList(Integer studentID);
-    CourseAndClass getCourseByCode(String courseCode);
+    Integer alertClassInfo(CourseClass courseClass);
+    ArrayList<CourseAndClass> getStuCourseList(Integer studentID)throws CloneNotSupportedException;
+    CourseAndClass getCourseByCode(String courseCode)throws CloneNotSupportedException;
     Integer joinCourse(Integer studentID,Integer courseID);
     Integer addCourseNotice(CourseNotice courseNotice);
     CourseNotice getNoticeByCouID(Integer courseID);
@@ -27,7 +28,7 @@ public interface CourseService
     void deleteChapter(CourseCatalog courseCatalog);
     ArrayList<CourseClass>getClassesByCourseID(Integer courseID);
     Integer deleteClass(Integer courseClassID);
-    ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID);
+    ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID)throws CloneNotSupportedException;
     ArrayList<UserInfo>getStudentsByClassID(Integer courseClassId);
     StudyInfo getStudyInfo(Integer studentID,Integer courseClassID);
     List<CourseInfo> getAllCourses();

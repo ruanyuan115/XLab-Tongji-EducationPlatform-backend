@@ -19,6 +19,7 @@ public class CourseController
     {
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setState(courseService.addNewCourse(courseInfo));
+        courseInfo.setCourseName(courseService.getCourseNameByNameID(Integer.parseInt(courseInfo.getCourseName())).getCourseName());
         resultEntity.setData(courseInfo);
         resultEntity.setMessage(resultEntity.getState()==1?"新增课程成功！":"新增课程失败！");
         return resultEntity;
@@ -29,11 +30,11 @@ public class CourseController
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setState(courseService.addClass(courseClass));
         resultEntity.setData(courseClass);
-        resultEntity.setMessage(resultEntity.getState()==1?"新增班级成功！":"新增班级失败！");
+        resultEntity.setMessage(resultEntity.getState()==1?"新增班级成功！":"该班级已经存在！");
         return resultEntity;
     }
     @GetMapping(value = "/getCourseByCode")
-    public ResultEntity getCourseByCode(String courseCode)
+    public ResultEntity getCourseByCode(String courseCode)throws CloneNotSupportedException
     {
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setData(courseService.getCourseByCode(courseCode));
@@ -50,7 +51,7 @@ public class CourseController
         return resultEntity;
     }
     @GetMapping(value = "/getStuCourseList")
-    public ResultEntity getStuCourseList(Integer studentID)
+    public ResultEntity getStuCourseList(Integer studentID)throws CloneNotSupportedException
     {
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setData(courseService.getStuCourseList(studentID));
@@ -109,8 +110,8 @@ public class CourseController
         {
             courseClass.setCreateTime(temp.getCreateTime());
             //courseInfo.setUpdateTime(temp.getUpdateTime());
-            resultEntity.setState(courseService.addClass(courseClass));
-            resultEntity.setMessage(resultEntity.getState()==1?"修改成功！":"修改失败！");
+            resultEntity.setState(courseService.alertClassInfo(courseClass));
+            resultEntity.setMessage(resultEntity.getState()==1?"修改成功！":resultEntity.getState()==-1?"修改内容已经存在！":"修改失败！");
         }
         else
         {
@@ -123,7 +124,10 @@ public class CourseController
     public ResultEntity getCourseInfoByID(Integer courseID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setData(courseService.getCourseInfoByID(courseID));
+        CourseInfo temp=courseService.getCourseInfoByID(courseID);
+        if(temp!=null)
+            temp.setCourseName(courseService.getCourseNameByNameID(Integer.parseInt(temp.getCourseName())).getCourseName());
+        resultEntity.setData(temp);
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         resultEntity.setMessage(resultEntity.getData()!=null?"":"不存在该课程！");
         return resultEntity;
@@ -150,8 +154,9 @@ public class CourseController
         courseService.deleteChapter(courseCatalog);                        //级联删除章节和习题
 
         ArrayList<CourseClass>arrayList=courseService.getClassesByCourseID(courseID);
-        for(CourseClass i:arrayList)
-            courseService.deleteClass(i.getId());                          //删除班级信息
+        if (arrayList!=null)
+            for(CourseClass i:arrayList)
+                courseService.deleteClass(i.getId());                      //删除班级信息
         resultEntity.setState(courseService.deleteCourse(courseID));       //最后删除课程信息
         resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"该课程不存在，删除失败！");
         return resultEntity;
@@ -165,8 +170,11 @@ public class CourseController
             resultEntity.setState(0);
             resultEntity.setMessage("不存在该课程！");
         }
-        resultEntity.setData(courseService.addChapter(chapterNode));
-        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        else
+        {
+            resultEntity.setData(courseService.addChapter(chapterNode));
+            resultEntity.setState(resultEntity.getData()!=null?1:0);
+        }
         return resultEntity;
     }
     @PostMapping(value = "/alertChapter")
@@ -246,7 +254,7 @@ public class CourseController
         }
         else
             resultEntity.setState(0);
-        resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"删除失败！");
+        resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"删除失败,该章节不存在！");
         return resultEntity;
     }
     @GetMapping(value = "/getClassesByCourseID")
@@ -266,7 +274,7 @@ public class CourseController
         return resultEntity;
     }
     @GetMapping(value = "/getCoursesByTeacherID")
-    public ResultEntity getCoursesByTeacherID(Integer teacherID)
+    public ResultEntity getCoursesByTeacherID(Integer teacherID)throws CloneNotSupportedException
     {
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setData(courseService.getCoursesByTeacherID(teacherID));

@@ -11,4 +11,5 @@ public interface CourseClassDao extends JpaRepository<CourseClass,Integer>
 {
     CourseClass findByClassCode(String classCode);
     ArrayList<CourseClass>findByCourseID(Integer courseID);
+    CourseClass findByCourseIDAndClassNum(Integer courseID,Integer classNum);
 }
