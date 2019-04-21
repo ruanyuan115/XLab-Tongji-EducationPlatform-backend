@@ -8,10 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service(value = "courseService")
 @Transactional
@@ -31,6 +28,12 @@ public class CourseServiceImp implements CourseService
     private UserDao userDao;
     @Autowired
     private CourseClassDao courseClassDao;
+    @Autowired
+    private CourseRelationDao courseRelationDao;
+    @Autowired
+    private CourseNameDao courseNameDao;
+    @Autowired
+    private ChapterRelationDao chapterRelationDao;
     @Override
     public Integer addNewCourse(CourseInfo courseInfo)
     {
@@ -346,6 +349,161 @@ public class CourseServiceImp implements CourseService
     public List<CourseInfo> getAllCourses()
     {
         return courseInfoDao.findAll();
+    }
+
+    @Override
+    public List<CourseRelationEntity> getAllCoursesRelation()
+    {
+        List<CourseRelationEntity>list=new ArrayList<>();
+        List<CourseRelation> courseRelations=courseRelationDao.findAll();
+        Map<CourseName,ArrayList<CourseName>> courseMap=new HashMap<>();
+        for(CourseRelation i:courseRelations)
+        {
+            CourseName temp=getCourseNameByNameID(i.getCourseNameID());
+            courseMap.computeIfAbsent(temp,k->new ArrayList<>());
+            courseMap.get(temp).add(getCourseNameByNameID(i.getPreCourseNameID()));
+        }
+        Set<CourseName>courseNames=courseMap.keySet();
+        for(CourseName i:courseNames)
+            list.add(new CourseRelationEntity(i,courseMap.get(i)));
+        return list;
+    }
+
+    @Override
+    public List<ChapterRelationEntity> getChapterRelationByCourseID(Integer courseID)
+    {
+        List<ChapterRelationEntity>list=new ArrayList<>();
+        List<ChapterRelation> chapterRelations=new ArrayList<>();
+        List<ChapterNode>courseChapters=chapterContentDao.findByCourseID(courseID);
+        for(ChapterNode i:courseChapters)
+        {
+            chapterRelations.addAll(chapterRelationDao.findByChapterID(i.getId()));
+        }
+        Map<Integer,ArrayList<ChapterNode>> courseMap=new HashMap<>();
+        for(ChapterRelation i:chapterRelations)
+        {
+            courseMap.computeIfAbsent(i.getChapterID(),k->new ArrayList<>());
+            courseMap.get(i.getChapterID()).add(getChapterByID(i.getPreChapterID()));
+        }
+        Set<Integer>chapterIDs=courseMap.keySet();
+        for(Integer i:chapterIDs)
+            list.add(new ChapterRelationEntity(chapterContentDao.findById(i).get(),courseMap.get(i)));
+        return list;
+    }
+
+    @Override
+    public CourseName getCourseNameByNameID(Integer courseNameID)
+    {
+        Optional<CourseName> temp=courseNameDao.findById(courseNameID);
+        return temp.isPresent()?temp.get():null;
+    }
+
+    @Override
+    public CourseName addCourseName(String courseName)
+    {
+        if (courseNameDao.getByCourseName(courseName)==null)//检查是否名称冲突
+        {
+            CourseName temp=new CourseName();
+            temp.setCourseName(courseName);
+            return courseNameDao.saveAndFlush(temp);
+        }
+        else
+            return null;
+    }
+
+    @Override
+    public List<CourseName> getCourseList()
+    {
+        return courseNameDao.findAll();
+    }
+
+    @Override
+    public Integer alertCourseName(CourseName courseName)
+    {
+        Optional<CourseName> temp=courseNameDao.findById(courseName.getCourseNameID());
+        if (temp.isPresent())
+        {
+            if (courseNameDao.getByCourseName(courseName.getCourseName())==null)//检查是否名称冲突
+            {
+                temp.get().setCourseName(courseName.getCourseName());
+                courseNameDao.saveAndFlush(temp.get());
+                return 1;
+            }
+            else
+                return 0;
+        }
+        else
+            return -1;
+    }
+
+    @Override
+    public ArrayList<CourseAndClassList> getAllCoursesByNameID(String nameID)
+    {
+        ArrayList<CourseAndClassList>courseAndClasses=new ArrayList<>();
+        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseName(nameID);
+        for(CourseInfo i:courseInfos)
+        {
+            ArrayList<CourseClass>classes=courseClassDao.findByCourseID(i.getCourseID());
+            courseAndClasses.add(new CourseAndClassList(i,classes));
+        }
+        return courseAndClasses;
+    }
+
+    @Override
+    public Integer addCourseRelation(Integer courseNameID, Integer preCourseNameID)
+    {
+        if(courseRelationDao.findByCourseNameIDAndPreCourseNameID(courseNameID,preCourseNameID)==null)//如果不存在该关系
+        {
+            CourseRelation courseRelation=new CourseRelation();
+            courseRelation.setCourseNameID(courseNameID);
+            courseRelation.setPreCourseNameID(preCourseNameID);
+            courseRelationDao.saveAndFlush(courseRelation);
+            return 1;
+        }
+        else
+            return 0;
+
+    }
+
+    @Override
+    public Integer addChapterRelation(Integer chapterID, Integer preChapterID)
+    {
+        if(chapterRelationDao.findByChapterIDAndPreChapterID(chapterID,preChapterID)==null)//如果不存在该关系
+        {
+            ChapterRelation chapterRelation=new ChapterRelation();
+            chapterRelation.setChapterID(chapterID);
+            chapterRelation.setPreChapterID(preChapterID);
+            chapterRelationDao.saveAndFlush(chapterRelation);
+            return 1;
+        }
+        else
+            return 0;
+    }
+
+    @Override
+    public Integer deleteChapterRelation(Integer chapterID, Integer preChapterID)
+    {
+        ChapterRelation temp=chapterRelationDao.findByChapterIDAndPreChapterID(chapterID,preChapterID);
+        if(temp!=null)//检查关系是否已经存在
+        {
+            chapterRelationDao.delete(temp);
+            return 1;
+        }
+        else
+            return 0;
+    }
+
+    @Override
+    public Integer deleteCourseRelation(Integer courseNameID, Integer preCourseNameID)
+    {
+        CourseRelation temp=courseRelationDao.findByCourseNameIDAndPreCourseNameID(courseNameID,preCourseNameID);
+        if(temp!=null)//检查关系是否已经存在
+        {
+            courseRelationDao.delete(temp);
+            return 1;
+        }
+        else
+            return 0;
     }
 
     @Override

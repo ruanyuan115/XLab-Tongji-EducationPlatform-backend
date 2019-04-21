@@ -31,4 +31,15 @@ public interface CourseService
     ArrayList<UserInfo>getStudentsByClassID(Integer courseClassId);
     StudyInfo getStudyInfo(Integer studentID,Integer courseClassID);
     List<CourseInfo> getAllCourses();
+    List<CourseRelationEntity>getAllCoursesRelation();
+    List<ChapterRelationEntity>getChapterRelationByCourseID(Integer courseID);
+    CourseName getCourseNameByNameID(Integer courseNameID);
+    CourseName addCourseName(String courseName);
+    List<CourseName>getCourseList();
+    Integer alertCourseName(CourseName courseName);
+    ArrayList<CourseAndClassList>getAllCoursesByNameID(String nameID);
+    Integer addCourseRelation(Integer courseNameID,Integer preCourseNameID);
+    Integer deleteCourseRelation(Integer courseNameID,Integer preCourseNameID);
+    Integer addChapterRelation(Integer chapterID,Integer preChapterID);
+    Integer deleteChapterRelation(Integer chapterID,Integer preChapterID);
 }

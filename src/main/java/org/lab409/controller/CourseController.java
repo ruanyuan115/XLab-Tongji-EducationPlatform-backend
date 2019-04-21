@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.util.*;
 
 @RestController
 public class CourseController
@@ -308,6 +308,96 @@ public class CourseController
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setData(courseService.getAllCourses());
         resultEntity.setState(1);
+        return resultEntity;
+    }
+    @GetMapping(value = "/getAllCoursesRelation")
+    public ResultEntity getAllCoursesRelation()
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getAllCoursesRelation());
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @GetMapping(value = "/getChapterRelationByCourseID")
+    public ResultEntity getChapterRelationByCourseID(Integer courseID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getChapterRelationByCourseID(courseID));
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @PostMapping(value = "/addCourseName")
+    public ResultEntity addCourseName(String courseName)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        if (courseName!=null)
+        {
+            resultEntity.setData(courseService.addCourseName(courseName));
+            resultEntity.setState(resultEntity.getData()!=null?1:0);
+            resultEntity.setMessage(resultEntity.getState()==1?"添加课程成功！":"该课程已经存在！");
+        }
+        else
+        {
+            resultEntity.setState(-1);
+            resultEntity.setMessage("课程名不能为空！");
+        }
+        return resultEntity;
+    }
+    @GetMapping(value = "/getCourseList")
+    public ResultEntity getCourseList()
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCourseList());
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @PostMapping(value = "/alertCourseName")
+    public ResultEntity alertCourseName(Integer courseNameID,String courseName)
+    {
+        CourseName temp=new CourseName(courseNameID,courseName);
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.alertCourseName(temp));
+        resultEntity.setMessage(resultEntity.getState()==1?"修改成功！":resultEntity.getState()==0?"该课程名已经存在！":"无该课程信息！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/getAllCoursesByNameID")
+    public ResultEntity getAllCoursesByNameID(Integer courseNameID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getAllCoursesByNameID(courseNameID.toString()));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        return resultEntity;
+    }
+    @GetMapping(value = "/addCourseRelation")
+    public ResultEntity addCourseRelation(Integer courseNameID,Integer preCourseNameID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.addCourseRelation(courseNameID,preCourseNameID));
+        resultEntity.setMessage(resultEntity.getState()==1?"新增成功！":"该关系已经存在！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/deleteCourseRelation")
+    public ResultEntity deleteCourseRelation(Integer courseNameID,Integer preCourseNameID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.deleteCourseRelation(courseNameID,preCourseNameID));
+        resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"删除失败，该关系并不存在！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/addChapterRelation")
+    public ResultEntity addChapterRelation(Integer chapterID,Integer preChapterID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.addChapterRelation(chapterID,preChapterID));
+        resultEntity.setMessage(resultEntity.getState()==1?"新增成功！":"该关系已经存在！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/deleteChapterRelation")
+    public ResultEntity deleteChapterRelation(Integer chapterID,Integer preChapterID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.deleteChapterRelation(chapterID,preChapterID));
+        resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"删除失败，该关系并不存在！");
         return resultEntity;
     }
 }
