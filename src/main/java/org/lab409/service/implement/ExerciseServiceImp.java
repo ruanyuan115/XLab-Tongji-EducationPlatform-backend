@@ -8,6 +8,7 @@ import org.lab409.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -285,7 +286,7 @@ public class ExerciseServiceImp implements ExerciseService{
     }
     @Override
     @Transactional
-    public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, Integer rate){
+    public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate){
         ResultEntity resultEntity=new ResultEntity();
         if(answers!=null&&rate!=null&&chapterId!=null&&studentId!=null){
             List<ExerciseSet> exerciseSets=new ArrayList<>();
@@ -317,13 +318,22 @@ public class ExerciseServiceImp implements ExerciseService{
             int count=0;
             for(String answer:answers){
                 answerOne(answer,exerciseSets.get(count).getExercise().getExerciseId(),studentId);
+                count++;
             }
-            StudentChapter studentChapter=new StudentChapter();
-            studentChapter.setChapterID(chapterId);
-            studentChapter.setStudentID(studentId);
-            if(type.equals("review"))
+            StudentChapter studentChapter;
+            if(type.equals("preview")){
+                studentChapter=new StudentChapter();
+                studentChapter.setChapterID(chapterId);
+                studentChapter.setStudentID(studentId);
+            }
+            else{
+                studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
                 studentChapter.setRate(rate);
+                studentChapter.setComment(comment);
+            }
             studentChapterDao.saveAndFlush(studentChapter);
+            resultEntity.setState(1);
+            resultEntity.setMessage("答题成功 ！");
         }
         else
         {
@@ -384,6 +394,68 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         return resultEntity;
     }
+    @Override
+    @Transactional
+    public ResultEntity correctAll(List<Integer> scores, Integer studentId,Integer chapterId,String type){
+        ResultEntity resultEntity=new ResultEntity();
+        if(studentId!=null&&chapterId!=null&&type!=null){
+            int trueType=0;
+            int type1=0;
+            int type2=0;
+            if(type.equals("preview")){
+                trueType=3;
+                type1=1;
+                type2=2;
+            }
+            else{
+                trueType=6;
+                type1=4;
+                type2=5;
+            }
+            List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,trueType);
+            List<Integer> exerciseIds=new ArrayList<>();
+            for(Exercise exercise:exercises){
+                exerciseIds.add(exercise.getExerciseId());
+            }
+            StudentExerciseScore studentExerciseScore;
+            for(int i=0;i<scores.size();i++){
+                studentExerciseScore=studentExerciseScoreDao.findByExerciseIdAndStudentId(exerciseIds.get(i),studentId);
+                studentExerciseScore.setExerciseScore(scores.get(i));
+                studentExerciseScoreDao.saveAndFlush(studentExerciseScore);
+            }
+            exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+            for(Exercise exercise:exercises){
+                exerciseIds.add(exercise.getExerciseId());
+            }
+            exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
+            for(Exercise exercise:exercises){
+                exerciseIds.add(exercise.getExerciseId());
+            }
+            int score=0;
+            for(Integer exerciseId:exerciseIds){
+                score+=studentExerciseScoreDao.findByExerciseIdAndStudentId(exerciseId,studentId).getExerciseScore();
+            }
+            if(type.equals("preview")){
+                StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
+                studentChapter.setTotalScore_1(score);
+                studentChapterDao.saveAndFlush(studentChapter);
+            }
+            else {
+                StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
+                studentChapter.setTotalScore_2(score);
+                studentChapterDao.saveAndFlush(studentChapter);
+            }
+            resultEntity.setState(1);
+            resultEntity.setMessage("批改成功 ！");
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
     @Override
     @Transactional
     public ResultEntity viewExercise(Integer chapterId,String type){
