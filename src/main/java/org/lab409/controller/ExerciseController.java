@@ -43,7 +43,7 @@ public class ExerciseController {
         return exerciseService.deleteExercise(exerciseId);
     }
 
-    @PutMapping(value = "/alterExercise")
+    @PostMapping(value = "/alterExercise")
     public ResultEntity alterExercise(Exercise exercise){
         return exerciseService.alterExercise(exercise);
     }
@@ -58,7 +58,7 @@ public class ExerciseController {
         return exerciseService.deleteExerciseChoice(exerciseChoiceId);
     }
 
-    @PutMapping(value = "/alterChoice")
+    @PostMapping(value = "/alterChoice")
     public ResultEntity alterChoice(ExerciseChoice exerciseChoice){
         return exerciseService.alterExerciseChoice(exerciseChoice);
     }

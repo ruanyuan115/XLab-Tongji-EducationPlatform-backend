@@ -58,7 +58,6 @@ public class ExerciseServiceImp implements ExerciseService{
         ResultEntity resultEntity=new ResultEntity();
         if(exercise!=null){
             resultEntity.setData(exerciseDao.saveAndFlush(exercise));
-
             if (resultEntity.getData()!=null)
             {
                 resultEntity.setState(1);
@@ -108,10 +107,10 @@ public class ExerciseServiceImp implements ExerciseService{
     public ResultEntity alterExercise(Exercise exercise){
         ResultEntity resultEntity=new ResultEntity();
         if(exercise!=null){
-            Exercise exercise1=exerciseDao.findByExerciseId(exercise.getExerciseId());
-            resultEntity.setData(exerciseDao.saveAndFlush(exercise));
+            Exercise exercise1=exerciseDao.findByExerciseId(exercise.getExerciseId().intValue());
             if (exercise1!=null)
             {
+                resultEntity.setData(exerciseDao.saveAndFlush(exercise));
                 resultEntity.setState(1);
                 resultEntity.setMessage("习题修改成功！");
             }
@@ -184,9 +183,9 @@ public class ExerciseServiceImp implements ExerciseService{
         ResultEntity resultEntity=new ResultEntity();
         if(exerciseChoice!=null){
             ExerciseChoice exerciseChoice1=exerciseChoiceDao.findById(exerciseChoice.getId().intValue());
-            resultEntity.setData(exerciseChoiceDao.saveAndFlush(exerciseChoice));
             if (exerciseChoice1!=null)
             {
+                resultEntity.setData(exerciseChoiceDao.saveAndFlush(exerciseChoice));
                 resultEntity.setState(1);
                 resultEntity.setMessage("选项修改成功！");
             }
