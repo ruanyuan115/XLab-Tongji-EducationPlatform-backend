@@ -344,6 +344,11 @@ public class CourseController
             resultEntity.setData(courseService.addCourseName(courseName));
             resultEntity.setState(resultEntity.getData()!=null?1:0);
             resultEntity.setMessage(resultEntity.getState()==1?"添加课程成功！":"该课程已经存在！");
+            if(resultEntity.getState()==1)
+            {
+                CourseName temp=(CourseName) resultEntity.getData();
+                addCourseRelation(temp.getCourseNameID(),0);
+            }
         }
         else
         {

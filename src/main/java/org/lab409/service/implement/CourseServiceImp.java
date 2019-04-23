@@ -379,7 +379,8 @@ public class CourseServiceImp implements CourseService
         {
             CourseName temp=getCourseNameByNameID(i.getCourseNameID());
             courseMap.computeIfAbsent(temp,k->new ArrayList<>());
-            courseMap.get(temp).add(getCourseNameByNameID(i.getPreCourseNameID()));
+            if(i.getPreCourseNameID()!=0)
+                courseMap.get(temp).add(getCourseNameByNameID(i.getPreCourseNameID()));
         }
         Set<CourseName>courseNames=courseMap.keySet();
         for(CourseName i:courseNames)
