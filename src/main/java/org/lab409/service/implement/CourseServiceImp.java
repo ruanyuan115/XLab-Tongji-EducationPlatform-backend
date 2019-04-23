@@ -2,8 +2,10 @@ package org.lab409.service.implement;
 
 import org.lab409.dao.*;
 import org.lab409.entity.*;
+import org.lab409.model.security.User;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -523,8 +525,155 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public StudyInfo getStudyInfo(Integer studentID, Integer courseClassID)
+    public Map<String, Integer> getStudentNumByTeacher(Integer teacherID)throws CloneNotSupportedException
     {
-         return null;
+        ArrayList<CourseAndClass>courseAndClass=getCoursesByTeacherID(teacherID);
+        Map<String,Integer>courseToNum=new HashMap<>();
+        if (courseAndClass!=null)
+            for(CourseAndClass i:courseAndClass)
+            {
+                String name=i.getCourseInfo().getCourseName();
+                courseToNum.computeIfAbsent(name,k->0);
+                Integer num=courseToNum.get(name)+getStudentsByClassID(i.getCourseClass().getId()).size();
+                courseToNum.put(name,num);
+            }
+        return courseToNum;
+    }
+
+    @Override
+    public Map getStudentNumBySemester(String semester)
+    {
+        ArrayList<CourseAndClassList>courseAndClassLists=new ArrayList<>();
+        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseSemester(semester);
+        if(courseInfos!=null)
+            for(CourseInfo i:courseInfos)
+            {
+                ArrayList<CourseClass>classes=courseClassDao.findByCourseID(i.getCourseID());
+                courseAndClassLists.add(new CourseAndClassList(i,classes));
+            }
+        Map<String,Integer>courseToNum=new HashMap<>();
+
+        for(CourseAndClassList i:courseAndClassLists)
+        {
+            String name=getCourseNameByNameID(Integer.parseInt(i.getCourseInfo().getCourseName())).getCourseName();
+            courseToNum.computeIfAbsent(name,k->0);
+            Integer num = 0;
+            if(i.getCourseClasses()!=null)
+            {
+
+                for (CourseClass j : i.getCourseClasses())
+                {
+                    ArrayList<UserInfo>temp=getStudentsByClassID(j.getId());
+                    if (temp!=null)
+                        num += getStudentsByClassID(j.getId()).size();
+                }
+            }
+            courseToNum.put(name,courseToNum.get(name)+num);
+        }
+        return courseToNum;
+    }
+
+    @Override
+    public Map getStudentNumByYear(Integer year)
+    {
+        ArrayList<CourseAndClassList>courseAndClassLists=new ArrayList<>();
+        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseYear(year);
+        if(courseInfos!=null)
+            for(CourseInfo i:courseInfos)
+            {
+                ArrayList<CourseClass>classes=courseClassDao.findByCourseID(i.getCourseID());
+                courseAndClassLists.add(new CourseAndClassList(i,classes));
+            }
+        Map<String,Integer>courseToNum=new HashMap<>();
+
+        for(CourseAndClassList i:courseAndClassLists)
+        {
+            String name=getCourseNameByNameID(Integer.parseInt(i.getCourseInfo().getCourseName())).getCourseName();
+            courseToNum.computeIfAbsent(name,k->0);
+            Integer num = 0;
+            if(i.getCourseClasses()!=null)
+            {
+
+                for (CourseClass j : i.getCourseClasses())
+                {
+                    ArrayList<UserInfo>temp=getStudentsByClassID(j.getId());
+                    if (temp!=null)
+                        num += getStudentsByClassID(j.getId()).size();
+                }
+            }
+            courseToNum.put(name,courseToNum.get(name)+num);
+        }
+        return courseToNum;
+    }
+
+    @Override
+    public Map getRateBySemesterAndYear(String courseName)
+    {
+        ArrayList<CourseAndClassList>courseInfos=getAllCoursesByNameID(courseName);
+        Map<SemesterAndYear,ArrayList<Float>>semYearToRateMap=new HashMap<>();
+        for(CourseAndClassList i:courseInfos)
+        {
+            SemesterAndYear temp=new SemesterAndYear(i.getCourseInfo().getCourseSemester(),i.getCourseInfo().getCourseYear());
+            if(semYearToRateMap.get(temp)==null)
+                semYearToRateMap.put(temp,new ArrayList<>());
+            semYearToRateMap.get(temp).add(i.getCourseInfo().getRate());
+        }
+        Set<SemesterAndYear>semesterAndYears=semYearToRateMap.keySet();
+        Map<SemesterAndYear,Float>rateMap=new HashMap<>();
+        for(SemesterAndYear i:semesterAndYears)
+        {
+            Float sum=0F;
+            for(Float j:semYearToRateMap.get(i))
+                sum+=j;
+            if (semYearToRateMap.get(i).size()!=0)
+                sum/=semYearToRateMap.get(i).size();
+            rateMap.put(i,sum);
+        }
+        return rateMap;
+    }
+
+    @Override
+    public ArrayList<CourseAndClass> getClassesByNIDAndTID(String courseNameID, Integer teacherID)throws CloneNotSupportedException
+    {
+        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseNameAndTeacherID(courseNameID,teacherID);
+        ArrayList<CourseAndClass>coursesAndClass=new ArrayList<>();
+        if (courseInfos!=null)
+            for(CourseInfo i:courseInfos)
+            {
+                ArrayList<CourseClass>temp=getClassesByCourseID(i.getCourseID());
+                if (temp!=null)
+                    for(CourseClass j:temp)
+                    {
+                        coursesAndClass.add(new CourseAndClass(i,j));
+                    }
+            }
+        return coursesAndClass;
+    }
+    public Map getTeacherListByNID(String courseNameID)
+    {
+        List<CourseInfo>courseInfos=courseNameID==null?courseInfoDao.findAll():courseInfoDao.findByCourseName(courseNameID);
+        Map<Integer,String> teacherInfoMap=new HashMap<>();
+        //if (courseInfos!=null)
+        for(CourseInfo i:courseInfos)
+        {
+            teacherInfoMap.put(i.getTeacherID(),i.getTeacherName());
+        }
+        return teacherInfoMap;
+    }
+
+    @Override
+    public Integer addStudentComment(Integer chapterID, Integer studentID, String comment, Integer rate)
+    {
+        StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterID,studentID);
+        if(studentChapter==null)
+        {
+            studentChapter=new StudentChapter();
+            studentChapter.setChapterID(chapterID);
+            studentChapter.setStudentID(studentID);
+        }
+            studentChapter.setComment(comment);
+            studentChapter.setRate(rate);
+        studentChapterDao.saveAndFlush(studentChapter);
+        return 1;
     }
 }

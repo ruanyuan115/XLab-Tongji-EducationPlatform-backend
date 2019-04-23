@@ -43,6 +43,8 @@ public class CourseInfo implements Cloneable
     private Date startTime;
     @Column(name = "end_time")
     private Date endTime;
+    @Column(name = "rate")
+    private Float rate;
 
     public CourseInfo clone()throws CloneNotSupportedException
     {

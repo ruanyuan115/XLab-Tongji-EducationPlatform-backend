@@ -4,6 +4,7 @@ import org.lab409.entity.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public interface CourseService
 {
@@ -30,7 +31,6 @@ public interface CourseService
     Integer deleteClass(Integer courseClassID);
     ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID)throws CloneNotSupportedException;
     ArrayList<UserInfo>getStudentsByClassID(Integer courseClassId);
-    StudyInfo getStudyInfo(Integer studentID,Integer courseClassID);
     List<CourseInfo> getAllCourses();
     List<CourseRelationEntity>getAllCoursesRelation();
     List<ChapterRelationEntity>getChapterRelationByCourseID(Integer courseID);
@@ -43,4 +43,11 @@ public interface CourseService
     Integer deleteCourseRelation(Integer courseNameID,Integer preCourseNameID);
     Integer addChapterRelation(Integer chapterID,Integer preChapterID);
     Integer deleteChapterRelation(Integer chapterID,Integer preChapterID);
+    Map getStudentNumByTeacher(Integer teacherID)throws CloneNotSupportedException;
+    Map getStudentNumBySemester(String semester)throws CloneNotSupportedException;
+    Map getStudentNumByYear(Integer year)throws CloneNotSupportedException;
+    Map getRateBySemesterAndYear(String courseName);
+    ArrayList<CourseAndClass>getClassesByNIDAndTID(String courseNameID,Integer teacherID)throws CloneNotSupportedException;
+    Map getTeacherListByNID(String courseNameID);
+    Integer addStudentComment(Integer chapterID,Integer studentID,String comment,Integer rate);
 }

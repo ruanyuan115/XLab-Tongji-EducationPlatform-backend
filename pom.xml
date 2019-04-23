@@ -34,6 +34,12 @@
     </properties>
 
     <dependencies>
+        <!-- alibaba的druid数据库连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.1.9</version>
+        </dependency>
         <!--Java emoji converter-->
         <dependency>
             <groupId>com.github.binarywang</groupId>

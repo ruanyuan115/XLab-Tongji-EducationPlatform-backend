@@ -1,5 +1,6 @@
 package org.lab409.controller;
 
+import com.alibaba.druid.support.json.JSONUtils;
 import org.lab409.entity.*;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -406,6 +407,62 @@ public class CourseController
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setState(courseService.deleteChapterRelation(chapterID,preChapterID));
         resultEntity.setMessage(resultEntity.getState()==1?"删除成功！":"删除失败，该关系并不存在！");
+        return resultEntity;
+    }
+    @GetMapping(value = "/getStudentNumByTeacher")
+    public ResultEntity getStudentNumByTeacher(Integer teacherID)throws CloneNotSupportedException
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getStudentNumByTeacher(teacherID));
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @GetMapping(value = "/getStudentNumBySemester")
+    public ResultEntity getStudentNumBySemester(String semester)throws CloneNotSupportedException
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getStudentNumBySemester(semester));
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @GetMapping(value = "/getStudentNumByYear")
+    public ResultEntity getStudentNumByYear(Integer year)throws CloneNotSupportedException
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getStudentNumByYear(year));
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @GetMapping(value = "/getRateBySemesterAndYear")
+    public ResultEntity getRateBySemesterAndYear(String courseNameID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getRateBySemesterAndYear(courseNameID));
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @GetMapping(value = "/getClassesByNIDAndTID")
+    public ResultEntity getAllClasses(String courseNameID,Integer teacherID)throws CloneNotSupportedException
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getClassesByNIDAndTID(courseNameID,teacherID));
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @GetMapping(value = "/getTeacherInfoByNID")
+    public ResultEntity getTeacherInfoByNID(String courseNameID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getTeacherListByNID(courseNameID));
+        resultEntity.setState(1);
+        return resultEntity;
+    }
+    @PostMapping(value = "/addStudentComment")
+    public ResultEntity addStudentComment(Integer chapterID, Integer studentID, String comment, Integer rate)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.addStudentComment(chapterID,studentID,comment,rate));
+        resultEntity.setMessage(resultEntity.getState()==1?"评价成功！":"评价失败！");
         return resultEntity;
     }
 }
