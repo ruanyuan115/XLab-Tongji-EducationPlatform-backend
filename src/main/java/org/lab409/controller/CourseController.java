@@ -469,4 +469,12 @@ public class CourseController
         resultEntity.setMessage(resultEntity.getState()==1?"评价成功！":"评价失败！");
         return resultEntity;
     }
+    @PostMapping(value = "/addClassComment")
+    public ResultEntity addClassComment(Integer courseClassID, Integer studentID, String comment, Integer rate)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setState(courseService.addClassComment(courseClassID,studentID,comment,rate));
+        resultEntity.setMessage(resultEntity.getState()==1?"评论成功！":"该学生未曾选过这门课！");
+        return resultEntity;
+    }
 }

@@ -32,4 +32,8 @@ public class Takes
     private Integer courseClassID;
     @Column(name = "current_progress")
     private Integer currentProgress;
+    @Column(name = "comment")
+    private String comment;
+    @Column(name = "rate")
+    private Integer rate;
 }

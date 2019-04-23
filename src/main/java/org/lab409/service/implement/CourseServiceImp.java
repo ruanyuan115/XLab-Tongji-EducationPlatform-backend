@@ -677,4 +677,19 @@ public class CourseServiceImp implements CourseService
         studentChapterDao.saveAndFlush(studentChapter);
         return 1;
     }
+
+    @Override
+    public Integer addClassComment(Integer courseClassID, Integer studentID, String comment, Integer rate)
+    {
+        Takes takes=takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);
+        if (takes!=null)
+        {
+            takes.setComment(comment);
+            takes.setRate(rate);
+            takesDao.saveAndFlush(takes);
+            return 1;
+        }
+        else
+            return 0;
+    }
 }
