@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
 import java.util.List;
@@ -43,7 +44,7 @@ public class ExerciseController {
         return exerciseService.deleteExercise(exerciseId);
     }
 
-    @PutMapping(value = "/alterExercise")
+    @PostMapping(value = "/alterExercise")
     public ResultEntity alterExercise(Exercise exercise){
         return exerciseService.alterExercise(exercise);
     }
@@ -58,7 +59,7 @@ public class ExerciseController {
         return exerciseService.deleteExerciseChoice(exerciseChoiceId);
     }
 
-    @PutMapping(value = "/alterChoice")
+    @PostMapping(value = "/alterChoice")
     public ResultEntity alterChoice(ExerciseChoice exerciseChoice){
         return exerciseService.alterExerciseChoice(exerciseChoice);
     }
@@ -78,9 +79,9 @@ public class ExerciseController {
         return exerciseService.answerOne(answer,exerciseId,userId);
     }
 
-    @PostMapping(value= "/AnswerAll")
-    public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, Integer rate){
-        return exerciseService.answerAll(answers,studentId,chapterId,type,rate);
+    @PostMapping(value= "/answerAll")
+    public ResultEntity answerAll(@RequestParam(value = "answers")List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate){
+        return exerciseService.answerAll(answers,studentId,chapterId,type,comment,rate);
     }
 
     @PutMapping(value = "/alterAnswer")
@@ -91,6 +92,11 @@ public class ExerciseController {
     @PutMapping(value = "/correctOne")
     public ResultEntity correctOne(Integer studentExerciseScoreId,Integer score){
         return exerciseService.correctOne(studentExerciseScoreId,score);
+    }
+
+    @PostMapping(value = "/correctAll")
+    public ResultEntity correctAll(@RequestParam(value = "scores")List<Integer> scores, Integer studentId,Integer chapterId,String type){
+        return exerciseService.correctAll(scores,studentId,chapterId,type);
     }
 
     @GetMapping(value = "/view")

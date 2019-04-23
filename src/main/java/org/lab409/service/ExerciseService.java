@@ -10,7 +10,7 @@ import java.util.List;
 public interface ExerciseService {
     ResultEntity findOneExerice(Integer exerciseId);
     ResultEntity addExercise(Exercise exercise);
-    ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, Integer rate);
+    ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate);
     ResultEntity deleteExercise(Integer exerciseId);
     ResultEntity alterExercise(Exercise exercise);
     ResultEntity addExerciseChoice(ExerciseChoice exerciseChoice);
@@ -21,6 +21,7 @@ public interface ExerciseService {
     ResultEntity answerOne(String answer,Integer exerciseId,Integer studentId);
     ResultEntity alterAnswer(String answer,Integer exerciseId,Integer studentId);
     ResultEntity correctOne(Integer studentExerciseScoreId,Integer score);
+    ResultEntity correctAll(List<Integer> scores, Integer studentId,Integer chapterId,String type);
     ResultEntity viewExercise(Integer chapterId,String type);
     ResultEntity viewSomeAnswer(Integer chapterId,Integer studentId,String type);
     int calculateScore(Integer chapterId,Integer studentId);
