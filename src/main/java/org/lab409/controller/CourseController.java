@@ -1,6 +1,5 @@
 package org.lab409.controller;
 
-import com.alibaba.druid.support.json.JSONUtils;
 import org.lab409.entity.*;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -347,7 +346,7 @@ public class CourseController
             if(resultEntity.getState()==1)
             {
                 CourseName temp=(CourseName) resultEntity.getData();
-                addCourseRelation(temp.getCourseNameID(),0);
+                courseService.addCourseRelation(temp.getCourseNameID(),0);
             }
         }
         else
