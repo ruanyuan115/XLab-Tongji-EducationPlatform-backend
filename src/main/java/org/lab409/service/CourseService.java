@@ -31,7 +31,7 @@ public interface CourseService
     Integer deleteClass(Integer courseClassID);
     ArrayList<CourseAndClass> getCoursesByTeacherID(Integer teacherID)throws CloneNotSupportedException;
     ArrayList<UserInfo>getStudentsByClassID(Integer courseClassId);
-    List<CourseInfo> getAllCourses();
+    List<CourseInfo> getAllCourses()throws CloneNotSupportedException;
     List<CourseRelationEntity>getAllCoursesRelation();
     List<ChapterRelationEntity>getChapterRelationByCourseID(Integer courseID);
     CourseName getCourseNameByNameID(Integer courseNameID);

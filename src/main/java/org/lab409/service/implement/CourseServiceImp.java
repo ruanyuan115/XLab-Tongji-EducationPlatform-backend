@@ -364,9 +364,17 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public List<CourseInfo> getAllCourses()
+    public List<CourseInfo> getAllCourses()throws CloneNotSupportedException
     {
-        return courseInfoDao.findAll();
+        List<CourseInfo>temp=courseInfoDao.findAll();
+        List<CourseInfo>newList=new ArrayList<>();
+        for(CourseInfo i:temp)
+        {
+            CourseInfo tempc=i.clone();
+            tempc.setCourseName(getCourseNameByNameID(Integer.parseInt(i.getCourseName())).getCourseName());
+            newList.add(tempc);
+        }
+        return newList;
     }
 
     @Override
@@ -375,16 +383,31 @@ public class CourseServiceImp implements CourseService
         List<CourseRelationEntity>list=new ArrayList<>();
         List<CourseRelation> courseRelations=courseRelationDao.findAll();
         Map<CourseName,ArrayList<CourseName>> courseMap=new HashMap<>();
+        Map<CourseName,ArrayList<CourseName>>subCourseMap=new HashMap<>();
         for(CourseRelation i:courseRelations)
         {
             CourseName temp=getCourseNameByNameID(i.getCourseNameID());
             courseMap.computeIfAbsent(temp,k->new ArrayList<>());
+            subCourseMap.computeIfAbsent(temp,k->new ArrayList<>());
             if(i.getPreCourseNameID()!=0)
                 courseMap.get(temp).add(getCourseNameByNameID(i.getPreCourseNameID()));
+            if(subCourseMap.get(temp).size()==0)
+            {
+                ArrayList<CourseRelation>subCoursesList=courseRelationDao.findByPreCourseNameID(i.getCourseNameID());
+                if(subCoursesList!=null&&subCoursesList.size()!=0)
+                {
+                    ArrayList<CourseName>subCoursesName=new ArrayList<>();
+                    for(CourseRelation j:subCoursesList)
+                    {
+                        subCoursesName.add(getCourseNameByNameID(j.getCourseNameID()));
+                    }
+                    subCourseMap.put(temp,subCoursesName);
+                }
+            }
         }
         Set<CourseName>courseNames=courseMap.keySet();
         for(CourseName i:courseNames)
-            list.add(new CourseRelationEntity(i,courseMap.get(i)));
+            list.add(new CourseRelationEntity(i,courseMap.get(i),subCourseMap.get(i)));
         return list;
     }
 
@@ -398,15 +421,30 @@ public class CourseServiceImp implements CourseService
         {
             chapterRelations.addAll(chapterRelationDao.findByChapterID(i.getId()));
         }
-        Map<Integer,ArrayList<ChapterNode>> courseMap=new HashMap<>();
+        Map<Integer,ArrayList<ChapterNode>> chapterMap=new HashMap<>();
+        Map<Integer,ArrayList<ChapterNode>>subChapterMap=new HashMap<>();
         for(ChapterRelation i:chapterRelations)
         {
-            courseMap.computeIfAbsent(i.getChapterID(),k->new ArrayList<>());
-            courseMap.get(i.getChapterID()).add(getChapterByID(i.getPreChapterID()));
+            chapterMap.computeIfAbsent(i.getChapterID(),k->new ArrayList<>());
+            subChapterMap.computeIfAbsent(i.getChapterID(),k->new ArrayList<>());
+            chapterMap.get(i.getChapterID()).add(getChapterByID(i.getPreChapterID()));
+            if (subChapterMap.get(i.getChapterID()).size()==0)
+            {
+                ArrayList<ChapterRelation>subChaptersList=chapterRelationDao.findByPreChapterID(i.getChapterID());
+                if(subChaptersList!=null&&subChaptersList.size()!=0)
+                {
+                    ArrayList<ChapterNode>subChapters=new ArrayList<>();
+                    for(ChapterRelation j:subChaptersList)
+                    {
+                        subChapters.add(chapterContentDao.findById(j.getChapterID()).get());
+                    }
+                    subChapterMap.put(i.getChapterID(),subChapters);
+                }
+            }
         }
-        Set<Integer>chapterIDs=courseMap.keySet();
+        Set<Integer>chapterIDs=chapterMap.keySet();
         for(Integer i:chapterIDs)
-            list.add(new ChapterRelationEntity(chapterContentDao.findById(i).get(),courseMap.get(i)));
+            list.add(new ChapterRelationEntity(chapterContentDao.findById(i).get(),chapterMap.get(i),subChapterMap.get(i)));
         return list;
     }
 

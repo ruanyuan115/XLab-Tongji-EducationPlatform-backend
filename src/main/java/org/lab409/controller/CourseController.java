@@ -311,7 +311,7 @@ public class CourseController
         return resultEntity;
     }
     @GetMapping(value = "/getAllCourses")
-    public ResultEntity getAllCourses()
+    public ResultEntity getAllCourses()throws CloneNotSupportedException
     {
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setData(courseService.getAllCourses());
