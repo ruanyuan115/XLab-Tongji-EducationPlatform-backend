@@ -23,7 +23,7 @@ public interface CourseService
     ChapterNode addChapter(ChapterNode chapterNode);
     ChapterNode getChapterByID(Integer chapterID);
     ArrayList<CourseCatalog> getCourseCatalog(Integer courseID);
-    ArrayList<StudentChapter> getCourseScoreAndComment(Integer courseID,Integer studentID);
+    ArrayList<StudentChapterEntity> getCourseScoreAndComment(Integer courseID,Integer studentID);
     Takes getCurrentProgress(Integer courseID,Integer studentID);
     Integer alertCurrentProgress(Integer courseID,Integer studentID,Integer chapterID);
     void deleteChapter(CourseCatalog courseCatalog);

@@ -236,7 +236,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<StudentChapter> getCourseScoreAndComment(Integer courseID, Integer studentID)
+    public ArrayList<StudentChapterEntity> getCourseScoreAndComment(Integer courseID, Integer studentID)
     {
         ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(courseID,0);
         if(chapterNodes!=null&&chapterNodes.size()>0&&userDao.findById(studentID).isPresent())
@@ -248,12 +248,15 @@ public class CourseServiceImp implements CourseService
 
             getSubNodes(bookCatalog,chapterNodes);
 
-            ArrayList<StudentChapter>arrayList=new ArrayList<>();
+            ArrayList<StudentChapterEntity>arrayList=new ArrayList<>();
             for(CourseCatalog i:bookCatalog.getSubCatalog())
             {
                 StudentChapter temp=studentChapterDao.findByChapterIDAndStudentID(i.getId(),studentID);
                 if (temp!=null)
-                    arrayList.add(temp);
+                {
+                    StudentChapterEntity tempEntity=new StudentChapterEntity(temp,getChapterByID(temp.getChapterID()).getContentName());
+                    arrayList.add(tempEntity);
+                }
             }
             return arrayList.size()>0?arrayList:null;
         }
