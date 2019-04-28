@@ -354,8 +354,12 @@ public class CourseServiceImp implements CourseService
             ArrayList<UserInfo>userInfos=new ArrayList<>();
             for (Takes i:takes)
             {
-                UserInfo userInfo=new UserInfo(userDao.findById(i.getStudentID()).get());
-                userInfos.add(userInfo);
+                Optional<UserInfo> temp=userDao.findById(i.getStudentID());
+                if (temp.isPresent())
+                {
+                    UserInfo userInfo=new UserInfo(temp.get());
+                    userInfos.add(userInfo);
+                }
             }
             return userInfos;
         }
