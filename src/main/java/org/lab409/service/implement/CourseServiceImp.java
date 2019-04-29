@@ -239,7 +239,8 @@ public class CourseServiceImp implements CourseService
     public ArrayList<StudentChapterEntity> getCourseScoreAndComment(Integer courseID, Integer studentID)
     {
         ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(courseID,0);
-        if(chapterNodes!=null&&chapterNodes.size()>0&&userDao.findById(studentID).isPresent())
+        Optional<UserInfo> userTemp=userDao.findById(studentID);
+        if(chapterNodes!=null&&chapterNodes.size()>0&&userTemp.isPresent())
         {
             CourseCatalog bookCatalog = new CourseCatalog();
             ChapterNode book = new ChapterNode();
@@ -259,6 +260,95 @@ public class CourseServiceImp implements CourseService
                 }
             }
             return arrayList.size()>0?arrayList:null;
+        }
+        else
+            return null;
+    }
+
+    @Override
+    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID)
+    {
+        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(courseID,0);
+        if(chapterNodes!=null&&chapterNodes.size()>0)
+        {
+            CourseCatalog bookCatalog = new CourseCatalog();
+            ChapterNode book = new ChapterNode();
+            book.setId(0);
+            bookCatalog.setChapterNode(book);
+            getSubNodes(bookCatalog,chapterNodes);  //保证章节前后顺序
+
+            ArrayList<Map>resultMap=new ArrayList<>();
+
+            ArrayList<CourseClass>classesTemp=getClassesByCourseID(courseID);
+            for(CourseClass c:classesTemp)
+            {
+                Map<String,Object>classMap=new HashMap<>();
+                ArrayList<UserInfo>classStudents=getStudentsByClassID(c.getId());
+                ArrayList<Integer>studentIDs=new ArrayList<>();
+                for(UserInfo u:classStudents)
+                {
+                    studentIDs.add(u.getUserID());
+                }
+                ArrayList<Map>arrayList=new ArrayList<>();
+                for(CourseCatalog i:bookCatalog.getSubCatalog())
+                {
+                    Map<String,Object>chapterMap=new HashMap<>();
+                    chapterMap.put("chapterName",i.getContentName());
+                    chapterMap.put("chapterID",i.getId());
+                    chapterMap.put("siblingID",i.getSiblingID());
+                    ArrayList<StudentChapter>tempList=studentChapterDao.findByChapterID(i.getId());//该章节下所有的学生成绩
+                    if (tempList!=null&&tempList.size()!=0)
+                    {
+                        ArrayList<StudentChapter>boysList=new ArrayList<>();
+                        ArrayList<StudentChapter>girlsList=new ArrayList<>();
+                        for(int j=0;j<tempList.size();j++)                                             //性别筛选
+                        {
+                            if (studentIDs.contains(tempList.get(j).getStudentID()))
+                            {
+                                if(userDao.findById(tempList.get(j).getStudentID()).get().getGender().equals("男"))
+                                    boysList.add(tempList.get(j));
+                                else
+                                    girlsList.add(tempList.get(j));
+                            }
+                        }
+                        float boySum1=0;
+                        float boySum2=0;
+                        float girlSum1=0;
+                        float girlSum2=0;
+                        float boyRate=0;
+                        float girlRate=0;
+                        for(StudentChapter boy:boysList)
+                        {
+                            boySum1+=boy.getTotalScore_1();
+                            boySum2+=boy.getTotalScore_2();
+                            boyRate+=boy.getRate();
+                        }
+                        for(StudentChapter girl:girlsList)
+                        {
+                            girlSum1+=girl.getTotalScore_1();
+                            girlSum2+=girl.getTotalScore_2();
+                            girlRate+=girl.getRate();
+                        }
+                        chapterMap.put("boyAverage1",boySum1/boysList.size());
+                        chapterMap.put("boyAverage2",boySum2/boysList.size());
+                        chapterMap.put("girlAverage1",girlSum1/girlsList.size());
+                        chapterMap.put("girlAverage2",girlSum2/girlsList.size());
+                        chapterMap.put("totalAverage1",(boySum1+girlSum1)/tempList.size());
+                        chapterMap.put("totalAverage2",(boySum2+girlSum2)/tempList.size());
+                        chapterMap.put("boyRateAvg",boyRate/boysList.size());
+                        chapterMap.put("girlRateAvg",girlRate/girlsList.size());
+                        chapterMap.put("totalRateAvg",(boyRate+girlRate)/tempList.size());
+                        chapterMap.put("boys",boysList);
+                        chapterMap.put("girls",girlsList);
+
+                    }
+                    arrayList.add(chapterMap);
+                }
+                classMap.put("classNum",c.getClassNum());
+                classMap.put("scoreInfo",arrayList);
+                resultMap.add(classMap);
+            }
+            return resultMap;
         }
         else
             return null;

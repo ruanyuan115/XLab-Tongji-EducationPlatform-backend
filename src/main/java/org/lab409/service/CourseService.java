@@ -51,4 +51,5 @@ public interface CourseService
     Map getTeacherListByNID(String courseNameID);
     Integer addStudentComment(Integer chapterID,Integer studentID,String comment,Integer rate);
     Integer addClassComment(Integer courseClassID,Integer studentID,String comment,Integer rate);
+    ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID);
 }

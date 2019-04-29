@@ -477,4 +477,12 @@ public class CourseController
         resultEntity.setMessage(resultEntity.getState()==1?"评论成功！":"该学生未曾选过这门课！");
         return resultEntity;
     }
+    @GetMapping(value="/getCourseScoreAndCommentByGender")
+    public ResultEntity getCourseScoreAndCommentByGender(Integer courseID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCourseScoreAndCommentByGender(courseID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        return resultEntity;
+    }
 }

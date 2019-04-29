@@ -1,9 +1,14 @@
 package org.lab409.security.controller;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 
+import org.lab409.dao.UserDao;
 import org.lab409.entity.ResultEntity;
+import org.lab409.entity.UserInfo;
+import org.lab409.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +46,9 @@ public class AuthenticationRestController {
     @Qualifier("jwtUserDetailsService")
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private UserDao userDao;
+
     @RequestMapping(value = "${jwt.route.authentication.path}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
 
@@ -51,11 +59,20 @@ public class AuthenticationRestController {
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         // Return the token
+        UserInfo userInfo=userDao.findByMail(authenticationRequest.getUsername());
+        Map<String,Object>resultMap=new HashMap<>();
+        resultMap.put("userID",userInfo.getUserID());
+        resultMap.put("mail",userInfo.getMail());
+        resultMap.put("gender",userInfo.getGender());
+        resultMap.put("name",userInfo.getName());
+        resultMap.put("role",userInfo.getRole());
+        resultMap.put("workID",userInfo.getWorkID());
+        resultMap.put("token",new JwtAuthenticationResponse(token));
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setState(1);
         resultEntity.setMessage("登陆成功！");
-        resultEntity.setData(new JwtAuthenticationResponse(token));
-        return ResponseEntity.ok(new JwtAuthenticationResponse(token));
+        resultEntity.setData(resultMap);
+        return ResponseEntity.ok(resultEntity);
     }
 
     @RequestMapping(value = "${jwt.route.authentication.refresh}", method = RequestMethod.GET)
