@@ -267,7 +267,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID,Integer chapterID,Integer courseClassID)
+    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID,Integer chapterID,Integer getDetail,Integer courseClassID)
     {
         Optional<ChapterNode> chapterNode=chapterContentDao.findById(chapterID);
         if(chapterNode.isPresent())
@@ -343,8 +343,11 @@ public class CourseServiceImp implements CourseService
                     chapterMap.put("boyRateAvg",boyRate/boysList.size());
                     chapterMap.put("girlRateAvg",girlRate/girlsList.size());
                     chapterMap.put("totalRateAvg",(boyRate+girlRate)/(boysList.size()+girlsList.size()));
-                    //chapterMap.put("boys",boysList);
-                    //chapterMap.put("girls",girlsList);
+                    if(getDetail!=null&&getDetail>0)
+                    {
+                        chapterMap.put("boys",boysList);
+                        chapterMap.put("girls",girlsList);
+                    }
 
                 }
                 arrayList.add(chapterMap);
