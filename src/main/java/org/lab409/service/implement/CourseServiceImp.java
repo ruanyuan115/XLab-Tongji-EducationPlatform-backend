@@ -1,5 +1,6 @@
 package org.lab409.service.implement;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.lab409.dao.*;
 import org.lab409.entity.*;
 import org.lab409.model.security.User;
@@ -266,7 +267,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID)
+    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID,Integer courseClassID)
     {
         ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(courseID,0);
         if(chapterNodes!=null&&chapterNodes.size()>0)
@@ -279,7 +280,15 @@ public class CourseServiceImp implements CourseService
 
             ArrayList<Map>resultMap=new ArrayList<>();
 
-            ArrayList<CourseClass>classesTemp=getClassesByCourseID(courseID);
+            ArrayList<CourseClass>classesTemp=new ArrayList<>();
+            if (courseClassID==null)
+                classesTemp=getClassesByCourseID(courseID);
+            else
+            {
+                Optional<CourseClass> classTemp=courseClassDao.findById(courseClassID);
+                if (classTemp.isPresent())
+                    classesTemp.add(classTemp.get());
+            }
             for(CourseClass c:classesTemp)
             {
                 Map<String,Object>classMap=new HashMap<>();
@@ -333,11 +342,11 @@ public class CourseServiceImp implements CourseService
                         chapterMap.put("boyAverage2",boySum2/boysList.size());
                         chapterMap.put("girlAverage1",girlSum1/girlsList.size());
                         chapterMap.put("girlAverage2",girlSum2/girlsList.size());
-                        chapterMap.put("totalAverage1",(boySum1+girlSum1)/tempList.size());
-                        chapterMap.put("totalAverage2",(boySum2+girlSum2)/tempList.size());
+                        chapterMap.put("totalAverage1",(boySum1+girlSum1)/(boysList.size()+girlsList.size()));
+                        chapterMap.put("totalAverage2",(boySum2+girlSum2)/(boysList.size()+girlsList.size()));
                         chapterMap.put("boyRateAvg",boyRate/boysList.size());
                         chapterMap.put("girlRateAvg",girlRate/girlsList.size());
-                        chapterMap.put("totalRateAvg",(boyRate+girlRate)/tempList.size());
+                        chapterMap.put("totalRateAvg",(boyRate+girlRate)/(boysList.size()+girlsList.size()));
                         chapterMap.put("boys",boysList);
                         chapterMap.put("girls",girlsList);
 
@@ -355,9 +364,11 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public Takes getCurrentProgress(Integer courseClassID, Integer studentID)
+    public ChapterNode getCurrentProgress(Integer courseClassID, Integer studentID)
     {
-        return takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);
+        Takes takeTemp=takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);
+        ChapterNode chapterTemp=getChapterByID(takeTemp.getCurrentProgress());
+        return chapterTemp;
     }
 
     @Override
@@ -785,14 +796,24 @@ public class CourseServiceImp implements CourseService
             }
         return coursesAndClass;
     }
-    public Map getTeacherListByNID(String courseNameID)
+    public ArrayList<Map> getTeacherListByNID(String courseNameID)
     {
+        if(courseNameID!=null&&!NumberUtils.isNumber(courseNameID))
+        {
+            CourseName nameTemp=courseNameDao.getByCourseName(courseNameID);
+            if (nameTemp!=null)
+                courseNameID=nameTemp.getCourseNameID().toString();
+            else
+                return null;
+        }
         List<CourseInfo>courseInfos=courseNameID==null?courseInfoDao.findAll():courseInfoDao.findByCourseName(courseNameID);
-        Map<Integer,String> teacherInfoMap=new HashMap<>();
         //if (courseInfos!=null)
+        ArrayList<Map>teacherInfoMap=new ArrayList<>();
         for(CourseInfo i:courseInfos)
         {
-            teacherInfoMap.put(i.getTeacherID(),i.getTeacherName());
+            Map<String,Object>tempMap=new HashMap<>();
+            tempMap.put("courseInfo",i);
+            teacherInfoMap.add(tempMap);
         }
         return teacherInfoMap;
     }

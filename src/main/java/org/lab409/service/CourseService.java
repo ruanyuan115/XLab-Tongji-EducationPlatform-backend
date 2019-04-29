@@ -24,7 +24,7 @@ public interface CourseService
     ChapterNode getChapterByID(Integer chapterID);
     ArrayList<CourseCatalog> getCourseCatalog(Integer courseID);
     ArrayList<StudentChapterEntity> getCourseScoreAndComment(Integer courseID,Integer studentID);
-    Takes getCurrentProgress(Integer courseID,Integer studentID);
+    ChapterNode getCurrentProgress(Integer courseID,Integer studentID);
     Integer alertCurrentProgress(Integer courseID,Integer studentID,Integer chapterID);
     void deleteChapter(CourseCatalog courseCatalog);
     ArrayList<CourseClass>getClassesByCourseID(Integer courseID);
@@ -48,8 +48,8 @@ public interface CourseService
     Map getStudentNumByYear(Integer year)throws CloneNotSupportedException;
     Map getRateBySemesterAndYear(String courseName);
     ArrayList<CourseAndClass>getClassesByNIDAndTID(String courseNameID,Integer teacherID)throws CloneNotSupportedException;
-    Map getTeacherListByNID(String courseNameID);
+    ArrayList<Map> getTeacherListByNID(String courseNameID);
     Integer addStudentComment(Integer chapterID,Integer studentID,String comment,Integer rate);
     Integer addClassComment(Integer courseClassID,Integer studentID,String comment,Integer rate);
-    ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID);
+    ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID,Integer courseClassID);
 }
