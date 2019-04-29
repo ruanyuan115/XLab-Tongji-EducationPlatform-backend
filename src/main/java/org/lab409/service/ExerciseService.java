@@ -24,5 +24,6 @@ public interface ExerciseService {
     ResultEntity correctAll(List<Integer> scores, Integer studentId,Integer chapterId,String type);
     ResultEntity viewExercise(Integer chapterId,String type);
     ResultEntity viewSomeAnswer(Integer chapterId,Integer studentId,String type);
+    ResultEntity rateNumber(Integer chapterId);
     int calculateScore(Integer chapterId,Integer studentId);
 }

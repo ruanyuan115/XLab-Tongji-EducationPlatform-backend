@@ -123,4 +123,9 @@ public class ExerciseController {
         }
         return resultEntity;
     }
+
+    @GetMapping(value = "/rateNumber")
+    public ResultEntity rateNumber(Integer chapterId){
+        return exerciseService.rateNumber(chapterId);
+    }
 }

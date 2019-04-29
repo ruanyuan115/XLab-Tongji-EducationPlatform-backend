@@ -11,4 +11,5 @@ public interface StudentChapterDao extends JpaRepository<StudentChapter,Integer>
 {
     StudentChapter findByChapterIDAndStudentID(Integer chapterID,Integer studentID);
     ArrayList<StudentChapter>findByChapterID(Integer chapterID);
+    Integer countByChapterIDAndRate(Integer chapterID,Integer rate);
 }

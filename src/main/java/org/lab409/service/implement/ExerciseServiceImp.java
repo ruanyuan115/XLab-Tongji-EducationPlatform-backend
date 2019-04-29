@@ -582,4 +582,24 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         return score;
     }
+
+    @Override
+    @Transactional
+     public ResultEntity rateNumber(Integer chapterId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(chapterId!=null){
+            List<Integer> numbers=new ArrayList<>();
+            for(int i=1;i<=5;i++){
+                numbers.add(studentChapterDao.countByChapterIDAndRate(chapterId,i));
+            }
+            resultEntity.setData(numbers);
+            resultEntity.setState(1);
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
 }
