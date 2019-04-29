@@ -8,4 +8,5 @@ import java.util.List;
 public interface StudentExerciseScoreDao extends JpaRepository<StudentExerciseScore,Integer>{
     StudentExerciseScore findById(int id);
     StudentExerciseScore findByExerciseIdAndStudentId(int exerciseId,int studentId);
+    boolean existsByExerciseIdAndStudentId(int exerciseId,int studentId);
 }
