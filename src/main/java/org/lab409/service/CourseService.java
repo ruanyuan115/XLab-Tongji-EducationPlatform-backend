@@ -46,11 +46,11 @@ public interface CourseService
     Map getStudentNumByTeacher(Integer teacherID)throws CloneNotSupportedException;
     Map getStudentNumBySemester(String semester)throws CloneNotSupportedException;
     Map getStudentNumByYear(Integer year)throws CloneNotSupportedException;
-    Map getRateBySemesterAndYear(String courseName);
-    ArrayList<CourseAndClass>getClassesByNIDAndTID(String courseNameID,Integer teacherID)throws CloneNotSupportedException;
+    ArrayList<Map> getRateBySemesterAndYear(String courseName);
+    ArrayList<Map>getClassesByNIDAndTID(String courseNameID,Integer teacherID)throws CloneNotSupportedException;
     ArrayList<Map> getTeacherListByNID(String courseNameID);
     Integer addStudentComment(Integer chapterID,Integer studentID,String comment,Integer rate);
     Integer addClassComment(Integer courseClassID,Integer studentID,String comment,Integer rate);
     ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID);
-    ArrayList<Map> getCourseClassAvgScore(Integer courseID);
+    Map getCourseClassAvgScore(Integer courseID);
 }

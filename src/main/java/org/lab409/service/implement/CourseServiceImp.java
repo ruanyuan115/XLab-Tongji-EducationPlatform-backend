@@ -267,13 +267,43 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<Map>getCourseClassAvgScore(Integer courseID)
+    public Map getCourseClassAvgScore(Integer courseID)
     {
         ArrayList<CourseClass>courseClasses=getClassesByCourseID(courseID);
+        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(courseID,0);
 
         if(courseClasses!=null&&courseClasses.size()>0)
         {
+            int courseBoyNum=0;
+            int courseGirlNum=0;
+            float courseBoyScoreSum1=0;
+            int courseBoyScoreNum1=0;
+            float courseBoyScoreSum2=0;
+            int courseBoyScoreNum2=0;
+            float courseGirlScoreSum1=0;
+            int courseGirlScoreNum1=0;
+            float courseGirlScoreSum2=0;
+            int courseGirlScoreNum2=0;
+            float courseBoyScoreSum=0;
+            int courseBoyScoreNum=0;
+            float courseGirlScoreSum=0;
+            int courseGirlScoreNum=0;
+            float courseBoyRateSum=0;
+            int courseBoyRateNum=0;
+            float courseGirlRateSum=0;
+            int courseGirlRateNum=0;
+            ArrayList<Integer>courseBoyScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+            ArrayList<Integer>courseGirlScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+            ArrayList<Integer>courseBoyScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+            ArrayList<Integer>courseGirlScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+            ArrayList<Integer>courseBoyScoreAvgDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+            ArrayList<Integer>courseGirlScoreAvgDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+
+            ArrayList<Integer>courseBoyRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+            ArrayList<Integer>courseGirlRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+
             ArrayList<Map>resultMap=new ArrayList<>();
+
             for(CourseClass i:courseClasses)
             {
                 int boyNum=0;
@@ -314,27 +344,33 @@ public class CourseServiceImp implements CourseService
                     int studentScoreNum=0;
                     float studentRateSum=0;
                     int studentRateNum=0;
-                    ArrayList<StudentChapterEntity>temp=getCourseScoreAndComment(courseID,u.getUserID());
-                    for(StudentChapterEntity s:temp)
+                    ArrayList<StudentChapter>temp=new ArrayList<>();
+                    for(ChapterNode c:chapterNodes)
                     {
-                        if(s.getStudentChapter().getTotalScore_1()!=null)
+                        StudentChapter t=studentChapterDao.findByChapterIDAndStudentID(c.getId(),u.getUserID());
+                        if (t!=null)
+                            temp.add(t);
+                    }
+                    for(StudentChapter s:temp)
+                    {
+                        if(s.getTotalScore_1()!=null)
                         {
-                            studentScoreSum1 += s.getStudentChapter().getTotalScore_1();
+                            studentScoreSum1 += s.getTotalScore_1();
                             studentScoreNum1+=1;
                         }
-                        if(s.getStudentChapter().getTotalScore_2()!=null)
+                        if(s.getTotalScore_2()!=null)
                         {
-                            studentScoreSum2+=s.getStudentChapter().getTotalScore_2();
+                            studentScoreSum2+=s.getTotalScore_2();
                             studentScoreNum2+=1;
                         }
-                        if (s.getStudentChapter().getRate()!=null)
+                        if (s.getRate()!=null)
                         {
-                            studentRateSum+=s.getStudentChapter().getRate();
+                            studentRateSum+=s.getRate();
                             studentRateNum+=1;
                         }
-                        if(s.getStudentChapter().getTotalScore_1()!=null&&s.getStudentChapter().getTotalScore_2()!=null)
+                        if(s.getTotalScore_1()!=null&&s.getTotalScore_2()!=null)
                         {
-                            studentScoreSum+=(s.getStudentChapter().getTotalScore_1()+s.getStudentChapter().getTotalScore_2())/2;
+                            studentScoreSum+=(s.getTotalScore_1()+s.getTotalScore_2())/2;
                             studentScoreNum+=1;
                         }
                     }
@@ -345,61 +381,90 @@ public class CourseServiceImp implements CourseService
                     if(userDao.findByMail(u.getMail()).getGender().equals("男"))
                     {
                         boyNum+=1;
+                        courseBoyNum+=1;
                         if(studentScoreSum1!=0)
                         {
                             boyScoreSum1+=studentScoreSum1/studentScoreNum1;
                             boyScoreNum1+=1;
+                            courseBoyScoreSum1+=studentScoreSum1/studentScoreNum1;
+                            courseBoyScoreNum1+=1;
                         }
                         if(studentScoreSum2!=0)
                         {
                             boyScoreSum2+=studentScoreSum2/studentScoreNum2;
                             boyScoreNum2+=1;
+                            courseBoyScoreSum2+=studentScoreSum2/studentScoreNum2;
+                            courseBoyScoreNum2+=1;
                         }
                         if (studentScoreSum!=0)
                         {
                             boyScoreSum+=studentScoreSum/studentScoreNum;
                             boyScoreNum+=1;
+                            courseBoyScoreSum+=studentScoreSum/studentScoreNum;
+                            courseBoyScoreNum+=1;
                         }
                         if (studentRateSum!=0)
                         {
                             boyRateSum+=studentRateSum/studentRateNum;
                             boyRateNum+=1;
+                            courseBoyRateSum+=studentRateSum/studentRateNum;
+                            courseBoyRateNum+=1;
                         }
                         boyScore1.set(indexScore1,boyScore1.get(indexScore1)+1);
                         boyScore2.set(indexScore2,boyScore2.get(indexScore2)+1);
                         boyScoreAvgDis.set(indexScore,boyScoreAvgDis.get(indexScore)+1);
                         boyRateDis.set(indexRate,boyRateDis.get(indexRate)+1);
+
+                        courseBoyScore1.set(indexScore1,courseBoyScore1.get(indexScore1)+1);
+                        courseBoyScore2.set(indexScore2,courseBoyScore2.get(indexScore2)+1);
+                        courseBoyScoreAvgDis.set(indexScore,courseBoyScoreAvgDis.get(indexScore)+1);
+                        courseBoyRateDis.set(indexRate,courseBoyRateDis.get(indexRate)+1);
                     }
                     else
                     {
+                        courseGirlNum+=1;
                         girlNum+=1;
                         if(studentScoreSum1!=0)
                         {
                             girlScoreSum1+=studentScoreSum1/studentScoreNum1;
                             girlScoreNum1+=1;
+                            courseGirlScoreSum1+=studentScoreSum1/studentScoreNum1;
+                            courseGirlScoreNum1+=1;
                         }
                         if(studentScoreSum2!=0)
                         {
                             girlScoreSum2+=studentScoreSum2/studentScoreNum2;
                             girlScoreNum2+=1;
+                            courseGirlScoreSum2+=studentScoreSum2/studentScoreNum2;
+                            courseGirlScoreNum2+=1;
                         }
                         if (studentScoreSum!=0)
                         {
                             girlScoreSum+=studentScoreSum/studentScoreNum;
                             girlScoreNum+=1;
+                            courseGirlScoreSum+=studentScoreSum/studentScoreNum;
+                            courseGirlScoreNum+=1;
                         }
                         if (studentRateSum!=0)
                         {
                             girlRateSum+=studentRateSum/studentRateNum;
                             girlRateNum+=1;
+                            courseGirlRateSum+=studentRateSum/studentRateNum;
+                            courseGirlRateNum+=1;
                         }
                         girlScore1.set(indexScore1,girlScore1.get(indexScore1)+1);
                         girlScore2.set(indexScore2,girlScore2.get(indexScore2)+1);
                         girlScoreAvgDis.set(indexScore,girlScoreAvgDis.get(indexScore)+1);
                         girlRateDis.set(indexRate,girlRateDis.get(indexRate)+1);
+
+                        courseGirlScore1.set(indexScore1,courseGirlScore1.get(indexScore1)+1);
+                        courseGirlScore2.set(indexScore2,courseGirlScore2.get(indexScore2)+1);
+                        courseGirlScoreAvgDis.set(indexScore,courseGirlScoreAvgDis.get(indexScore)+1);
+                        courseGirlRateDis.set(indexRate,courseGirlRateDis.get(indexRate)+1);
                     }
                 }
                 Map<String,Object> classMap=new HashMap<>();
+
 
                 classMap.put("classNum",i.getId());
                 classMap.put("boyNum",boyNum);
@@ -421,7 +486,25 @@ public class CourseServiceImp implements CourseService
 
                 resultMap.add(classMap);
             }
-            return resultMap;
+            Map<String,Object>infoMap=new HashMap<>();
+            infoMap.put("courseBoyNum",courseBoyNum);
+            infoMap.put("courseGirlNum",courseGirlNum);
+            infoMap.put("courseBoyAvgScore1",courseBoyScoreSum1/courseBoyScoreNum1);
+            infoMap.put("courseBoyAvgScore2",courseBoyScoreSum2/courseBoyScoreNum2);
+            infoMap.put("courseBoyAvgScore",courseBoyScoreSum/courseBoyScoreNum);
+            infoMap.put("courseGirlAvgScore1",courseGirlScoreSum1/courseGirlScoreNum1);
+            infoMap.put("courseGirlAvgScore2",courseGirlScoreSum2/courseGirlScoreNum2);
+            infoMap.put("courseGirlAgeScore",courseGirlScoreSum/courseGirlScoreNum);
+            infoMap.put("courseBoyAvgRate",courseBoyRateSum/courseBoyRateNum);
+            infoMap.put("courseGirlAvgRate",courseGirlRateSum/courseGirlRateNum);
+            infoMap.put("courseBoyScoreDis1",courseBoyScore1);
+            infoMap.put("courseBoyScoreDis2",courseBoyScore2);
+            infoMap.put("courseBoyScoreDis",courseBoyScoreAvgDis);
+            infoMap.put("courseGirlScoreDis1",courseGirlScore1);
+            infoMap.put("courseGirlScoreDis2",courseGirlScore2);
+            infoMap.put("courseGirlScoreDis",courseGirlScoreAvgDis);
+            infoMap.put("classInfo",resultMap);
+            return infoMap;
         }
         else
             return null;
@@ -1006,7 +1089,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public Map getRateBySemesterAndYear(String courseName)
+    public ArrayList<Map> getRateBySemesterAndYear(String courseName)
     {
         ArrayList<CourseAndClassList>courseInfos=getAllCoursesByNameID(courseName);
         Map<SemesterAndYear,ArrayList<Float>>semYearToRateMap=new HashMap<>();
@@ -1018,35 +1101,41 @@ public class CourseServiceImp implements CourseService
             semYearToRateMap.get(temp).add(i.getCourseInfo().getRate());
         }
         Set<SemesterAndYear>semesterAndYears=semYearToRateMap.keySet();
-        Map<SemesterAndYear,Float>rateMap=new HashMap<>();
+
+        ArrayList<Map>resultMap=new ArrayList<>();
         for(SemesterAndYear i:semesterAndYears)
         {
+            Map<String,Object>rateMap=new HashMap<>();
             Float sum=0F;
             for(Float j:semYearToRateMap.get(i))
                 sum+=j;
             if (semYearToRateMap.get(i).size()!=0)
                 sum/=semYearToRateMap.get(i).size();
-            rateMap.put(i,sum);
+            rateMap.put("semesterAndYear",i);
+            rateMap.put("avgRate",sum);
+            resultMap.add(rateMap);
         }
-        return rateMap;
+        return resultMap;
     }
 
     @Override
-    public ArrayList<CourseAndClass> getClassesByNIDAndTID(String courseNameID, Integer teacherID)throws CloneNotSupportedException
+    public ArrayList<Map> getClassesByNIDAndTID(String courseNameID, Integer teacherID)throws CloneNotSupportedException
     {
+        ArrayList<Map>resultMap=new ArrayList<>();
         ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseNameAndTeacherID(courseNameID,teacherID);
-        ArrayList<CourseAndClass>coursesAndClass=new ArrayList<>();
         if (courseInfos!=null)
             for(CourseInfo i:courseInfos)
             {
                 ArrayList<CourseClass>temp=getClassesByCourseID(i.getCourseID());
                 if (temp!=null)
-                    for(CourseClass j:temp)
-                    {
-                        coursesAndClass.add(new CourseAndClass(i,j));
-                    }
+                {
+                    Map<String,Object>courseClassMap=new HashMap<>();
+                    courseClassMap.put("courseInfo",i);
+                    courseClassMap.put("classes",temp);
+                    resultMap.add(courseClassMap);
+                }
             }
-        return coursesAndClass;
+        return resultMap;
     }
     public ArrayList<Map> getTeacherListByNID(String courseNameID)
     {
