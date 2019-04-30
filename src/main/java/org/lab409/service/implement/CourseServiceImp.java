@@ -269,7 +269,7 @@ public class CourseServiceImp implements CourseService
     @Override
     public ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
     {
-        //获取章节信息后 获取班级信息 然后获取学生在该章的信息 遍历班级查找该班学生的性别 分类计算均值
+        //获取章节信息后 获取班级信息 然后获取学生在该章的信息(studentChapter) 遍历班级查找该班学生的性别 分类计算均值
 
         Optional<ChapterNode> chapterNode=chapterContentDao.findById(chapterID);
         if(chapterNode.isPresent())
@@ -307,84 +307,135 @@ public class CourseServiceImp implements CourseService
                     ArrayList<StudentChapter>boysList=new ArrayList<>();
                     ArrayList<StudentChapter>girlsList=new ArrayList<>();
 
+                    ArrayList<Integer>boyScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>girlScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>totalScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>totalScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>boyScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>girlScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>boyScoreAvgDis=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>girlScoreAvgDis=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>totalScoreAvgDis=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
 
-                    ArrayList<Integer>boyScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    ArrayList<Integer>girlScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    ArrayList<Integer>totalScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    ArrayList<Integer>totalScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    ArrayList<Integer>boyScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    ArrayList<Integer>girlScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                    ArrayList<Integer>boyRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>girlRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
+                    ArrayList<Integer>totalRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
 
-                    ArrayList<Integer>boyRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    ArrayList<Integer>girlRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    ArrayList<Integer>totalRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                    for(int i=0;i<5;i++)
+                    int boyNum=0;
+                    int girlNum=0;
+                    int totalNum=0;
+                    float boySum1=0;
+                    int boyNum1=0;
+                    float boySum2=0;
+                    int boyNum2=0;
+                    float girlSum1=0;
+                    int girlNum1=0;
+                    float girlSum2=0;
+                    int girlNum2=0;
+                    float boyRateSum=0;
+                    int boyRateNum=0;
+                    float girlRateSum=0;
+                    int girlRateNum=0;
+
                     for(int j=tempList.size()-1;j>=0;j--)                                             //性别筛选
                     {
                         if (studentIDs.contains(tempList.get(j).getStudentID()))                   //如果在这个班
                         {
-                            int index1=tempList.get(j).getTotalScore_1()/10<6?0:tempList.get(j).getTotalScore_1()/10==10?4:tempList.get(j).getTotalScore_1()/10-5;
-                            int index2=tempList.get(j).getTotalScore_2()/10<6?0:tempList.get(j).getTotalScore_2()/10==10?4:tempList.get(j).getTotalScore_2()/10-5;
-                            int rateIndex=tempList.get(j).getRate()==5?4:tempList.get(j).getRate();
+                            totalNum+=1;
+                            int index1=tempList.get(j).getTotalScore_1()==null?5:tempList.get(j).getTotalScore_1() / 10 < 6 ? 0 : tempList.get(j).getTotalScore_1() / 10 == 10 ? 4 : tempList.get(j).getTotalScore_1() / 10 - 5;
+                            int index2=tempList.get(j).getTotalScore_2()==null?5:tempList.get(j).getTotalScore_2()/10<6?0:tempList.get(j).getTotalScore_2()/10==10?4:tempList.get(j).getTotalScore_2()/10-5;
+                            int rateIndex=tempList.get(j).getRate()==null?5:tempList.get(j).getRate()==5?4:tempList.get(j).getRate();
+                            int avgScoreIndex=5;
+                            if (tempList.get(j).getTotalScore_1()!=null&&tempList.get(j).getTotalScore_2()!=null)
+                            {
+                                int temp=(tempList.get(j).getTotalScore_1()+tempList.get(j).getTotalScore_2())/2;
+                                avgScoreIndex=temp/10<6?0:temp/10==10?4:temp/10-5;
+                            }
+
                             if(userDao.findById(tempList.get(j).getStudentID()).get().getGender().equals("男"))
                             {
                                 boysList.add(tempList.get(j));
+                                boyNum+=1;
+                                if(tempList.get(j).getTotalScore_1()!=null)
+                                {
+                                    boySum1 += tempList.get(j).getTotalScore_1();
+                                    boyNum1 += 1;
+                                }
+                                if (tempList.get(j).getTotalScore_2()!=null)
+                                {
+                                    boySum2+=tempList.get(j).getTotalScore_2();
+                                    boyNum2+=1;
+                                }
+                                if (tempList.get(j).getRate()!=null)
+                                {
+                                    boyRateSum+=tempList.get(j).getRate();
+                                    boyRateNum+=1;
+                                }
                                 boyScore1.set(index1,boyScore1.get(index1)+1);
                                 boyScore2.set(index2,boyScore2.get(index2)+1);
                                 boyRateDis.set(rateIndex,boyRateDis.get(rateIndex)+1);
+                                boyScoreAvgDis.set(avgScoreIndex,boyScoreAvgDis.get(avgScoreIndex)+1);
                             }
                             else
                             {
                                 girlsList.add(tempList.get(j));
+                                girlNum+=1;
+                                if(tempList.get(j).getTotalScore_1()!=null)
+                                {
+                                    girlSum1+=tempList.get(j).getTotalScore_1();
+                                    girlNum1+=1;
+                                }
+                                if (tempList.get(j).getTotalScore_2()!=null)
+                                {
+                                    girlSum2+=tempList.get(j).getTotalScore_2();
+                                    girlNum2+=1;
+                                }
+                                if(tempList.get(j).getRate()!=null)
+                                {
+                                    girlRateSum+=tempList.get(j).getRate();
+                                    girlRateNum+=1;
+                                }
+
                                 girlScore1.set(index1,girlScore1.get(index1)+1);
                                 girlScore2.set(index2,girlScore2.get(index2)+1);
                                 girlRateDis.set(rateIndex,girlRateDis.get(rateIndex)+1);
+                                girlScoreAvgDis.set(avgScoreIndex,girlScoreAvgDis.get(avgScoreIndex)+1);
                             }
                             totalScore1.set(index1,totalScore1.get(index1)+1);
                             totalScore2.set(index2,totalScore2.get(index2)+1);
                             totalRateDis.set(rateIndex,totalRateDis.get(rateIndex)+1);
+                            totalScoreAvgDis.set(avgScoreIndex,totalRateDis.get(avgScoreIndex)+1);
+
                             tempList.remove(j);
                         }
                     }
-                    float boySum1=0;
-                    float boySum2=0;
-                    float girlSum1=0;
-                    float girlSum2=0;
-                    float boyRateSum=0;
-                    float girlRateSum=0;
-                    for(StudentChapter boy:boysList)
-                    {
-                        boySum1+=boy.getTotalScore_1();
-                        boySum2+=boy.getTotalScore_2();
-                        boyRateSum+=boy.getRate();
-                    }
-                    for(StudentChapter girl:girlsList)
-                    {
-                        girlSum1+=girl.getTotalScore_1();
-                        girlSum2+=girl.getTotalScore_2();
-                        girlRateSum+=girl.getRate();
-                    }
-                    chapterMap.put("boysNum",boysList.size());
-                    chapterMap.put("girlsNum",girlsList.size());
-                    chapterMap.put("boyAverage1",boySum1!=0?boySum1/boysList.size():0);
-                    chapterMap.put("boyAverage2",boySum2!=0?boySum2/boysList.size():0);
-                    chapterMap.put("girlAverage1",girlSum1!=0?girlSum1/girlsList.size():0);
-                    chapterMap.put("girlAverage2",girlSum2!=0?girlSum2/girlsList.size():0);
-                    chapterMap.put("totalAverage1",(boySum1+girlSum1)!=0?(boySum1+girlSum1)/(boysList.size()+girlsList.size()):0);
-                    chapterMap.put("totalAverage2",(boySum2+girlSum2)!=0?(boySum2+girlSum2)/(boysList.size()+girlsList.size()):0);
+
+
+
+                    chapterMap.put("boysNum",boyNum);
+                    chapterMap.put("girlsNum",girlNum);
+                    chapterMap.put("totalNum",totalNum);
+                    chapterMap.put("boyAverage1",boySum1!=0?boySum1/boyNum1:0);
+                    chapterMap.put("boyAverage2",boySum2!=0?boySum2/boyNum2:0);
+                    chapterMap.put("girlAverage1",girlSum1!=0?girlSum1/girlNum1:0);
+                    chapterMap.put("girlAverage2",girlSum2!=0?girlSum2/girlNum2:0);
+                    chapterMap.put("totalAverage1",(boySum1+girlSum1)!=0?(boySum1+girlSum1)/(boyNum1+girlNum1):0);
+                    chapterMap.put("totalAverage2",(boySum2+girlSum2)!=0?(boySum2+girlSum2)/(boyNum2+girlNum2):0);
                     chapterMap.put("boyScoreDistribute1",boyScore1);
                     chapterMap.put("boyScoreDistribute2",boyScore2);
                     chapterMap.put("girlScoreDistribute1",girlScore1);
                     chapterMap.put("girlScoreDistribute2",girlScore2);
                     chapterMap.put("totalScoreDistribute1",totalScore1);
                     chapterMap.put("totalScoreDistribute2",totalScore2);
-                    chapterMap.put("boyRateAvg",boyRateSum!=0?boyRateSum/boysList.size():0);
-                    chapterMap.put("girlRateAvg",girlRateSum!=0?girlRateSum/girlsList.size():0);
-                    chapterMap.put("totalRateAvg",(boyRateSum+girlRateSum)!=0?(boyRateSum+girlRateSum)/(boysList.size()+girlsList.size()):0);
+                    chapterMap.put("boyScoreAvgDistribute",boyScoreAvgDis);
+                    chapterMap.put("girlScoreAvgDistribute",girlScoreAvgDis);
+                    chapterMap.put("totalScoreAvgDistribute",totalScoreAvgDis);
+                    chapterMap.put("boyRateAvg",boyRateSum!=0?boyRateSum/boyRateNum:0);
+                    chapterMap.put("girlRateAvg",girlRateSum!=0?girlRateSum/girlRateNum:0);
+                    chapterMap.put("totalRateAvg",(boyRateSum+girlRateSum)!=0?(boyRateSum+girlRateSum)/(boyRateNum+girlRateNum):0);
                     chapterMap.put("boyRateDistribute",boyRateDis);
                     chapterMap.put("girlRateDistribute",girlRateDis);
                     chapterMap.put("totalRateDistribute",totalRateDis);
-
 
                     if(getDetail!=null&&getDetail>0)
                     {
