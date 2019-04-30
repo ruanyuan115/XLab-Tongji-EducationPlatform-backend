@@ -307,11 +307,17 @@ public class CourseServiceImp implements CourseService
                     ArrayList<StudentChapter>boysList=new ArrayList<>();
                     ArrayList<StudentChapter>girlsList=new ArrayList<>();
 
-                    
+
                     ArrayList<Integer>boyScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
                     ArrayList<Integer>girlScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                    ArrayList<Integer>totalScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                    ArrayList<Integer>totalScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
                     ArrayList<Integer>boyScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
                     ArrayList<Integer>girlScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+
+                    ArrayList<Integer>boyRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                    ArrayList<Integer>girlRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                    ArrayList<Integer>totalRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
                     for(int i=0;i<5;i++)
                     for(int j=tempList.size()-1;j>=0;j--)                                             //性别筛选
                     {
@@ -319,18 +325,24 @@ public class CourseServiceImp implements CourseService
                         {
                             int index1=tempList.get(j).getTotalScore_1()/10<6?0:tempList.get(j).getTotalScore_1()/10==10?4:tempList.get(j).getTotalScore_1()/10-5;
                             int index2=tempList.get(j).getTotalScore_2()/10<6?0:tempList.get(j).getTotalScore_2()/10==10?4:tempList.get(j).getTotalScore_2()/10-5;
+                            int rateIndex=tempList.get(j).getRate()==5?4:tempList.get(j).getRate();
                             if(userDao.findById(tempList.get(j).getStudentID()).get().getGender().equals("男"))
                             {
                                 boysList.add(tempList.get(j));
                                 boyScore1.set(index1,boyScore1.get(index1)+1);
                                 boyScore2.set(index2,boyScore2.get(index2)+1);
+                                boyRateDis.set(rateIndex,boyRateDis.get(rateIndex)+1);
                             }
                             else
                             {
                                 girlsList.add(tempList.get(j));
                                 girlScore1.set(index1,girlScore1.get(index1)+1);
                                 girlScore2.set(index2,girlScore2.get(index2)+1);
+                                girlRateDis.set(rateIndex,girlRateDis.get(rateIndex)+1);
                             }
+                            totalScore1.set(index1,totalScore1.get(index1)+1);
+                            totalScore2.set(index2,totalScore2.get(index2)+1);
+                            totalRateDis.set(rateIndex,totalRateDis.get(rateIndex)+1);
                             tempList.remove(j);
                         }
                     }
@@ -338,19 +350,19 @@ public class CourseServiceImp implements CourseService
                     float boySum2=0;
                     float girlSum1=0;
                     float girlSum2=0;
-                    float boyRate=0;
-                    float girlRate=0;
+                    float boyRateSum=0;
+                    float girlRateSum=0;
                     for(StudentChapter boy:boysList)
                     {
                         boySum1+=boy.getTotalScore_1();
                         boySum2+=boy.getTotalScore_2();
-                        boyRate+=boy.getRate();
+                        boyRateSum+=boy.getRate();
                     }
                     for(StudentChapter girl:girlsList)
                     {
                         girlSum1+=girl.getTotalScore_1();
                         girlSum2+=girl.getTotalScore_2();
-                        girlRate+=girl.getRate();
+                        girlRateSum+=girl.getRate();
                     }
                     chapterMap.put("boysNum",boysList.size());
                     chapterMap.put("girlsNum",girlsList.size());
@@ -364,9 +376,15 @@ public class CourseServiceImp implements CourseService
                     chapterMap.put("boyScoreDistribute2",boyScore2);
                     chapterMap.put("girlScoreDistribute1",girlScore1);
                     chapterMap.put("girlScoreDistribute2",girlScore2);
-                    chapterMap.put("boyRateAvg",boyRate!=0?boyRate/boysList.size():0);
-                    chapterMap.put("girlRateAvg",girlRate!=0?girlRate/girlsList.size():0);
-                    chapterMap.put("totalRateAvg",(boyRate+girlRate)!=0?(boyRate+girlRate)/(boysList.size()+girlsList.size()):0);
+                    chapterMap.put("totalScoreDistribute1",totalScore1);
+                    chapterMap.put("totalScoreDistribute2",totalScore2);
+                    chapterMap.put("boyRateAvg",boyRateSum!=0?boyRateSum/boysList.size():0);
+                    chapterMap.put("girlRateAvg",girlRateSum!=0?girlRateSum/girlsList.size():0);
+                    chapterMap.put("totalRateAvg",(boyRateSum+girlRateSum)!=0?(boyRateSum+girlRateSum)/(boysList.size()+girlsList.size()):0);
+                    chapterMap.put("boyRateDistribute",boyRateDis);
+                    chapterMap.put("girlRateDistribute",girlRateDis);
+                    chapterMap.put("totalRateDistribute",totalRateDis);
+
 
                     if(getDetail!=null&&getDetail>0)
                     {
