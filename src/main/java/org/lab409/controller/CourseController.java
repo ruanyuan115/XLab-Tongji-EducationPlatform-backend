@@ -478,10 +478,10 @@ public class CourseController
         return resultEntity;
     }
     @GetMapping(value="/getCourseScoreAndCommentByGender")
-    public ResultEntity getCourseScoreAndCommentByGender(Integer courseID,Integer chapterID,Integer getDetail,Integer courseClassID)
+    public ResultEntity getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setData(courseService.getCourseScoreAndCommentByGender(courseID,chapterID,getDetail,courseClassID));
+        resultEntity.setData(courseService.getCourseScoreAndCommentByGender(chapterID,getDetail,courseClassID));
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }

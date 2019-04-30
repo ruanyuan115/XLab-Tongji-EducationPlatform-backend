@@ -267,7 +267,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer courseID,Integer chapterID,Integer getDetail,Integer courseClassID)
+    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
     {
         //获取章节信息后 获取班级信息 然后获取学生在该章的信息 遍历班级查找该班学生的性别 分类计算均值
 
@@ -277,9 +277,9 @@ public class CourseServiceImp implements CourseService
             ArrayList<Map>resultMap=new ArrayList<>();
             ArrayList<CourseClass>classesTemp=new ArrayList<>();
 
-            if (courseClassID==null)
-                classesTemp=getClassesByCourseID(courseID);
-            else
+            if (courseClassID==null||courseClassID==0)
+                classesTemp=getClassesByCourseID(chapterNode.get().getCourseID());
+            else if (courseClassID>0)
             {
                 Optional<CourseClass> classTemp=courseClassDao.findById(courseClassID);
                 if (classTemp.isPresent())
@@ -407,8 +407,8 @@ public class CourseServiceImp implements CourseService
     public ChapterNode getCurrentProgress(Integer courseClassID, Integer studentID)
     {
         Takes takeTemp=takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);
-        ChapterNode chapterTemp=getChapterByID(takeTemp.getCurrentProgress());
-        return chapterTemp;
+
+        return takeTemp==null?null:getChapterByID(takeTemp.getCurrentProgress());
     }
 
     @Override
