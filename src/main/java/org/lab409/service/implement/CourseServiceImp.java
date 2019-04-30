@@ -267,6 +267,167 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    public ArrayList<Map>getCourseClassAvgScore(Integer courseID)
+    {
+        ArrayList<CourseClass>courseClasses=getClassesByCourseID(courseID);
+
+        if(courseClasses!=null&&courseClasses.size()>0)
+        {
+            ArrayList<Map>resultMap=new ArrayList<>();
+            for(CourseClass i:courseClasses)
+            {
+                int boyNum=0;
+                int girlNum=0;
+                float boyScoreSum1=0;      //男生各个章节课前成绩求和
+                int boyScoreNum1=0;
+                float boyScoreSum2=0;      //男生各个章节课后成绩求和
+                int boyScoreNum2=0;
+                float girlScoreSum1=0;      //女生各个章节课前成绩求和
+                int girlScoreNum1=0;
+                float girlScoreSum2=0;      //女生各个章节课后成绩求和
+                int girlScoreNum2=0;
+                float boyScoreSum=0;       //男生各个章节课前课后平均成绩求和
+                int boyScoreNum=0;
+                float girlScoreSum=0;       //女生各个章节课前课后平均成绩求和
+                int girlScoreNum=0;
+                float boyRateSum=0;        //男生各个章节评分求和
+                int boyRateNum=0;
+                float girlRateSum=0;        //女生各个章节评分求和
+                int girlRateNum=0;
+                ArrayList<Integer>boyScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                ArrayList<Integer>girlScore1=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                ArrayList<Integer>boyScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                ArrayList<Integer>girlScore2=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                ArrayList<Integer>boyScoreAvgDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                ArrayList<Integer>girlScoreAvgDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+
+                ArrayList<Integer>boyRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                ArrayList<Integer>girlRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
+                ArrayList<UserInfo> students=getStudentsByClassID(i.getId());
+                for(UserInfo u:students)
+                {
+                    float studentScoreSum1=0;
+                    int studentScoreNum1=0;
+                    float studentScoreSum2=0;
+                    int studentScoreNum2=0;
+                    float studentScoreSum=0;
+                    int studentScoreNum=0;
+                    float studentRateSum=0;
+                    int studentRateNum=0;
+                    ArrayList<StudentChapterEntity>temp=getCourseScoreAndComment(courseID,u.getUserID());
+                    for(StudentChapterEntity s:temp)
+                    {
+                        if(s.getStudentChapter().getTotalScore_1()!=null)
+                        {
+                            studentScoreSum1 += s.getStudentChapter().getTotalScore_1();
+                            studentScoreNum1+=1;
+                        }
+                        if(s.getStudentChapter().getTotalScore_2()!=null)
+                        {
+                            studentScoreSum2+=s.getStudentChapter().getTotalScore_2();
+                            studentScoreNum2+=1;
+                        }
+                        if (s.getStudentChapter().getRate()!=null)
+                        {
+                            studentRateSum+=s.getStudentChapter().getRate();
+                            studentRateNum+=1;
+                        }
+                        if(s.getStudentChapter().getTotalScore_1()!=null&&s.getStudentChapter().getTotalScore_2()!=null)
+                        {
+                            studentScoreSum+=(s.getStudentChapter().getTotalScore_1()+s.getStudentChapter().getTotalScore_2())/2;
+                            studentScoreNum+=1;
+                        }
+                    }
+                    int indexScore1=(int)(studentScoreSum1/studentScoreNum1/10<6?0:studentScoreSum1/studentScoreNum1==100?4:studentScoreSum1/studentScoreNum1/10-5);
+                    int indexScore2=(int)(studentScoreSum2/studentScoreNum2/10<6?0:studentScoreSum2/studentScoreNum2==100?4:studentScoreSum2/studentScoreNum2/10-5);
+                    int indexScore=(int)(studentScoreSum/studentScoreNum/10<6?0:studentScoreSum/studentScoreNum==100?4:studentScoreSum/studentScoreNum/10-5);
+                    int indexRate=(int)(studentRateSum/studentRateNum==5?4:studentRateSum/studentRateNum);
+                    if(userDao.findByMail(u.getMail()).getGender().equals("男"))
+                    {
+                        boyNum+=1;
+                        if(studentScoreSum1!=0)
+                        {
+                            boyScoreSum1+=studentScoreSum1/studentScoreNum1;
+                            boyScoreNum1+=1;
+                        }
+                        if(studentScoreSum2!=0)
+                        {
+                            boyScoreSum2+=studentScoreSum2/studentScoreNum2;
+                            boyScoreNum2+=1;
+                        }
+                        if (studentScoreSum!=0)
+                        {
+                            boyScoreSum+=studentScoreSum/studentScoreNum;
+                            boyScoreNum+=1;
+                        }
+                        if (studentRateSum!=0)
+                        {
+                            boyRateSum+=studentRateSum/studentRateNum;
+                            boyRateNum+=1;
+                        }
+                        boyScore1.set(indexScore1,boyScore1.get(indexScore1)+1);
+                        boyScore2.set(indexScore2,boyScore2.get(indexScore2)+1);
+                        boyScoreAvgDis.set(indexScore,boyScoreAvgDis.get(indexScore)+1);
+                        boyRateDis.set(indexRate,boyRateDis.get(indexRate)+1);
+                    }
+                    else
+                    {
+                        girlNum+=1;
+                        if(studentScoreSum1!=0)
+                        {
+                            girlScoreSum1+=studentScoreSum1/studentScoreNum1;
+                            girlScoreNum1+=1;
+                        }
+                        if(studentScoreSum2!=0)
+                        {
+                            girlScoreSum2+=studentScoreSum2/studentScoreNum2;
+                            girlScoreNum2+=1;
+                        }
+                        if (studentScoreSum!=0)
+                        {
+                            girlScoreSum+=studentScoreSum/studentScoreNum;
+                            girlScoreNum+=1;
+                        }
+                        if (studentRateSum!=0)
+                        {
+                            girlRateSum+=studentRateSum/studentRateNum;
+                            girlRateNum+=1;
+                        }
+                        girlScore1.set(indexScore1,girlScore1.get(indexScore1)+1);
+                        girlScore2.set(indexScore2,girlScore2.get(indexScore2)+1);
+                        girlScoreAvgDis.set(indexScore,girlScoreAvgDis.get(indexScore)+1);
+                        girlRateDis.set(indexRate,girlRateDis.get(indexRate)+1);
+                    }
+                }
+                Map<String,Object> classMap=new HashMap<>();
+
+                classMap.put("classNum",i.getId());
+                classMap.put("boyNum",boyNum);
+                classMap.put("girlNum",girlNum);
+                classMap.put("boyAvgScore1",boyScoreSum1/boyScoreNum1);
+                classMap.put("boyAvgScore2",boyScoreSum2/boyScoreNum2);
+                classMap.put("boyAvgScore",boyScoreSum/boyScoreNum);
+                classMap.put("girlAvgScore1",girlScoreSum1/girlScoreNum1);
+                classMap.put("girlAvgScore2",girlScoreSum2/girlScoreNum2);
+                classMap.put("girlAgeScore",girlScoreSum/girlScoreNum);
+                classMap.put("boyAvgRate",boyRateSum/boyRateNum);
+                classMap.put("girlAvgRate",girlRateSum/girlRateNum);
+                classMap.put("boyScoreDis1",boyScore1);
+                classMap.put("boyScoreDis2",boyScore2);
+                classMap.put("boyScoreDis",boyScoreAvgDis);
+                classMap.put("girlScoreDis1",girlScore1);
+                classMap.put("girlScoreDis2",girlScore2);
+                classMap.put("girlScoreDis",girlScoreAvgDis);
+
+                resultMap.add(classMap);
+            }
+            return resultMap;
+        }
+        else
+            return null;
+    }
+
+    @Override
     public ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
     {
         //获取章节信息后 获取班级信息 然后获取学生在该章的信息(studentChapter) 遍历班级查找该班学生的性别 分类计算均值

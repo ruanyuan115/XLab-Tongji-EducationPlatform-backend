@@ -485,4 +485,12 @@ public class CourseController
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }
+    @GetMapping(value = "/getCourseClassAvgScore")
+    public ResultEntity getCourseClassAvgScore(Integer courseID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCourseClassAvgScore(courseID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        return resultEntity;
+    }
 }
