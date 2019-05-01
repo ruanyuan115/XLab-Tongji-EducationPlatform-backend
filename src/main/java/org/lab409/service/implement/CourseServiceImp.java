@@ -850,16 +850,29 @@ public class CourseServiceImp implements CourseService
         }
         Set<CourseName>courseNames=courseMap.keySet();
 
-        ArrayList<CourseName>preList=new ArrayList<>();
-        for(CourseName i:courseNames)
-            if (courseMap.get(i).size()==0)//没有前继
-                preList.add(i);
-        while(preList.size()!=0&&courseNames.contains(preList.get(0)))
+        while(courseNames.size()!=0)
         {
-            list.add(new CourseRelationEntity(preList.get(0),courseMap.get(preList.get(0)),subCourseMap.get(preList.get(0))));
-            preList.addAll(subCourseMap.get(preList.get(0)));
-            courseNames.remove(preList.get(0));
-            preList.remove(preList.get(0));
+            ArrayList<CourseName>preList=new ArrayList<>();
+            for(CourseName i:courseNames)
+            {
+                int num=0;
+                for (CourseName j:courseMap.get(i))
+                {
+                    if (courseNames.contains(j))
+                    {
+                        num++;
+                        break;
+                    }
+                }
+                if (num==0)
+                    preList.add(i);
+            }
+            for (CourseName i:preList)
+            {
+                list.add(new CourseRelationEntity(i,courseMap.get(i),subCourseMap.get(i)));
+                courseNames.remove(i);
+            }
+            preList.clear();
         }
         return list;
     }
