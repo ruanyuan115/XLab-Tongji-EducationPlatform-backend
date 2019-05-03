@@ -649,7 +649,7 @@ public class CourseServiceImp implements CourseService
                             totalScore1.set(index1,totalScore1.get(index1)+1);
                             totalScore2.set(index2,totalScore2.get(index2)+1);
                             totalRateDis.set(rateIndex,totalRateDis.get(rateIndex)+1);
-                            totalScoreAvgDis.set(avgScoreIndex,totalRateDis.get(avgScoreIndex)+1);
+                            totalScoreAvgDis.set(avgScoreIndex,totalScoreAvgDis.get(avgScoreIndex)+1);
 
                             tempList.remove(j);
                         }
