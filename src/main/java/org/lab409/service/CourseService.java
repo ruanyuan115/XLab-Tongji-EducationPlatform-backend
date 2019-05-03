@@ -53,4 +53,5 @@ public interface CourseService
     Integer addClassComment(Integer courseClassID,Integer studentID,String comment,Integer rate);
     ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID);
     Map getCourseClassAvgScore(Integer courseID);
+    Map getCourseYearAvgScore(Integer courseNameID,Integer teacherID);
 }

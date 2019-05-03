@@ -493,4 +493,12 @@ public class CourseController
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }
+    @GetMapping(value = "/getCourseYearAvgScore")
+    public ResultEntity getCourseYearAvgScore(Integer courseNameID,Integer teacherID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCourseYearAvgScore(courseNameID,teacherID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        return resultEntity;
+    }
 }

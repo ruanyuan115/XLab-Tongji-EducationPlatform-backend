@@ -1,5 +1,6 @@
 package org.lab409.service.implement;
 
+import org.apache.bcel.generic.FLOAD;
 import org.apache.commons.lang.math.NumberUtils;
 import org.lab409.dao.*;
 import org.lab409.entity.*;
@@ -1035,13 +1036,18 @@ public class CourseServiceImp implements CourseService
         ArrayList<CourseAndClass>courseAndClass=getCoursesByTeacherID(teacherID);
         Map<String,Integer>courseToNum=new HashMap<>();
         if (courseAndClass!=null)
+        {
+            List<CourseName>courseNames=courseNameDao.findAll();
+            for (CourseName i:courseNames)
+                courseToNum.computeIfAbsent(i.getCourseName(),k->0);
+
             for(CourseAndClass i:courseAndClass)
             {
                 String name=i.getCourseInfo().getCourseName();
-                courseToNum.computeIfAbsent(name,k->0);
                 Integer num=courseToNum.get(name)+getStudentsByClassID(i.getCourseClass().getId()).size();
                 courseToNum.put(name,num);
             }
+        }
         return courseToNum;
     }
 
@@ -1112,16 +1118,15 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<Map> getRateBySemesterAndYear(String courseName)
+    public ArrayList<Map> getRateBySemesterAndYear(String courseNameID)
     {
-        ArrayList<CourseAndClassList>courseInfos=getAllCoursesByNameID(courseName);
+        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseName(courseNameID);
         Map<SemesterAndYear,ArrayList<Float>>semYearToRateMap=new HashMap<>();
-        for(CourseAndClassList i:courseInfos)
+        for(CourseInfo i:courseInfos)
         {
-            SemesterAndYear temp=new SemesterAndYear(i.getCourseInfo().getCourseSemester(),i.getCourseInfo().getCourseYear());
-            if(semYearToRateMap.get(temp)==null)
-                semYearToRateMap.put(temp,new ArrayList<>());
-            semYearToRateMap.get(temp).add(i.getCourseInfo().getRate());
+            SemesterAndYear temp=new SemesterAndYear(i.getCourseSemester(),i.getCourseYear());
+            semYearToRateMap.computeIfAbsent(temp,k->new ArrayList<>());
+            semYearToRateMap.get(temp).add(i.getRate());
         }
         Set<SemesterAndYear>semesterAndYears=semYearToRateMap.keySet();
 
@@ -1211,5 +1216,66 @@ public class CourseServiceImp implements CourseService
         }
         else
             return 0;
+    }
+    @Override
+    public Map getCourseYearAvgScore(Integer courseNameID,Integer teacherID)
+    {
+        ArrayList<CourseInfo>courseInfos=new ArrayList<>();
+        Map<Integer,Object>yearMap=new HashMap<>();
+        Map<String,Object>semesterMap=new HashMap<>();
+        if (teacherID!=null)
+            courseInfos=courseInfoDao.findByCourseNameAndTeacherID(courseNameID.toString(),teacherID);
+        else
+            courseInfos=courseInfoDao.findByCourseName(courseNameID.toString());
+        if (courseInfos!=null&&courseInfos.size()!=0)
+        {
+            for (CourseInfo i:courseInfos)
+            {
+                Map temp=getCourseClassAvgScore(i.getCourseID());
+
+                yearMap.computeIfAbsent(i.getCourseYear(),k->new ArrayList<>());
+                semesterMap.computeIfAbsent(i.getCourseSemester(),k->new ArrayList<>());
+
+                Float boyScore=(Float) temp.get("courseBoyAvgScore");
+                Float girlScore=(Float) temp.get("courseGirlAvgScore");
+                if (boyScore==null)
+                    boyScore=girlScore;
+                if (girlScore==null)
+                    girlScore=boyScore;
+                if (boyScore==null)
+                    break;
+                ArrayList<Float>tempList=(ArrayList<Float>)yearMap.get(i.getCourseYear());
+                tempList.add(0.5F*boyScore+0.5F*girlScore);
+                tempList=(ArrayList<Float>)semesterMap.get(i.getCourseSemester());
+                tempList.add(0.5F*boyScore+0.5F*girlScore);
+            }
+            Map<String,Map>resultMap=new HashMap<>();
+
+            Set<Integer> yearKey=yearMap.keySet();
+            Set<String> semesterKey=semesterMap.keySet();
+            Float num=0F;
+            for (Integer i:yearKey)
+            {
+                num=0F;
+                ArrayList<Float>tempList=(ArrayList<Float>) yearMap.get(i);
+                for (Float j:tempList)
+                    num+=j;
+                yearMap.put(i,num/tempList.size());
+            }
+            for (String i:semesterKey)
+            {
+                num=0F;
+                ArrayList<Float>tempList=(ArrayList<Float>) semesterMap.get(i);
+                for (Float j:tempList)
+                    num+=j;
+                semesterMap.put(i,num/tempList.size());
+            }
+
+            resultMap.put("year",yearMap);
+            resultMap.put("semester",semesterMap);
+            return resultMap;
+        }
+        else
+            return null;
     }
 }
