@@ -1,9 +1,6 @@
 package org.lab409.service;
 
-import org.lab409.entity.Exercise;
-import org.lab409.entity.ExerciseChoice;
-import org.lab409.entity.StudentExerciseScore;
-import org.lab409.entity.ResultEntity;
+import org.lab409.entity.*;
 
 import java.util.List;
 
@@ -25,5 +22,8 @@ public interface ExerciseService {
     ResultEntity viewExercise(Integer chapterId,String type);
     ResultEntity viewSomeAnswer(Integer chapterId,Integer studentId,String type);
     ResultEntity rateNumber(Integer chapterId);
+    List<CourseInfo> findCourses(String courseName);
+    List<CourseInfo> findCoursesById(int courseId);
+    List<ChapterNode> copyChapter(int sourceCourseId,int aimCourseId);
     int calculateScore(Integer chapterId,Integer studentId);
 }
