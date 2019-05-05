@@ -1233,6 +1233,8 @@ public class CourseServiceImp implements CourseService
             for (CourseInfo i:courseInfos)
             {
                 Map temp=getCourseClassAvgScore(i.getCourseID());
+                if(temp==null)
+                    continue;
 
                 yearMap.computeIfAbsent(i.getCourseYear(),k->{Map tempMap=new HashMap();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
                 semesterMap.computeIfAbsent(i.getCourseYear()+i.getCourseSemester(),k->{Map tempMap=new HashMap();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
