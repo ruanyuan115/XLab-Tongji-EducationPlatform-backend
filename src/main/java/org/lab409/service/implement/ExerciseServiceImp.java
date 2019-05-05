@@ -1,8 +1,5 @@
 package org.lab409.service.implement;
-import org.lab409.dao.ExerciseDao;
-import org.lab409.dao.ExerciseChoiceDao;
-import org.lab409.dao.StudentChapterDao;
-import org.lab409.dao.StudentExerciseScoreDao;
+import org.lab409.dao.*;
 import org.lab409.entity.*;
 import org.lab409.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +8,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service(value="exerciseService")
 public class ExerciseServiceImp implements ExerciseService{
@@ -23,6 +22,14 @@ public class ExerciseServiceImp implements ExerciseService{
     private StudentExerciseScoreDao  studentExerciseScoreDao;
     @Autowired
     private StudentChapterDao studentChapterDao;
+    @Autowired
+    private CourseInfoDao courseInfoDao;
+    @Autowired
+    private CourseNameDao courseNameDao;
+    @Autowired
+    private ChapterContentDao chapterContentDao;
+    @Autowired
+    private ChapterRelationDao chapterRelationDao;
     @Override
     @Transactional
     public ResultEntity findOneExerice(Integer exerciseId){
@@ -601,5 +608,49 @@ public class ExerciseServiceImp implements ExerciseService{
             resultEntity.setState(0);
         }
         return resultEntity;
+    }
+
+    @Override
+    @Transactional
+    public List<CourseInfo> findCourses(String courseName){
+        List<CourseInfo> courseInfos=courseInfoDao.findByCourseName(courseName);
+        return courseInfos;
+    }
+    @Override
+    @Transactional
+    public List<CourseInfo> findCoursesById(int courseId){
+        String courseName=courseInfoDao.findByCourseID(courseId).getCourseName();
+        return findCourses(courseName);
+    }
+
+    @Override
+    @Transactional
+    public List<ChapterNode> copyChapter(int sourceCourseId,int aimCourseId){
+        List<ChapterNode> chapterNodes=chapterContentDao.findByCourseID(sourceCourseId);
+        Map<Integer,Integer> mapper=new HashMap<Integer, Integer>();
+        for(ChapterNode chapterNode:chapterNodes){
+            ChapterNode temp=new ChapterNode();
+            temp.setContentName(chapterNode.getContentName());
+            temp.setContent(chapterNode.getContent());
+            temp.setCourseID(aimCourseId);
+            temp.setParentID(chapterNode.getParentID());
+            temp.setSiblingID(chapterNode.getSiblingID());
+            temp.setExerciseTitle(chapterNode.getExerciseTitle());
+            chapterContentDao.saveAndFlush(temp);
+            mapper.put(chapterNode.getId(),temp.getId());
+        }
+        List<ChapterRelation> chapterRelations=new ArrayList<>();
+        for(ChapterNode chapterNode:chapterNodes){
+            Integer chapterId=chapterNode.getId();
+            chapterRelations=chapterRelationDao.findByChapterID(chapterId);
+            for(ChapterRelation chapterRelation:chapterRelations){
+                ChapterRelation temp=new ChapterRelation();
+                temp.setChapterID(mapper.get(chapterId));
+                temp.setPreChapterID(mapper.get(chapterRelation.getPreChapterID()));
+                chapterRelationDao.save(temp);
+            }
+            chapterRelationDao.flush();
+        }
+        return chapterNodes;
     }
 }

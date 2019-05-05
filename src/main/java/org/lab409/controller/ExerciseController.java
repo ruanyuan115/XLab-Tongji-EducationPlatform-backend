@@ -1,9 +1,6 @@
 package org.lab409.controller;
 import org.lab409.dao.UserDao;
-import org.lab409.entity.ResultEntity;
-import org.lab409.entity.Exercise;
-import org.lab409.entity.ExerciseChoice;
-import org.lab409.entity.StudentExerciseScore;
+import org.lab409.entity.*;
 import org.lab409.service.ExerciseService;
 import org.lab409.security.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -127,5 +125,71 @@ public class ExerciseController {
     @GetMapping(value = "/rateNumber")
     public ResultEntity rateNumber(Integer chapterId){
         return exerciseService.rateNumber(chapterId);
+    }
+
+    @GetMapping(value = "/sameCoursesByName")
+    public ResultEntity sameCoursesByName(String courseName){
+        ResultEntity resultEntity=new ResultEntity();
+        if(courseName!=null){
+           List<CourseInfo> courseInfos=exerciseService.findCourses(courseName);
+           if(courseInfos.isEmpty()){
+               resultEntity.setMessage("未找到对应课程！");
+               resultEntity.setState(0);
+           }
+           else{
+               resultEntity.setData(courseInfos);
+               resultEntity.setState(1);
+           }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @GetMapping(value = "/sameCoursesById")
+    public ResultEntity sameCoursesById(Integer courseId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(courseId!=null){
+            List<CourseInfo> courseInfos=exerciseService.findCoursesById(courseId);
+            if(courseInfos.isEmpty()){
+                resultEntity.setMessage("未找到对应课程！");
+                resultEntity.setState(0);
+            }
+            else{
+                resultEntity.setData(courseInfos);
+                resultEntity.setState(1);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数为空！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @PostMapping(value = "/copyNodes")
+    public ResultEntity copyNodes(Integer sourceCourseId,Integer aimCourseId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(sourceCourseId!=null&&aimCourseId!=null){
+            List<ChapterNode> chapterNodes=exerciseService.copyChapter(sourceCourseId,aimCourseId);
+            if(chapterNodes.isEmpty()){
+                resultEntity.setMessage("没有要拷贝的章节！");
+                resultEntity.setState(0);
+            }
+            else {
+                resultEntity.setData(chapterNodes);
+                resultEntity.setState(1);
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
     }
 }
