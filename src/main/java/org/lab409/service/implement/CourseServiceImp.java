@@ -335,6 +335,7 @@ public class CourseServiceImp implements CourseService
                 ArrayList<Integer>boyRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
                 ArrayList<Integer>girlRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
                 ArrayList<UserInfo> students=getStudentsByClassID(i.getId());
+                if(students!=null)
                 for(UserInfo u:students)
                 {
                     float studentScoreSum1=0;
