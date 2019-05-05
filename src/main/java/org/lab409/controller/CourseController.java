@@ -421,11 +421,11 @@ public class CourseController
         resultEntity.setState(1);
         return resultEntity;
     }
-    @GetMapping(value = "/getStudentNumBySemester")
-    public ResultEntity getStudentNumBySemester(String semester)throws CloneNotSupportedException
+    @GetMapping(value = "/getStudentNumBySemesterAndYear")
+    public ResultEntity getStudentNumBySemesterAndYear(Integer year,String semester)throws CloneNotSupportedException
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setData(courseService.getStudentNumBySemester(semester));
+        resultEntity.setData(courseService.getStudentNumBySemesterAndYear(year,semester));
         resultEntity.setState(1);
         return resultEntity;
     }
@@ -493,11 +493,11 @@ public class CourseController
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }
-    @GetMapping(value = "/getCourseYearAvgScore")
-    public ResultEntity getCourseYearAvgScore(Integer courseNameID,Integer teacherID)
+    @GetMapping(value = "/getCourseYearAvgScoreRate")
+    public ResultEntity getCourseYearAvgScoreRate(Integer courseNameID,Integer teacherID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setData(courseService.getCourseYearAvgScore(courseNameID,teacherID));
+        resultEntity.setData(courseService.getCourseYearAvgScoreRate(courseNameID,teacherID));
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }

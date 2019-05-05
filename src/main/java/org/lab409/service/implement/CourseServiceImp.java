@@ -470,14 +470,14 @@ public class CourseServiceImp implements CourseService
                 classMap.put("classNum",i.getId());
                 classMap.put("boyNum",boyNum);
                 classMap.put("girlNum",girlNum);
-                classMap.put("boyAvgScore1",boyScoreSum1/boyScoreNum1);
-                classMap.put("boyAvgScore2",boyScoreSum2/boyScoreNum2);
-                classMap.put("boyAvgScore",boyScoreSum/boyScoreNum);
-                classMap.put("girlAvgScore1",girlScoreSum1/girlScoreNum1);
-                classMap.put("girlAvgScore2",girlScoreSum2/girlScoreNum2);
-                classMap.put("girlAgeScore",girlScoreSum/girlScoreNum);
-                classMap.put("boyAvgRate",boyRateSum/boyRateNum);
-                classMap.put("girlAvgRate",girlRateSum/girlRateNum);
+                classMap.put("boyAvgScore1",boyScoreSum1==0?0:boyScoreSum1/boyScoreNum1);
+                classMap.put("boyAvgScore2",boyScoreSum2==0?0:boyScoreSum2/boyScoreNum2);
+                classMap.put("boyAvgScore",boyScoreSum==0?0:boyScoreSum/boyScoreNum);
+                classMap.put("girlAvgScore1",girlScoreSum1==0?0:girlScoreSum1/girlScoreNum1);
+                classMap.put("girlAvgScore2",girlScoreSum2==0?0:girlScoreSum2/girlScoreNum2);
+                classMap.put("girlAgeScore",girlScoreSum==0?0:girlScoreSum/girlScoreNum);
+                classMap.put("boyAvgRate",boyRateSum==0?0:boyRateSum/boyRateNum);
+                classMap.put("girlAvgRate",girlRateSum==0?0:girlRateSum/girlRateNum);
                 classMap.put("boyScoreDis1",boyScore1);
                 classMap.put("boyScoreDis2",boyScore2);
                 classMap.put("boyScoreDis",boyScoreAvgDis);
@@ -490,14 +490,14 @@ public class CourseServiceImp implements CourseService
             Map<String,Object>infoMap=new HashMap<>();
             infoMap.put("courseBoyNum",courseBoyNum);
             infoMap.put("courseGirlNum",courseGirlNum);
-            infoMap.put("courseBoyAvgScore1",courseBoyScoreSum1/courseBoyScoreNum1);
-            infoMap.put("courseBoyAvgScore2",courseBoyScoreSum2/courseBoyScoreNum2);
-            infoMap.put("courseBoyAvgScore",courseBoyScoreSum/courseBoyScoreNum);
-            infoMap.put("courseGirlAvgScore1",courseGirlScoreSum1/courseGirlScoreNum1);
-            infoMap.put("courseGirlAvgScore2",courseGirlScoreSum2/courseGirlScoreNum2);
-            infoMap.put("courseGirlAgeScore",courseGirlScoreSum/courseGirlScoreNum);
-            infoMap.put("courseBoyAvgRate",courseBoyRateSum/courseBoyRateNum);
-            infoMap.put("courseGirlAvgRate",courseGirlRateSum/courseGirlRateNum);
+            infoMap.put("courseBoyAvgScore1",courseBoyScoreSum1==0?0:courseBoyScoreSum1/courseBoyScoreNum1);
+            infoMap.put("courseBoyAvgScore2",courseBoyScoreSum2==0?0:courseBoyScoreSum2/courseBoyScoreNum2);
+            infoMap.put("courseBoyAvgScore",courseBoyScoreSum==0?null:courseBoyScoreSum/courseBoyScoreNum);
+            infoMap.put("courseGirlAvgScore1",courseGirlScoreSum1==0?0:courseGirlScoreSum1/courseGirlScoreNum1);
+            infoMap.put("courseGirlAvgScore2",courseGirlScoreSum2==0?0:courseGirlScoreSum2/courseGirlScoreNum2);
+            infoMap.put("courseGirlAgeScore",courseGirlScoreSum==0?null:courseGirlScoreSum/courseGirlScoreNum);
+            infoMap.put("courseBoyAvgRate",courseBoyRateSum==0?null:courseBoyRateSum/courseBoyRateNum);
+            infoMap.put("courseGirlAvgRate",courseGirlRateSum==0?null:courseGirlRateSum/courseGirlRateNum);
             infoMap.put("courseBoyScoreDis1",courseBoyScore1);
             infoMap.put("courseBoyScoreDis2",courseBoyScore2);
             infoMap.put("courseBoyScoreDis",courseBoyScoreAvgDis);
@@ -1052,10 +1052,10 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public Map getStudentNumBySemester(String semester)
+    public Map getStudentNumBySemesterAndYear(Integer year,String semester)
     {
         ArrayList<CourseAndClassList>courseAndClassLists=new ArrayList<>();
-        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseSemester(semester);
+        ArrayList<CourseInfo>courseInfos=courseInfoDao.findByCourseYearAndCourseSemester(year,semester);
         if(courseInfos!=null)
             for(CourseInfo i:courseInfos)
             {
@@ -1218,11 +1218,11 @@ public class CourseServiceImp implements CourseService
             return 0;
     }
     @Override
-    public Map getCourseYearAvgScore(Integer courseNameID,Integer teacherID)
+    public Map getCourseYearAvgScoreRate(Integer courseNameID,Integer teacherID)
     {
         ArrayList<CourseInfo>courseInfos=new ArrayList<>();
-        Map<Integer,Object>yearMap=new HashMap<>();
-        Map<String,Object>semesterMap=new HashMap<>();
+        Map<Integer,Map<String,Object>>yearMap=new HashMap<>();
+        Map<String,Map<String,Object>>semesterMap=new HashMap<>();
         if (teacherID!=null)
             courseInfos=courseInfoDao.findByCourseNameAndTeacherID(courseNameID.toString(),teacherID);
         else
@@ -1233,21 +1233,40 @@ public class CourseServiceImp implements CourseService
             {
                 Map temp=getCourseClassAvgScore(i.getCourseID());
 
-                yearMap.computeIfAbsent(i.getCourseYear(),k->new ArrayList<>());
-                semesterMap.computeIfAbsent(i.getCourseSemester(),k->new ArrayList<>());
+                yearMap.computeIfAbsent(i.getCourseYear(),k->{Map tempMap=new HashMap();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
+                semesterMap.computeIfAbsent(i.getCourseYear()+i.getCourseSemester(),k->{Map tempMap=new HashMap();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
 
                 Float boyScore=(Float) temp.get("courseBoyAvgScore");
                 Float girlScore=(Float) temp.get("courseGirlAvgScore");
+                Float boyRate=(Float) temp.get("courseBoyAvgRate");
+                Float girlRate=(Float) temp.get("courseGirlAvgRate");
                 if (boyScore==null)
                     boyScore=girlScore;
                 if (girlScore==null)
                     girlScore=boyScore;
-                if (boyScore==null)
-                    break;
-                ArrayList<Float>tempList=(ArrayList<Float>)yearMap.get(i.getCourseYear());
-                tempList.add(0.5F*boyScore+0.5F*girlScore);
-                tempList=(ArrayList<Float>)semesterMap.get(i.getCourseSemester());
-                tempList.add(0.5F*boyScore+0.5F*girlScore);
+                if (boyRate==null)
+                    boyRate=girlRate;
+                if (girlRate==null)
+                    girlRate=boyRate;
+
+                if(boyScore!=null)
+                {
+                    Map tempMap=yearMap.get(i.getCourseYear());
+                    ArrayList<Float>tempList=(ArrayList<Float>)tempMap.get("score");
+                    tempList.add(0.5F*boyScore+0.5F*girlScore);
+                    tempMap=semesterMap.get(i.getCourseYear()+i.getCourseSemester());
+                    tempList=(ArrayList<Float>)tempMap.get("score");
+                    tempList.add(0.5F*boyScore+0.5F*girlScore);
+                }
+                if(boyRate!=null)
+                {
+                    Map tempMap=yearMap.get(i.getCourseYear());
+                    ArrayList<Float>tempList=(ArrayList<Float>)tempMap.get("rate");
+                    tempList.add(0.5F*boyRate+0.5F*girlRate);
+                    tempMap=semesterMap.get(i.getCourseYear()+i.getCourseSemester());
+                    tempList=(ArrayList<Float>)tempMap.get("rate");
+                    tempList.add(0.5F*boyRate+0.5F*girlRate);
+                }
             }
             Map<String,Map>resultMap=new HashMap<>();
 
@@ -1257,18 +1276,31 @@ public class CourseServiceImp implements CourseService
             for (Integer i:yearKey)
             {
                 num=0F;
-                ArrayList<Float>tempList=(ArrayList<Float>) yearMap.get(i);
+                Map tempMap=yearMap.get(i);
+                ArrayList<Float>tempList=(ArrayList<Float>)tempMap.get("score");
                 for (Float j:tempList)
                     num+=j;
-                yearMap.put(i,num/tempList.size());
+                tempMap.put("score",num/tempList.size());
+                num=0F;
+                tempList=(ArrayList<Float>)tempMap.get("rate");
+                for (Float j:tempList)
+                    num+=j;
+                tempMap.put("rate",num/tempList.size());
+
             }
             for (String i:semesterKey)
             {
                 num=0F;
-                ArrayList<Float>tempList=(ArrayList<Float>) semesterMap.get(i);
+                Map tempMap=semesterMap.get(i);
+                ArrayList<Float>tempList=(ArrayList<Float>)tempMap.get("score");
                 for (Float j:tempList)
                     num+=j;
-                semesterMap.put(i,num/tempList.size());
+                tempMap.put("score",num/tempList.size());
+                num=0F;
+                tempList=(ArrayList<Float>)tempMap.get("rate");
+                for (Float j:tempList)
+                    num+=j;
+                tempMap.put("rate",num/tempList.size());
             }
 
             resultMap.put("year",yearMap);

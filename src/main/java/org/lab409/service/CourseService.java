@@ -44,7 +44,7 @@ public interface CourseService
     Integer addChapterRelation(Integer chapterID,Integer preChapterID);
     Integer deleteChapterRelation(Integer chapterID,Integer preChapterID);
     Map getStudentNumByTeacher(Integer teacherID)throws CloneNotSupportedException;
-    Map getStudentNumBySemester(String semester)throws CloneNotSupportedException;
+    Map getStudentNumBySemesterAndYear(Integer year,String semester)throws CloneNotSupportedException;
     Map getStudentNumByYear(Integer year)throws CloneNotSupportedException;
     ArrayList<Map> getRateBySemesterAndYear(String courseName);
     ArrayList<Map>getClassesByNIDAndTID(String courseNameID,Integer teacherID)throws CloneNotSupportedException;
@@ -53,5 +53,5 @@ public interface CourseService
     Integer addClassComment(Integer courseClassID,Integer studentID,String comment,Integer rate);
     ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID);
     Map getCourseClassAvgScore(Integer courseID);
-    Map getCourseYearAvgScore(Integer courseNameID,Integer teacherID);
+    Map getCourseYearAvgScoreRate(Integer courseNameID,Integer teacherID);
 }

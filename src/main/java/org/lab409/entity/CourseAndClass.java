@@ -9,6 +9,7 @@ public class CourseAndClass
 {
     private CourseInfo courseInfo;
     private CourseClass courseClass;
+    private String courseNameID;
     public CourseAndClass(CourseInfo courseInfo,CourseClass courseClass)throws CloneNotSupportedException
     {
         CourseService courseService= SpringContextUtil.getBean(CourseService.class);
@@ -16,5 +17,6 @@ public class CourseAndClass
         temp.setCourseName(courseService.getCourseNameByNameID(Integer.parseInt(courseInfo.getCourseName())).getCourseName());
         this.courseInfo=temp;
         this.courseClass=courseClass;
+        this.courseNameID=courseInfo.getCourseName();
     }
 }
