@@ -631,13 +631,14 @@ public class ExerciseServiceImp implements ExerciseService{
         chapterContentDao.deleteAll(deleteNodes);
         chapterContentDao.flush();
         Map<Integer,Integer> mapper=new HashMap<Integer, Integer>();
+        mapper.put(0,0);
         for(ChapterNode chapterNode:chapterNodes){
             ChapterNode temp=new ChapterNode();
             temp.setContentName(chapterNode.getContentName());
             temp.setContent(chapterNode.getContent());
             temp.setCourseID(aimCourseId);
-            temp.setParentID(chapterNode.getParentID());
-            temp.setSiblingID(chapterNode.getSiblingID());
+            temp.setParentID(mapper.get(chapterNode.getParentID()));
+            temp.setSiblingID(mapper.get(chapterNode.getSiblingID()));
             temp.setExerciseTitle(chapterNode.getExerciseTitle());
             chapterContentDao.saveAndFlush(temp);
             mapper.put(chapterNode.getId(),temp.getId());
