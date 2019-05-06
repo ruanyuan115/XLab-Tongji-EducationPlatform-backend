@@ -744,7 +744,8 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
         for (Exercise exercise:exercises){
-            scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentIdAndCorreted(exercise.getExerciseId(),studentId,1).getExerciseScore());
+            if(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getCorreted()!=0)
+                scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getExerciseScore());
         }
         return scores;
     }
