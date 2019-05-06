@@ -1,5 +1,6 @@
 package org.lab409.controller;
 
+import org.lab409.dao.StudentChapterDao;
 import org.lab409.entity.*;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ public class CourseController
 {
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private StudentChapterDao studentChapterDao;
     @PostMapping(value = "/addCourse")
     public ResultEntity addNewCourse(CourseInfo courseInfo)
     {
@@ -500,5 +503,63 @@ public class CourseController
         resultEntity.setData(courseService.getCourseYearAvgScoreRate(courseNameID,teacherID));
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
+    }
+    @GetMapping(value = "/dosome")
+    public void dosomething()
+    {
+        Random rand = new Random();
+        ArrayList<Integer>arrayList=new ArrayList<>();
+        arrayList.add(705);
+        arrayList.add(721);
+        arrayList.add(729);
+        arrayList.add(740);
+        arrayList.add(748);
+        arrayList.add(756);
+        arrayList.add(761);
+        arrayList.add(773);
+        arrayList.add(784);
+        arrayList.add(794);
+        arrayList.add(804);
+        arrayList.add(816);
+        arrayList.add(825);
+
+
+        for (Integer id:arrayList)
+        {
+            for(int i=1;i<202;i++)
+            {
+                int low=20;
+                int ratelow=1;
+                if(i%5==0)
+                {
+                    low = 70;
+                    ratelow=4;
+                }
+                if (i%10==0)
+                {
+                    low=80;
+                    ratelow=5;
+                }
+                int up=100-low;
+                int uprate=6-ratelow;
+                StudentChapter studentChapter=new StudentChapter();
+                studentChapter.setStudentID(i);
+                studentChapter.setChapterID(id);
+                studentChapter.setTotalScore_1(rand.nextInt(up) + low);
+                studentChapter.setTotalScore_2(rand.nextInt(up) + low);
+                studentChapter.setComment("不错");
+                studentChapter.setRate(rand.nextInt(uprate)+ratelow);
+                studentChapterDao.saveAndFlush(studentChapter);
+            }
+        }
+        /*
+        ArrayList<Integer>arrayList=new ArrayList<>();
+        arrayList.add(38);
+        arrayList.add(37);
+        for(int i=2;i<202;i++)
+        {
+            joinCourse(i,arrayList.get(i%2));
+        }
+        */
     }
 }

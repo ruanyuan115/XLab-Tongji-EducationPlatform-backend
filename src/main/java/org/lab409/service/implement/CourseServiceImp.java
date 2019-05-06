@@ -832,21 +832,30 @@ public class CourseServiceImp implements CourseService
         for(CourseRelation i:courseRelations)
         {
             CourseName temp=getCourseNameByNameID(i.getCourseNameID());
-            courseMap.computeIfAbsent(temp,k->new ArrayList<>());
-            subCourseMap.computeIfAbsent(temp,k->new ArrayList<>());
-            if(i.getPreCourseNameID()!=0)
-                courseMap.get(temp).add(getCourseNameByNameID(i.getPreCourseNameID()));
-            if(subCourseMap.get(temp).size()==0)
+            if (temp!=null)
             {
-                ArrayList<CourseRelation>subCoursesList=courseRelationDao.findByPreCourseNameID(i.getCourseNameID());
-                if(subCoursesList!=null&&subCoursesList.size()!=0)
+                courseMap.computeIfAbsent(temp,k->new ArrayList<>());
+                subCourseMap.computeIfAbsent(temp,k->new ArrayList<>());
+                if(i.getPreCourseNameID()!=0)
                 {
-                    ArrayList<CourseName>subCoursesName=new ArrayList<>();
-                    for(CourseRelation j:subCoursesList)
+                    CourseName tempName=getCourseNameByNameID(i.getPreCourseNameID());
+                    if (tempName!=null)
+                        courseMap.get(temp).add(tempName);
+                }
+                if(subCourseMap.get(temp).size()==0)
+                {
+                    ArrayList<CourseRelation>subCoursesList=courseRelationDao.findByPreCourseNameID(i.getCourseNameID());
+                    if(subCoursesList!=null&&subCoursesList.size()!=0)
                     {
-                        subCoursesName.add(getCourseNameByNameID(j.getCourseNameID()));
+                        ArrayList<CourseName>subCoursesName=new ArrayList<>();
+                        for(CourseRelation j:subCoursesList)
+                        {
+                            CourseName tempName=getCourseNameByNameID(j.getCourseNameID());
+                            if (tempName!=null)
+                                subCoursesName.add(tempName);
+                        }
+                        subCourseMap.put(temp,subCoursesName);
                     }
-                    subCourseMap.put(temp,subCoursesName);
                 }
             }
         }
@@ -895,7 +904,12 @@ public class CourseServiceImp implements CourseService
         {
             chapterMap.computeIfAbsent(i.getChapterID(),k->new ArrayList<>());
             subChapterMap.computeIfAbsent(i.getChapterID(),k->new ArrayList<>());
-            chapterMap.get(i.getChapterID()).add(getChapterByID(i.getPreChapterID()));
+            if(i.getPreChapterID()!=0)
+            {
+                ChapterNode tempNode=getChapterByID(i.getPreChapterID());
+                if (tempNode!=null)
+                    chapterMap.get(i.getChapterID()).add(tempNode);
+            }
             if (subChapterMap.get(i.getChapterID()).size()==0)
             {
                 ArrayList<ChapterRelation>subChaptersList=chapterRelationDao.findByPreChapterID(i.getChapterID());
@@ -904,15 +918,39 @@ public class CourseServiceImp implements CourseService
                     ArrayList<ChapterNode>subChapters=new ArrayList<>();
                     for(ChapterRelation j:subChaptersList)
                     {
-                        subChapters.add(chapterContentDao.findById(j.getChapterID()).get());
+                        Optional<ChapterNode>temp=chapterContentDao.findById(j.getChapterID());
+                        temp.ifPresent(x->subChapters.add(temp.get()));
                     }
                     subChapterMap.put(i.getChapterID(),subChapters);
                 }
             }
         }
         Set<Integer>chapterIDs=chapterMap.keySet();
-        for(Integer i:chapterIDs)
-            list.add(new ChapterRelationEntity(chapterContentDao.findById(i).get(),chapterMap.get(i),subChapterMap.get(i)));
+
+        while(chapterIDs.size()!=0)
+        {
+            ArrayList<Integer>preList=new ArrayList<>();
+            for(Integer i:chapterIDs)
+            {
+                int num=0;
+                for(ChapterNode j:chapterMap.get(i))
+                {
+                    if(chapterIDs.contains(j.getId()))
+                    {
+                        num++;
+                        break;
+                    }
+                }
+                if (num==0)
+                    preList.add(i);
+            }
+            for (Integer i:preList)
+            {
+                list.add(new ChapterRelationEntity(chapterContentDao.findById(i).get(),chapterMap.get(i),subChapterMap.get(i)));
+                chapterIDs.remove(i);
+            }
+            preList.clear();
+        }
         return list;
     }
 
