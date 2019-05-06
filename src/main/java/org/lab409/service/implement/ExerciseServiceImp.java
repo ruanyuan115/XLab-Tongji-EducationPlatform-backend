@@ -265,11 +265,14 @@ public class ExerciseServiceImp implements ExerciseService{
     public ResultEntity answerOne(String answer,Integer exerciseId,Integer studentId){
         ResultEntity resultEntity=new ResultEntity();
         StudentExerciseScore studentExerciseScore=new StudentExerciseScore(studentId,exerciseId,answer,0);
+        studentExerciseScore.setCorreted(0);
         Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
         if(studentExerciseScore!=null){
             if(exercise.getExerciseType()%3!=0){
-                if(answer.equals(exercise.getExerciseAnswer()))
+                if(answer.equals(exercise.getExerciseAnswer())){
+                    studentExerciseScore.setCorreted(1);
                     studentExerciseScore.setExerciseScore(exercise.getExercisePoint());
+                }
             }
             resultEntity.setData(studentExerciseScoreDao.saveAndFlush(studentExerciseScore));
             if (resultEntity.getData()!=null)
@@ -428,6 +431,7 @@ public class ExerciseServiceImp implements ExerciseService{
             for(int i=0;i<scores.size();i++){
                 studentExerciseScore=studentExerciseScoreDao.findByExerciseIdAndStudentId(exerciseIds.get(i),studentId);
                 studentExerciseScore.setExerciseScore(scores.get(i));
+                studentExerciseScore.setCorreted(1);
                 studentExerciseScoreDao.saveAndFlush(studentExerciseScore);
             }
             exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
@@ -740,7 +744,7 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
         for (Exercise exercise:exercises){
-            scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getExerciseScore());
+            scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentIdAndCorreted(exercise.getExerciseId(),studentId,1).getExerciseScore());
         }
         return scores;
     }
