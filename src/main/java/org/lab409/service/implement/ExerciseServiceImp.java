@@ -612,21 +612,24 @@ public class ExerciseServiceImp implements ExerciseService{
 
     @Override
     @Transactional
-    public List<CourseInfo> findCourses(String courseName){
-        List<CourseInfo> courseInfos=courseInfoDao.findByCourseName(courseName);
+    public List<CourseInfo> findCourses(String courseName,int teacherId){
+        List<CourseInfo> courseInfos=courseInfoDao.findByCourseNameAndTeacherID(courseName,teacherId);
         return courseInfos;
     }
     @Override
     @Transactional
-    public List<CourseInfo> findCoursesById(int courseId){
+    public List<CourseInfo> findCoursesById(int courseId,int teacherId){
         String courseName=courseInfoDao.findByCourseID(courseId).getCourseName();
-        return findCourses(courseName);
+        return findCourses(courseName,teacherId);
     }
 
     @Override
     @Transactional
     public List<ChapterNode> copyChapter(int sourceCourseId,int aimCourseId){
         List<ChapterNode> chapterNodes=chapterContentDao.findByCourseID(sourceCourseId);
+        List<ChapterNode> deleteNodes=chapterContentDao.findByCourseID(aimCourseId);
+        chapterContentDao.deleteAll(deleteNodes);
+        chapterContentDao.flush();
         Map<Integer,Integer> mapper=new HashMap<Integer, Integer>();
         for(ChapterNode chapterNode:chapterNodes){
             ChapterNode temp=new ChapterNode();
@@ -652,5 +655,92 @@ public class ExerciseServiceImp implements ExerciseService{
             chapterRelationDao.flush();
         }
         return chapterNodes;
+    }
+
+    @Override
+    @Transactional
+    public boolean copyExercise(int sourceChapterId,int aimChapterId,String type){
+        int type1=0;
+        int type2=0;
+        int type3=0;
+        if(type.equals("preview")){
+            type1=1;
+            type3=2;
+            type2=3;
+        }
+        else{
+            type1=4;
+            type3=5;
+            type2=6;
+        }
+        List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(aimChapterId,type1);
+        exerciseDao.deleteAll(exercises);
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(aimChapterId,type3);
+        exerciseDao.deleteAll(exercises);
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(aimChapterId,type2);
+        exerciseDao.deleteAll(exercises);
+        exerciseDao.flush();
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(sourceChapterId,type1);
+        List<ExerciseChoice> exerciseChoices=new ArrayList<>();
+        for (Exercise exercise:exercises){
+            Exercise temp=new Exercise(aimChapterId,exercise.getExerciseType(),exercise.getExerciseNumber(),exercise.getExerciseContent(),exercise.getExerciseAnswer(),exercise.getExerciseAnalysis(),exercise.getExercisePoint());
+            exerciseDao.saveAndFlush(temp);
+            exerciseChoices=exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId());
+            for(ExerciseChoice exerciseChoice:exerciseChoices){
+                ExerciseChoice anotherTemp=new ExerciseChoice(temp.getExerciseId(),exerciseChoice.getExerciceChoiceId(),exerciseChoice.getChoice());
+                exerciseChoiceDao.save(anotherTemp);
+            }
+            exerciseChoiceDao.flush();
+        }
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(sourceChapterId,type3);
+        for (Exercise exercise:exercises){
+            Exercise temp=new Exercise(aimChapterId,exercise.getExerciseType(),exercise.getExerciseNumber(),exercise.getExerciseContent(),exercise.getExerciseAnswer(),exercise.getExerciseAnalysis(),exercise.getExercisePoint());
+            exerciseDao.saveAndFlush(temp);
+            exerciseChoices=exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId());
+            for(ExerciseChoice exerciseChoice:exerciseChoices){
+                ExerciseChoice anotherTemp=new ExerciseChoice(temp.getExerciseId(),exerciseChoice.getExerciceChoiceId(),exerciseChoice.getChoice());
+                exerciseChoiceDao.save(anotherTemp);
+            }
+            exerciseChoiceDao.flush();
+        }
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(sourceChapterId,type2);
+        for (Exercise exercise:exercises){
+            Exercise temp=new Exercise(aimChapterId,exercise.getExerciseType(),exercise.getExerciseNumber(),exercise.getExerciseContent(),exercise.getExerciseAnswer(),exercise.getExerciseAnalysis(),exercise.getExercisePoint());
+            exerciseDao.saveAndFlush(temp);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public List<Integer> exerciseScore(int studentId,int chapterId,String type){
+        int type1=0;
+        int type2=0;
+        int type3=0;
+        if(type.equals("preview")){
+            type1=1;
+            type3=2;
+            type2=3;
+        }
+        else{
+            type1=4;
+            type3=5;
+            type2=6;
+        }
+
+        List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+        List<Integer> scores=new ArrayList<>();
+        for (Exercise exercise:exercises){
+            scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getExerciseScore());
+        }
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type3);
+        for (Exercise exercise:exercises){
+            scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getExerciseScore());
+        }
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
+        for (Exercise exercise:exercises){
+            scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getExerciseScore());
+        }
+        return scores;
     }
 }

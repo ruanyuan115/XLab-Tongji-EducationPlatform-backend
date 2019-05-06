@@ -128,10 +128,10 @@ public class ExerciseController {
     }
 
     @GetMapping(value = "/sameCoursesByName")
-    public ResultEntity sameCoursesByName(String courseName){
+    public ResultEntity sameCoursesByName(String courseName,Integer teacherId){
         ResultEntity resultEntity=new ResultEntity();
-        if(courseName!=null){
-           List<CourseInfo> courseInfos=exerciseService.findCourses(courseName);
+        if(courseName!=null&&teacherId!=null){
+           List<CourseInfo> courseInfos=exerciseService.findCourses(courseName,teacherId);
            if(courseInfos.isEmpty()){
                resultEntity.setMessage("未找到对应课程！");
                resultEntity.setState(0);
@@ -150,10 +150,10 @@ public class ExerciseController {
     }
 
     @GetMapping(value = "/sameCoursesById")
-    public ResultEntity sameCoursesById(Integer courseId){
+    public ResultEntity sameCoursesById(Integer courseId,Integer teacherId){
         ResultEntity resultEntity=new ResultEntity();
-        if(courseId!=null){
-            List<CourseInfo> courseInfos=exerciseService.findCoursesById(courseId);
+        if(courseId!=null&&teacherId!=null){
+            List<CourseInfo> courseInfos=exerciseService.findCoursesById(courseId,teacherId);
             if(courseInfos.isEmpty()){
                 resultEntity.setMessage("未找到对应课程！");
                 resultEntity.setState(0);
@@ -184,6 +184,37 @@ public class ExerciseController {
                 resultEntity.setData(chapterNodes);
                 resultEntity.setState(1);
             }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @PostMapping(value = "/copyExercise")
+    public ResultEntity copyExercise(Integer sourceChapterId,Integer aimChapterId,String type){
+        ResultEntity resultEntity=new ResultEntity();
+        if(sourceChapterId!=null&&aimChapterId!=null&&type!=null){
+            exerciseService.copyExercise(sourceChapterId,aimChapterId,type);
+            resultEntity.setMessage("复制习题成功！");
+            resultEntity.setState(1);
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @GetMapping(value="exerciseScore")
+    public ResultEntity exerciseScore(Integer studentId,Integer chapterId,String type){
+        ResultEntity resultEntity=new ResultEntity();
+        if(studentId!=null&&chapterId!=null&&type!=null){
+            resultEntity.setData(exerciseService.exerciseScore(studentId,chapterId,type));
+            resultEntity.setState(1);
         }
         else
         {

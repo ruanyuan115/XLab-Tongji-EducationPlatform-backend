@@ -22,8 +22,10 @@ public interface ExerciseService {
     ResultEntity viewExercise(Integer chapterId,String type);
     ResultEntity viewSomeAnswer(Integer chapterId,Integer studentId,String type);
     ResultEntity rateNumber(Integer chapterId);
-    List<CourseInfo> findCourses(String courseName);
-    List<CourseInfo> findCoursesById(int courseId);
+    List<CourseInfo> findCourses(String courseName,int teacherId);
+    List<CourseInfo> findCoursesById(int courseId,int teacherId);
     List<ChapterNode> copyChapter(int sourceCourseId,int aimCourseId);
+    boolean copyExercise(int sourceChapterId,int aimChapterId,String type);
+    List<Integer> exerciseScore(int studentId,int chapterId,String type);
     int calculateScore(Integer chapterId,Integer studentId);
 }
