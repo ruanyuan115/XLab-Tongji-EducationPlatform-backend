@@ -23,6 +23,8 @@ public class StudentExerciseScore {
     private String studentAnswer;
     @Column(name = "exercise_score")
     private Integer exerciseScore;
+    @Column(name = "correted")
+    private Integer correted;
     public StudentExerciseScore() {
     }
 
