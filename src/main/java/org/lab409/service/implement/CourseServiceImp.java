@@ -185,7 +185,7 @@ public class CourseServiceImp implements CourseService
     public ChapterNode getChapterByID(Integer chapterID)
     {
         Optional<ChapterNode> temp=chapterContentDao.findById(chapterID);
-        return temp.isPresent()?temp.get():null;
+        return temp.orElse(null);
     }
 
     @Override
@@ -919,7 +919,7 @@ public class CourseServiceImp implements CourseService
                     for(ChapterRelation j:subChaptersList)
                     {
                         Optional<ChapterNode>temp=chapterContentDao.findById(j.getChapterID());
-                        temp.ifPresent(x->subChapters.add(temp.get()));
+                        temp.ifPresent(subChapters::add);
                     }
                     subChapterMap.put(i.getChapterID(),subChapters);
                 }
@@ -944,6 +944,7 @@ public class CourseServiceImp implements CourseService
                 if (num==0)
                     preList.add(i);
             }
+            Collections.sort(preList);
             for (Integer i:preList)
             {
                 list.add(new ChapterRelationEntity(chapterContentDao.findById(i).get(),chapterMap.get(i),subChapterMap.get(i)));
@@ -958,7 +959,7 @@ public class CourseServiceImp implements CourseService
     public CourseName getCourseNameByNameID(Integer courseNameID)
     {
         Optional<CourseName> temp=courseNameDao.findById(courseNameID);
-        return temp.isPresent()?temp.get():null;
+        return temp.orElse(null);
     }
 
     @Override
@@ -1083,7 +1084,8 @@ public class CourseServiceImp implements CourseService
             for(CourseAndClass i:courseAndClass)
             {
                 String name=i.getCourseInfo().getCourseName();
-                Integer num=courseToNum.get(name)+getStudentsByClassID(i.getCourseClass().getId()).size();
+                ArrayList<UserInfo> tempUser=getStudentsByClassID(i.getCourseClass().getId());
+                Integer num=courseToNum.get(name)+Optional.ofNullable(tempUser).map(ArrayList::size).orElse(0);
                 courseToNum.put(name,num);
             }
         }
