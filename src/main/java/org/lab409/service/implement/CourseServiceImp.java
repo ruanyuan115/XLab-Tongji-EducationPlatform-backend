@@ -268,6 +268,69 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    public Map getCourseClassNLPRate(Integer courseID)
+    {
+        ArrayList<CourseClass>courseClasses=getClassesByCourseID(courseID);
+        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(courseID,0);
+        if (courseClasses!=null&&courseClasses.size()>0)
+        {
+            int studentNum=0;
+            int positiveNum=0;
+            int negativeNum=0;
+            ArrayList<Map>classInfoMap=new ArrayList<>();
+            for (CourseClass i:courseClasses)
+            {
+                int classStudentNum=0;
+                int classPositiveNum=0;
+                int classNegativeNum=0;
+                ArrayList<UserInfo> students=getStudentsByClassID(i.getId());
+                if (students!=null&&students.size()>0)
+                {
+                    for (UserInfo u:students)
+                    {
+                        float NLPRateSum=0;
+                        int NLPRateNum=0;
+                        for (ChapterNode c:chapterNodes)
+                        {
+                            String tempStr= studentChapterDao.getNLPRateByChapterIDAndStudentID(c.getId(),u.getUserID());
+                            if (tempStr!=null)
+                            {
+                                Float temp=Float.parseFloat(tempStr);
+                                NLPRateSum+=temp;
+                                NLPRateNum+=1;
+                            }
+                        }
+                        classStudentNum++;
+                        if (NLPRateNum!=0)
+                        {
+                            classPositiveNum+=NLPRateSum>0?1:0;
+                            classNegativeNum+=NLPRateSum<=0?1:0;
+                        }
+                    }
+                }
+                studentNum+=classStudentNum;
+                positiveNum+=classPositiveNum;
+                negativeNum+=classNegativeNum;
+                Map<String,Integer>classMap=new HashMap<>();
+                classMap.put("classNum",i.getClassNum());
+                classMap.put("classStudentNum",classStudentNum);
+                classMap.put("classPositiveNum",classPositiveNum);
+                classMap.put("classNegativeNum",classNegativeNum);
+                classInfoMap.add(classMap);
+            }
+            Map<String,Object>resultMap=new HashMap<>();
+            resultMap.put("studentNum",studentNum);
+            resultMap.put("positiveNum",positiveNum);
+            resultMap.put("negativeNum",negativeNum);
+            resultMap.put("classInfo",classInfoMap);
+
+            return resultMap;
+        }
+        else
+            return null;
+    }
+
+    @Override
     public Map getCourseClassAvgScore(Integer courseID)
     {
         ArrayList<CourseClass>courseClasses=getClassesByCourseID(courseID);
@@ -513,7 +576,61 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
+    public Map getChapterNLPRate(Integer chapterID)
+    {
+        Optional<ChapterNode> chapterNodeOptional=chapterContentDao.findById(chapterID);
+        if (!chapterNodeOptional.isPresent())
+            return null;
+        final Map<String,Object>resultMap=new HashMap<>();
+        chapterNodeOptional.ifPresent(chapterNode -> {
+            ArrayList<CourseClass>classesTemp=getClassesByCourseID(chapterNode.getCourseID());
+            if (classesTemp!=null&&classesTemp.size()!=0)
+            {
+                int studentNum=0;
+                int positiveNum=0;
+                int negativeNum=0;
+                ArrayList<Map>classInfoMap=new ArrayList<>();
+                for (CourseClass i:classesTemp)
+                {
+                    int classStudentNum=0;
+                    int classPositiveNum=0;
+                    int classNegativeNum=0;
+                    ArrayList<UserInfo> students=getStudentsByClassID(i.getId());
+                    if (students!=null&&students.size()>0)
+                    {
+                        for (UserInfo u:students)
+                        {
+                            classStudentNum++;
+                            String tempStr=studentChapterDao.getNLPRateByChapterIDAndStudentID(chapterID,u.getUserID());
+                            if (tempStr!=null)
+                            {
+                                Float temp=Float.parseFloat(tempStr);
+                                classPositiveNum+=temp>0?1:0;
+                                classNegativeNum+=temp<=0?1:0;
+                            }
+                        }
+                    }
+                    studentNum+=classStudentNum;
+                    positiveNum+=classPositiveNum;
+                    negativeNum+=classNegativeNum;
+                    Map<String,Integer>classMap=new HashMap<>();
+                    classMap.put("classNum",i.getClassNum());
+                    classMap.put("classStudentNum",classStudentNum);
+                    classMap.put("classPositiveNum",classPositiveNum);
+                    classMap.put("classNegativeNum",classNegativeNum);
+                    classInfoMap.add(classMap);
+                }
+                resultMap.put("studentNum",studentNum);
+                resultMap.put("positiveNum",positiveNum);
+                resultMap.put("negativeNum",negativeNum);
+                resultMap.put("classInfo",classInfoMap);
+            }
+        });
+        return resultMap;
+    }
+
+    @Override
+    public ArrayList<Map> getChapterScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
     {
         //获取章节信息后 获取班级信息 然后获取学生在该章的信息(studentChapter) 遍历班级查找该班学生的性别 分类计算均值
 

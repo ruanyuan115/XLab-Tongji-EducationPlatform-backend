@@ -51,7 +51,9 @@ public interface CourseService
     ArrayList<Map> getTeacherListByNID(String courseNameID);
     Integer addStudentComment(Integer chapterID,Integer studentID,String comment,Integer rate);
     Integer addClassComment(Integer courseClassID,Integer studentID,String comment,Integer rate);
-    ArrayList<Map> getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID);
+    ArrayList<Map> getChapterScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID);
     Map getCourseClassAvgScore(Integer courseID);
     Map getCourseYearAvgScoreRate(Integer courseNameID,Integer teacherID);
+    Map getCourseClassNLPRate(Integer courseID);
+    Map getChapterNLPRate(Integer chapterID);
 }

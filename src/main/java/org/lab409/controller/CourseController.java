@@ -481,10 +481,10 @@ public class CourseController
         return resultEntity;
     }
     @GetMapping(value="/getCourseScoreAndCommentByGender")
-    public ResultEntity getCourseScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
+    public ResultEntity getChapterScoreAndCommentByGender(Integer chapterID,Integer getDetail,Integer courseClassID)
     {
         ResultEntity resultEntity=new ResultEntity();
-        resultEntity.setData(courseService.getCourseScoreAndCommentByGender(chapterID,getDetail,courseClassID));
+        resultEntity.setData(courseService.getChapterScoreAndCommentByGender(chapterID,getDetail,courseClassID));
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }
@@ -504,62 +504,21 @@ public class CourseController
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }
-    @GetMapping(value = "/dosome")
-    public void dosomething()
+    @GetMapping(value = "/getCourseClassNLPRateNum")
+    public ResultEntity getCourseClassNLPRateNum(Integer courseID)
     {
-        Random rand = new Random();
-        ArrayList<Integer>arrayList=new ArrayList<>();
-        arrayList.add(705);
-        arrayList.add(721);
-        arrayList.add(729);
-        arrayList.add(740);
-        arrayList.add(748);
-        arrayList.add(756);
-        arrayList.add(761);
-        arrayList.add(773);
-        arrayList.add(784);
-        arrayList.add(794);
-        arrayList.add(804);
-        arrayList.add(816);
-        arrayList.add(825);
-
-
-        for (Integer id:arrayList)
-        {
-            for(int i=1;i<202;i++)
-            {
-                int low=20;
-                int ratelow=1;
-                if(i%5==0)
-                {
-                    low = 70;
-                    ratelow=4;
-                }
-                if (i%10==0)
-                {
-                    low=80;
-                    ratelow=5;
-                }
-                int up=100-low;
-                int uprate=6-ratelow;
-                StudentChapter studentChapter=new StudentChapter();
-                studentChapter.setStudentID(i);
-                studentChapter.setChapterID(id);
-                studentChapter.setTotalScore_1(rand.nextInt(up) + low);
-                studentChapter.setTotalScore_2(rand.nextInt(up) + low);
-                studentChapter.setComment("不错");
-                studentChapter.setRate(rand.nextInt(uprate)+ratelow);
-                studentChapterDao.saveAndFlush(studentChapter);
-            }
-        }
-        /*
-        ArrayList<Integer>arrayList=new ArrayList<>();
-        arrayList.add(38);
-        arrayList.add(37);
-        for(int i=2;i<202;i++)
-        {
-            joinCourse(i,arrayList.get(i%2));
-        }
-        */
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getCourseClassNLPRate(courseID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        return resultEntity;
     }
+    @GetMapping(value = "/getChapterNLPRateNum")
+    public ResultEntity getChapterClassNLPRateNum(Integer chapterID)
+    {
+        ResultEntity resultEntity=new ResultEntity();
+        resultEntity.setData(courseService.getChapterNLPRate(chapterID));
+        resultEntity.setState(resultEntity.getData()!=null?1:0);
+        return resultEntity;
+    }
+
 }
