@@ -11,6 +11,8 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -303,8 +305,8 @@ public class CourseServiceImp implements CourseService
                         classStudentNum++;
                         if (NLPRateNum!=0)
                         {
-                            classPositiveNum+=NLPRateSum>0?1:0;
-                            classNegativeNum+=NLPRateSum<=0?1:0;
+                            classPositiveNum+=NLPRateSum>=0?1:0;
+                            classNegativeNum+=NLPRateSum<0?1:0;
                         }
                     }
                 }
@@ -605,8 +607,8 @@ public class CourseServiceImp implements CourseService
                             if (tempStr!=null)
                             {
                                 Float temp=Float.parseFloat(tempStr);
-                                classPositiveNum+=temp>0?1:0;
-                                classNegativeNum+=temp<=0?1:0;
+                                classPositiveNum+=temp>=0?1:0;
+                                classNegativeNum+=temp<0?1:0;
                             }
                         }
                     }
@@ -1346,7 +1348,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
-    public Integer addStudentComment(Integer chapterID, Integer studentID, String comment, Integer rate)
+    public Integer addStudentComment(Integer chapterID, Integer studentID, String comment, Integer rate)throws Exception
     {
         StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterID,studentID);
         if(studentChapter==null)
@@ -1358,6 +1360,9 @@ public class CourseServiceImp implements CourseService
             studentChapter.setComment(comment);
             studentChapter.setRate(rate);
         studentChapterDao.saveAndFlush(studentChapter);
+        String nlpRate=getCommentNLPRate(comment);
+        nlpRate=nlpRate!=null?nlpRate:"0";
+        studentChapterDao.setNLPRateByChapterIDAndStudentID(nlpRate,chapterID,studentID);
         return 1;
     }
 
@@ -1469,5 +1474,18 @@ public class CourseServiceImp implements CourseService
         }
         else
             return null;
+    }
+
+    @Override
+    public String getCommentNLPRate(String str)throws Exception
+    {
+        //设置命令行传入的参数
+        String[] arg = new String[]{"NLP_test/venv/bin/python", "NLP_test/nlpTest.py",str};
+        Process pr = Runtime.getRuntime().exec(arg);
+        BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+        String line=in.readLine();
+        in.close();
+        pr.waitFor();
+        return line;
     }
 }

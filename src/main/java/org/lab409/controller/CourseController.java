@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 @RestController
@@ -465,7 +469,7 @@ public class CourseController
         return resultEntity;
     }
     @PostMapping(value = "/addStudentComment")
-    public ResultEntity addStudentComment(Integer chapterID, Integer studentID, String comment, Integer rate)
+    public ResultEntity addStudentComment(Integer chapterID, Integer studentID, String comment, Integer rate)throws Exception
     {
         ResultEntity resultEntity=new ResultEntity();
         resultEntity.setState(courseService.addStudentComment(chapterID,studentID,comment,rate));
@@ -520,5 +524,4 @@ public class CourseController
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
     }
-
 }
