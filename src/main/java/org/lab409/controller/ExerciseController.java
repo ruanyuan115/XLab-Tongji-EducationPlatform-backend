@@ -209,12 +209,33 @@ public class ExerciseController {
         return resultEntity;
     }
 
-    @GetMapping(value="exerciseScore")
+    @GetMapping(value="/exerciseScore")
     public ResultEntity exerciseScore(Integer studentId,Integer chapterId,String type){
         ResultEntity resultEntity=new ResultEntity();
         if(studentId!=null&&chapterId!=null&&type!=null){
             resultEntity.setData(exerciseService.exerciseScore(studentId,chapterId,type));
             resultEntity.setState(1);
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @GetMapping(value = "/getPrecourse")
+    public ResultEntity getPrecourse(String courseName){
+        ResultEntity resultEntity=new ResultEntity();
+        if(courseName!=null){
+            List<List<String>> temp=exerciseService.getPrecourse(courseName);
+            if(temp!=null)
+            {
+                resultEntity.setData(temp);
+                resultEntity.setState(1);
+            }
+            resultEntity.setMessage("未找到对应课程！");
+            resultEntity.setState(0);
         }
         else
         {

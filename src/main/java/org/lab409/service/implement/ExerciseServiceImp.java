@@ -30,6 +30,8 @@ public class ExerciseServiceImp implements ExerciseService{
     private ChapterContentDao chapterContentDao;
     @Autowired
     private ChapterRelationDao chapterRelationDao;
+    @Autowired
+    private CourseRelationDao courseRelationDao;
     @Override
     @Transactional
     public ResultEntity findOneExerice(Integer exerciseId){
@@ -265,12 +267,12 @@ public class ExerciseServiceImp implements ExerciseService{
     public ResultEntity answerOne(String answer,Integer exerciseId,Integer studentId){
         ResultEntity resultEntity=new ResultEntity();
         StudentExerciseScore studentExerciseScore=new StudentExerciseScore(studentId,exerciseId,answer,0);
-        studentExerciseScore.setCorreted(0);
+        studentExerciseScore.setCorrected(0);
         Exercise exercise=exerciseDao.findByExerciseId(exerciseId);
         if(studentExerciseScore!=null){
             if(exercise.getExerciseType()%3!=0){
                 if(answer.equals(exercise.getExerciseAnswer())){
-                    studentExerciseScore.setCorreted(1);
+                    studentExerciseScore.setCorrected(1);
                     studentExerciseScore.setExerciseScore(exercise.getExercisePoint());
                 }
             }
@@ -431,7 +433,7 @@ public class ExerciseServiceImp implements ExerciseService{
             for(int i=0;i<scores.size();i++){
                 studentExerciseScore=studentExerciseScoreDao.findByExerciseIdAndStudentId(exerciseIds.get(i),studentId);
                 studentExerciseScore.setExerciseScore(scores.get(i));
-                studentExerciseScore.setCorreted(1);
+                studentExerciseScore.setCorrected(1);
                 studentExerciseScoreDao.saveAndFlush(studentExerciseScore);
             }
             exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
@@ -744,9 +746,56 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
         for (Exercise exercise:exercises){
-            if(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getCorreted()!=0)
+            if(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getCorrected()!=0)
                 scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getExerciseScore());
         }
         return scores;
+    }
+
+    @Override
+    @Transactional
+    public List<List<String>> getPrecourse(String courseName){
+        List<List<String>> preCourseSet=new ArrayList<>();
+        if(!courseNameDao.existsByCourseName(courseName)){
+            return null;
+        }
+        else {
+            List<String> temp=getPrecouseName(courseName);
+            List<String> temp1=new ArrayList<>();
+            List<String> temp2=new ArrayList<>();
+            preCourseSet.add(temp);
+            for(String i:temp){
+                temp1=getPrecouseName(i);
+                for(String j:temp1){
+                    if(!temp2.contains(j))
+                        temp2.add(j);
+                }
+            }
+            preCourseSet.add(temp2);
+        }
+        return preCourseSet;
+    }
+
+    @Override
+    @Transactional
+    public List<String> getPrecouseName(String courseName){
+        if(!courseNameDao.existsByCourseName(courseName)){
+            return null;
+        }
+        else {
+            int couseId = courseNameDao.findByCourseName(courseName).getCourseNameID();
+            List<CourseRelation> courseRelations = courseRelationDao.findByCourseNameID(couseId);
+            return getCoursesName(courseRelations);
+        }
+    }
+
+    @Override
+    @Transactional
+    public List<String> getCoursesName(List<CourseRelation> courseRelations){
+        List<String> temp=new ArrayList<>();
+        for(CourseRelation courseRelation:courseRelations){
+            temp.add(courseNameDao.findByCourseNameID(courseRelation.getPreCourseNameID()).getCourseName());
+        }
+        return temp;
     }
 }

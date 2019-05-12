@@ -8,6 +8,6 @@ import java.util.List;
 public interface StudentExerciseScoreDao extends JpaRepository<StudentExerciseScore,Integer>{
     StudentExerciseScore findById(int id);
     StudentExerciseScore findByExerciseIdAndStudentId(int exerciseId,int studentId);
-    StudentExerciseScore findByExerciseIdAndStudentIdAndCorreted(int exerciseId,int studentId,int correted);
+    StudentExerciseScore findByExerciseIdAndStudentIdAndCorrected(int exerciseId,int studentId,int corrected);
     boolean existsByExerciseIdAndStudentId(int exerciseId,int studentId);
 }

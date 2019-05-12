@@ -28,4 +28,7 @@ public interface ExerciseService {
     boolean copyExercise(int sourceChapterId,int aimChapterId,String type);
     List<Integer> exerciseScore(int studentId,int chapterId,String type);
     int calculateScore(Integer chapterId,Integer studentId);
+    List<List<String>> getPrecourse(String courseName);
+    List<String> getPrecouseName(String courseName);
+    List<String> getCoursesName(List<CourseRelation> courseRelations);
 }
