@@ -1480,7 +1480,7 @@ public class CourseServiceImp implements CourseService
     public String getCommentNLPRate(String str)throws Exception
     {
         //设置命令行传入的参数
-        String[] arg = new String[]{"NLP_test/venv/bin/python", "NLP_test/nlpTest.py",str};
+        String[] arg = new String[]{"python", "NLP_test/nlpTest.py",str};
         Process pr = Runtime.getRuntime().exec(arg);
         BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
         String line=in.readLine();

@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 @RestController
@@ -21,6 +18,8 @@ public class CourseController
     private CourseService courseService;
     @Autowired
     private StudentChapterDao studentChapterDao;
+    @Autowired
+    private UserController userController;
     @PostMapping(value = "/addCourse")
     public ResultEntity addNewCourse(CourseInfo courseInfo)
     {
@@ -523,5 +522,22 @@ public class CourseController
         resultEntity.setData(courseService.getChapterNLPRate(chapterID));
         resultEntity.setState(resultEntity.getData()!=null?1:0);
         return resultEntity;
+    }
+    @GetMapping(value = "/dosome")
+    public void dosome()
+    {
+        /*
+        for (int i=0;i<200;i++)
+        {
+            UserInfo u=new UserInfo();
+            u.setPassword("123");
+            u.setWorkID(1452600+i);
+            u.setGender(i%2==0?"男":"女");
+            u.setRole("学生");
+            u.setName(getName());
+            u.setMail(1452600+i+"@tongji.edu.com");
+            userController.register(u);
+        }
+        */
     }
 }
