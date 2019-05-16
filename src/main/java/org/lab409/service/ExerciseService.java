@@ -31,4 +31,6 @@ public interface ExerciseService {
     List<List<String>> getPrecourse(String courseName);
     List<String> getPrecouseName(String courseName);
     List<String> getCoursesName(List<CourseRelation> courseRelations);
+    boolean learnBad(int studentId,int courseId);
+    String getCourseName(int courseId);
 }
