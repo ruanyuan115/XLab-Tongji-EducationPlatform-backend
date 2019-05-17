@@ -225,17 +225,29 @@ public class ExerciseController {
     }
 
     @GetMapping(value = "/getPrecourse")
-    public ResultEntity getPrecourse(String courseName){
+    public ResultEntity getPrecourse(Integer courseId,Integer studentId){
         ResultEntity resultEntity=new ResultEntity();
-        if(courseName!=null){
-            List<List<String>> temp=exerciseService.getPrecourse(courseName);
-            if(temp!=null)
-            {
-                resultEntity.setData(temp);
+        if(courseId!=null&&studentId!=null){
+            if(exerciseService.learnBad(studentId,courseId)){
+                String a=exerciseService.getCourseName(courseId);
+                List<List<String>> temp=exerciseService.getPrecourse(exerciseService.getCourseName(courseId));
+                if(temp!=null)
+                {
+                    resultEntity.setData(temp);
+                    resultEntity.setState(1);
+                    resultEntity.setMessage("你需要学习一些前置课程");
+                }
+                else
+                {
+                    resultEntity.setMessage("未找到对应课程！");
+                    resultEntity.setState(0);
+                }
+            }
+            else{
+                resultEntity.setMessage("你此课程最近学习状况尚可！");
                 resultEntity.setState(1);
             }
-            resultEntity.setMessage("未找到对应课程！");
-            resultEntity.setState(0);
+
         }
         else
         {

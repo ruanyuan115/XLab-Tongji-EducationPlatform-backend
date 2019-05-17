@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service(value="exerciseService")
 public class ExerciseServiceImp implements ExerciseService{
@@ -797,5 +794,46 @@ public class ExerciseServiceImp implements ExerciseService{
             temp.add(courseNameDao.findByCourseNameID(courseRelation.getPreCourseNameID()).getCourseName());
         }
         return temp;
+    }
+
+    @Override
+    @Transactional
+    public boolean learnBad(int studentId,int courseId){
+        List<ChapterNode> chapterNodes=chapterContentDao.findByCourseID(courseId);
+        List<StudentChapter> studentChapters=studentChapterDao.findByChapterIDBetweenAndStudentIDOrderByChapterIDDesc(chapterNodes.get(0).getId(),chapterNodes.get(chapterNodes.size()-1).getId(),studentId);
+        int chapterId1=0;
+        int chapterId2=0;
+        for(int i=0;i<studentChapters.size();i++){
+            if(studentChapters.get(i).getComment()!=null){
+                chapterId1=studentChapters.get(i).getChapterID();
+                if(i+1>=studentChapters.size())
+                    chapterId2=chapterId1;
+                else
+                    chapterId2=studentChapters.get(i+1).getChapterID();
+            }
+        }
+        if(chapterId1==0)
+            return true;
+        List<StudentChapter> temp=studentChapterDao.findByChapterID(chapterId1);
+        List<Integer> scores1=new ArrayList<>();
+        for(StudentChapter i:temp){
+            scores1.add(i.getTotalScore_2());
+        }
+        temp=studentChapterDao.findByChapterID(chapterId2);
+        List<Integer> scores2=new ArrayList<>();
+        for(StudentChapter i:temp){
+            scores2.add(i.getTotalScore_2());
+        }
+        Collections.sort(scores1);
+        Collections.sort(scores2);
+        if(scores1.get((int)(0.4*studentChapterDao.countByChapterID(chapterId1)))>studentChapterDao.findByChapterIDAndStudentID(chapterId1,studentId).getTotalScore_2()&&scores2.get((int)(0.4*studentChapterDao.countByChapterID(chapterId2)))>studentChapterDao.findByChapterIDAndStudentID(chapterId2,studentId).getTotalScore_2())
+            return true;
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public String getCourseName(int courseId){
+        return courseNameDao.findByCourseNameID(Integer.parseInt(courseInfoDao.findByCourseID(courseId).getCourseName())).getCourseName();
     }
 }

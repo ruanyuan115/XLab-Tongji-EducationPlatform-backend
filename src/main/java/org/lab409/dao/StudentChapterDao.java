@@ -17,6 +17,8 @@ import java.util.Map;
 public interface StudentChapterDao extends JpaRepository<StudentChapter,Integer>
 {
     StudentChapter findByChapterIDAndStudentID(Integer chapterID,Integer studentID);
+    List<StudentChapter> findByChapterIDBetweenAndStudentIDOrderByChapterIDDesc(Integer least,Integer most,Integer studentId);
+    Integer countByChapterID(int chapterId);
     ArrayList<StudentChapter>findByChapterID(Integer chapterID);
     Integer countByChapterIDAndRate(Integer chapterID,Integer rate);
     @Query(value = "select nlp_rate from student_chapter where chapter_id=:chapterID and student_id=:studentID",nativeQuery=true)
