@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.lab409.dao.StudentScoreRateDao_m">
+    <resultMap id="scoreMap" type="org.lab409.entity.StudentScoreRate">
+        <result column="student_id" property="studentID"/>
+        <result column="total_score_1" property="totalScore_1"/>
+        <result column="total_score_2" property="totalScore_2"/>
+        <result column="rate" property="rate"/>
+    </resultMap>
+    <select id="getStudentScoreRate" resultMap="scoreMap">
+        SELECT student_id,total_score_1,total_score_2,rate
+        FROM student_chapter
+        WHERE (chapter_id,student_id) IN 
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            (#{item.chapterID},#{item.studentID})
+        </foreach>
+    </select>
+</mapper>

@@ -1,5 +1,6 @@
 package org.lab409.dao;
 
+import org.lab409.entity.StudentScoreRate;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 import org.lab409.entity.StudentChapter;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface StudentChapterDao extends JpaRepository<StudentChapter,Integer>

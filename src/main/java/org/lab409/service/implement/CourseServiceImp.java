@@ -1,23 +1,19 @@
 package org.lab409.service.implement;
 
-import org.apache.bcel.generic.FLOAD;
 import org.apache.commons.lang.math.NumberUtils;
 import org.lab409.dao.*;
 import org.lab409.entity.*;
-import org.lab409.model.security.User;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Service(value = "courseService")
-@Transactional
 public class CourseServiceImp implements CourseService
 {
     @Autowired
@@ -40,7 +36,12 @@ public class CourseServiceImp implements CourseService
     private CourseNameDao courseNameDao;
     @Autowired
     private ChapterRelationDao chapterRelationDao;
+    @Autowired
+    private StudentScoreRateDao_m studentScoreRateDao;
+    @Autowired
+    private UserDao_m userDao_m;
     @Override
+    @Transactional
     public Integer addNewCourse(CourseInfo courseInfo)
     {
         if(courseInfo!=null)
@@ -52,6 +53,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer addClass(CourseClass courseClass)
     {
         if (courseClass!=null&&courseClassDao.findByCourseIDAndClassNum(courseClass.getCourseID(),courseClass.getClassNum())==null)
@@ -64,6 +66,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer alertClassInfo(CourseClass courseClass)
     {
         if (courseClass!=null)
@@ -109,6 +112,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer joinCourse(Integer studentID, Integer courseClassID)
     {
         Takes takes=new Takes();
@@ -120,6 +124,7 @@ public class CourseServiceImp implements CourseService
             return -1;
     }
     @Override
+    @Transactional
     public Integer addCourseNotice(CourseNotice courseNotice)
     {
         if(courseNotice!=null&&courseInfoDao.findByCourseID(courseNotice.getCourseID())!=null)//如果有该课程
@@ -148,6 +153,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer deleteCourse(Integer courseID)
     {
         if(courseInfoDao.findByCourseID(courseID)!=null)
@@ -160,6 +166,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer deleteCourseNotice(Integer courseID)
     {
         if(courseNoticeDao.findByCourseID(courseID)!=null)
@@ -172,6 +179,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public ChapterNode addChapter(ChapterNode chapterNode)
     {
         if(chapterNode!=null)
@@ -333,6 +341,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Cacheable(value = "getCourseClassAvgScore")
     public Map getCourseClassAvgScore(Integer courseID)
     {
         ArrayList<CourseClass>courseClasses=getClassesByCourseID(courseID);
@@ -370,6 +379,30 @@ public class CourseServiceImp implements CourseService
 
             ArrayList<Map>resultMap=new ArrayList<>();
 
+            ArrayList<Map>tempList=new ArrayList<>();
+            Map<Integer,ArrayList<UserInfo>>classStudentMap=new HashMap<>();
+            for(CourseClass i:courseClasses)
+            {
+                ArrayList<UserInfo> students=getStudentsByClassID(i.getId());
+                classStudentMap.put(i.getClassNum(),students);
+                if (students!=null)
+                    for (UserInfo u : students)
+                    {
+                        for (ChapterNode c : chapterNodes) {
+                            Map<String, Integer> tempMap = new HashMap<>();
+                            tempMap.put("chapterID", c.getId());
+                            tempMap.put("studentID", u.getUserID());
+                            tempList.add(tempMap);
+                        }
+                    }
+            }
+            ArrayList<StudentScoreRate> tempScoreRate = tempList.size()>0?studentScoreRateDao.getStudentScoreRate(tempList):new ArrayList<>();
+            Map<Integer,ArrayList<StudentScoreRate>>studentScoreMap=new HashMap<>();
+            for(StudentScoreRate i:tempScoreRate)
+            {
+                studentScoreMap.computeIfAbsent(i.getStudentID(),k->new ArrayList<>());
+                studentScoreMap.get(i.getStudentID()).add(i);
+            }
             for(CourseClass i:courseClasses)
             {
                 int boyNum=0;
@@ -399,135 +432,115 @@ public class CourseServiceImp implements CourseService
 
                 ArrayList<Integer>boyRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
                 ArrayList<Integer>girlRateDis=new ArrayList<>(Arrays.asList(0,0,0,0,0));
-                ArrayList<UserInfo> students=getStudentsByClassID(i.getId());
+                ArrayList<UserInfo> students=classStudentMap.get(i.getClassNum());
                 if(students!=null)
-                for(UserInfo u:students)
                 {
-                    float studentScoreSum1=0;
-                    int studentScoreNum1=0;
-                    float studentScoreSum2=0;
-                    int studentScoreNum2=0;
-                    float studentScoreSum=0;
-                    int studentScoreNum=0;
-                    float studentRateSum=0;
-                    int studentRateNum=0;
-                    ArrayList<StudentChapter>temp=new ArrayList<>();
-                    for(ChapterNode c:chapterNodes)
-                    {
-                        StudentChapter t=studentChapterDao.findByChapterIDAndStudentID(c.getId(),u.getUserID());
-                        if (t!=null)
-                            temp.add(t);
-                    }
-                    for(StudentChapter s:temp)
-                    {
-                        if(s.getTotalScore_1()!=null)
-                        {
-                            studentScoreSum1 += s.getTotalScore_1();
-                            studentScoreNum1+=1;
-                        }
-                        if(s.getTotalScore_2()!=null)
-                        {
-                            studentScoreSum2+=s.getTotalScore_2();
-                            studentScoreNum2+=1;
-                        }
-                        if (s.getRate()!=null)
-                        {
-                            studentRateSum+=s.getRate();
-                            studentRateNum+=1;
-                        }
-                        if(s.getTotalScore_1()!=null&&s.getTotalScore_2()!=null)
-                        {
-                            studentScoreSum+=(s.getTotalScore_1()+s.getTotalScore_2())/2;
-                            studentScoreNum+=1;
-                        }
-                    }
-                    int indexScore1=(int)(studentScoreSum1/studentScoreNum1/10<6?0:studentScoreSum1/studentScoreNum1==100?4:studentScoreSum1/studentScoreNum1/10-5);
-                    int indexScore2=(int)(studentScoreSum2/studentScoreNum2/10<6?0:studentScoreSum2/studentScoreNum2==100?4:studentScoreSum2/studentScoreNum2/10-5);
-                    int indexScore=(int)(studentScoreSum/studentScoreNum/10<6?0:studentScoreSum/studentScoreNum==100?4:studentScoreSum/studentScoreNum/10-5);
-                    int indexRate=(int)(studentRateSum/studentRateNum==5?4:studentRateSum/studentRateNum);
-                    if(userDao.findByMail(u.getMail()).getGender().equals("男"))
-                    {
-                        boyNum+=1;
-                        courseBoyNum+=1;
-                        if(studentScoreSum1!=0)
-                        {
-                            boyScoreSum1+=studentScoreSum1/studentScoreNum1;
-                            boyScoreNum1+=1;
-                            courseBoyScoreSum1+=studentScoreSum1/studentScoreNum1;
-                            courseBoyScoreNum1+=1;
-                        }
-                        if(studentScoreSum2!=0)
-                        {
-                            boyScoreSum2+=studentScoreSum2/studentScoreNum2;
-                            boyScoreNum2+=1;
-                            courseBoyScoreSum2+=studentScoreSum2/studentScoreNum2;
-                            courseBoyScoreNum2+=1;
-                        }
-                        if (studentScoreSum!=0)
-                        {
-                            boyScoreSum+=studentScoreSum/studentScoreNum;
-                            boyScoreNum+=1;
-                            courseBoyScoreSum+=studentScoreSum/studentScoreNum;
-                            courseBoyScoreNum+=1;
-                        }
-                        if (studentRateSum!=0)
-                        {
-                            boyRateSum+=studentRateSum/studentRateNum;
-                            boyRateNum+=1;
-                            courseBoyRateSum+=studentRateSum/studentRateNum;
-                            courseBoyRateNum+=1;
-                        }
-                        boyScore1.set(indexScore1,boyScore1.get(indexScore1)+1);
-                        boyScore2.set(indexScore2,boyScore2.get(indexScore2)+1);
-                        boyScoreAvgDis.set(indexScore,boyScoreAvgDis.get(indexScore)+1);
-                        boyRateDis.set(indexRate,boyRateDis.get(indexRate)+1);
+                    for (UserInfo u : students) {
+                        float studentScoreSum1 = 0;
+                        int studentScoreNum1 = 0;
+                        float studentScoreSum2 = 0;
+                        int studentScoreNum2 = 0;
+                        float studentScoreSum = 0;
+                        int studentScoreNum = 0;
+                        float studentRateSum = 0;
+                        int studentRateNum = 0;
 
-                        courseBoyScore1.set(indexScore1,courseBoyScore1.get(indexScore1)+1);
-                        courseBoyScore2.set(indexScore2,courseBoyScore2.get(indexScore2)+1);
-                        courseBoyScoreAvgDis.set(indexScore,courseBoyScoreAvgDis.get(indexScore)+1);
-                        courseBoyRateDis.set(indexRate,courseBoyRateDis.get(indexRate)+1);
-                    }
-                    else
-                    {
-                        courseGirlNum+=1;
-                        girlNum+=1;
-                        if(studentScoreSum1!=0)
-                        {
-                            girlScoreSum1+=studentScoreSum1/studentScoreNum1;
-                            girlScoreNum1+=1;
-                            courseGirlScoreSum1+=studentScoreSum1/studentScoreNum1;
-                            courseGirlScoreNum1+=1;
+                        ArrayList<StudentScoreRate>temp=studentScoreMap.get(u.getUserID());
+                        for (StudentScoreRate s : temp) {
+                            if (s.getTotalScore_1() != null) {
+                                studentScoreSum1 += s.getTotalScore_1();
+                                studentScoreNum1 += 1;
+                            }
+                            if (s.getTotalScore_2() != null) {
+                                studentScoreSum2 += s.getTotalScore_2();
+                                studentScoreNum2 += 1;
+                            }
+                            if (s.getRate() != null) {
+                                studentRateSum += s.getRate();
+                                studentRateNum += 1;
+                            }
+                            if (s.getTotalScore_1() != null && s.getTotalScore_2() != null) {
+                                studentScoreSum += (s.getTotalScore_1() + s.getTotalScore_2()) / 2;
+                                studentScoreNum += 1;
+                            }
                         }
-                        if(studentScoreSum2!=0)
-                        {
-                            girlScoreSum2+=studentScoreSum2/studentScoreNum2;
-                            girlScoreNum2+=1;
-                            courseGirlScoreSum2+=studentScoreSum2/studentScoreNum2;
-                            courseGirlScoreNum2+=1;
-                        }
-                        if (studentScoreSum!=0)
-                        {
-                            girlScoreSum+=studentScoreSum/studentScoreNum;
-                            girlScoreNum+=1;
-                            courseGirlScoreSum+=studentScoreSum/studentScoreNum;
-                            courseGirlScoreNum+=1;
-                        }
-                        if (studentRateSum!=0)
-                        {
-                            girlRateSum+=studentRateSum/studentRateNum;
-                            girlRateNum+=1;
-                            courseGirlRateSum+=studentRateSum/studentRateNum;
-                            courseGirlRateNum+=1;
-                        }
-                        girlScore1.set(indexScore1,girlScore1.get(indexScore1)+1);
-                        girlScore2.set(indexScore2,girlScore2.get(indexScore2)+1);
-                        girlScoreAvgDis.set(indexScore,girlScoreAvgDis.get(indexScore)+1);
-                        girlRateDis.set(indexRate,girlRateDis.get(indexRate)+1);
+                        int indexScore1 = (int) (studentScoreSum1 / studentScoreNum1 / 10 < 6 ? 0 : studentScoreSum1 / studentScoreNum1 == 100 ? 4 : studentScoreSum1 / studentScoreNum1 / 10 - 5);
+                        int indexScore2 = (int) (studentScoreSum2 / studentScoreNum2 / 10 < 6 ? 0 : studentScoreSum2 / studentScoreNum2 == 100 ? 4 : studentScoreSum2 / studentScoreNum2 / 10 - 5);
+                        int indexScore = (int) (studentScoreSum / studentScoreNum / 10 < 6 ? 0 : studentScoreSum / studentScoreNum == 100 ? 4 : studentScoreSum / studentScoreNum / 10 - 5);
+                        int indexRate = (int) (studentRateSum / studentRateNum == 5 ? 4 : studentRateSum / studentRateNum);
+                        if (u.getGender().equals("男")) {
+                            boyNum += 1;
+                            courseBoyNum += 1;
+                            if (studentScoreSum1 != 0) {
+                                boyScoreSum1 += studentScoreSum1 / studentScoreNum1;
+                                boyScoreNum1 += 1;
+                                courseBoyScoreSum1 += studentScoreSum1 / studentScoreNum1;
+                                courseBoyScoreNum1 += 1;
+                            }
+                            if (studentScoreSum2 != 0) {
+                                boyScoreSum2 += studentScoreSum2 / studentScoreNum2;
+                                boyScoreNum2 += 1;
+                                courseBoyScoreSum2 += studentScoreSum2 / studentScoreNum2;
+                                courseBoyScoreNum2 += 1;
+                            }
+                            if (studentScoreSum != 0) {
+                                boyScoreSum += studentScoreSum / studentScoreNum;
+                                boyScoreNum += 1;
+                                courseBoyScoreSum += studentScoreSum / studentScoreNum;
+                                courseBoyScoreNum += 1;
+                            }
+                            if (studentRateSum != 0) {
+                                boyRateSum += studentRateSum / studentRateNum;
+                                boyRateNum += 1;
+                                courseBoyRateSum += studentRateSum / studentRateNum;
+                                courseBoyRateNum += 1;
+                            }
+                            boyScore1.set(indexScore1, boyScore1.get(indexScore1) + 1);
+                            boyScore2.set(indexScore2, boyScore2.get(indexScore2) + 1);
+                            boyScoreAvgDis.set(indexScore, boyScoreAvgDis.get(indexScore) + 1);
+                            boyRateDis.set(indexRate, boyRateDis.get(indexRate) + 1);
 
-                        courseGirlScore1.set(indexScore1,courseGirlScore1.get(indexScore1)+1);
-                        courseGirlScore2.set(indexScore2,courseGirlScore2.get(indexScore2)+1);
-                        courseGirlScoreAvgDis.set(indexScore,courseGirlScoreAvgDis.get(indexScore)+1);
-                        courseGirlRateDis.set(indexRate,courseGirlRateDis.get(indexRate)+1);
+                            courseBoyScore1.set(indexScore1, courseBoyScore1.get(indexScore1) + 1);
+                            courseBoyScore2.set(indexScore2, courseBoyScore2.get(indexScore2) + 1);
+                            courseBoyScoreAvgDis.set(indexScore, courseBoyScoreAvgDis.get(indexScore) + 1);
+                            courseBoyRateDis.set(indexRate, courseBoyRateDis.get(indexRate) + 1);
+                        } else {
+                            courseGirlNum += 1;
+                            girlNum += 1;
+                            if (studentScoreSum1 != 0) {
+                                girlScoreSum1 += studentScoreSum1 / studentScoreNum1;
+                                girlScoreNum1 += 1;
+                                courseGirlScoreSum1 += studentScoreSum1 / studentScoreNum1;
+                                courseGirlScoreNum1 += 1;
+                            }
+                            if (studentScoreSum2 != 0) {
+                                girlScoreSum2 += studentScoreSum2 / studentScoreNum2;
+                                girlScoreNum2 += 1;
+                                courseGirlScoreSum2 += studentScoreSum2 / studentScoreNum2;
+                                courseGirlScoreNum2 += 1;
+                            }
+                            if (studentScoreSum != 0) {
+                                girlScoreSum += studentScoreSum / studentScoreNum;
+                                girlScoreNum += 1;
+                                courseGirlScoreSum += studentScoreSum / studentScoreNum;
+                                courseGirlScoreNum += 1;
+                            }
+                            if (studentRateSum != 0) {
+                                girlRateSum += studentRateSum / studentRateNum;
+                                girlRateNum += 1;
+                                courseGirlRateSum += studentRateSum / studentRateNum;
+                                courseGirlRateNum += 1;
+                            }
+                            girlScore1.set(indexScore1, girlScore1.get(indexScore1) + 1);
+                            girlScore2.set(indexScore2, girlScore2.get(indexScore2) + 1);
+                            girlScoreAvgDis.set(indexScore, girlScoreAvgDis.get(indexScore) + 1);
+                            girlRateDis.set(indexRate, girlRateDis.get(indexRate) + 1);
+
+                            courseGirlScore1.set(indexScore1, courseGirlScore1.get(indexScore1) + 1);
+                            courseGirlScore2.set(indexScore2, courseGirlScore2.get(indexScore2) + 1);
+                            courseGirlScoreAvgDis.set(indexScore, courseGirlScoreAvgDis.get(indexScore) + 1);
+                            courseGirlRateDis.set(indexRate, courseGirlRateDis.get(indexRate) + 1);
+                        }
                     }
                 }
                 Map<String,Object> classMap=new HashMap<>();
@@ -717,7 +730,7 @@ public class CourseServiceImp implements CourseService
                                 avgScoreIndex=temp/10<6?0:temp/10==10?4:temp/10-5;
                             }
 
-                            if(userDao.findById(tempList.get(j).getStudentID()).get().getGender().equals("男"))
+                            if(classStudents.get(studentIDs.indexOf(tempList.get(j).getStudentID())).getGender().equals("男"))
                             {
                                 boysList.add(tempList.get(j));
                                 boyNum+=1;
@@ -828,6 +841,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer alertCurrentProgress(Integer courseClassID, Integer studentID, Integer chapterID)
     {
         Takes t=takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);
@@ -842,6 +856,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public void deleteChapter(CourseCatalog courseCatalog)
     {
         ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseID(courseCatalog.getCourseID());
@@ -871,6 +886,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer deleteClass(Integer courseClassID)
     {
         if(courseClassDao.findById(courseClassID).isPresent())
@@ -909,19 +925,15 @@ public class CourseServiceImp implements CourseService
     public ArrayList<UserInfo> getStudentsByClassID(Integer courseClassId)
     {
         ArrayList<Takes>takes=takesDao.findByCourseClassID(courseClassId);
+        ArrayList<Integer>userIDs=new ArrayList<>();
         if (takes.size()>0)
         {
-            ArrayList<UserInfo>userInfos=new ArrayList<>();
             for (Takes i:takes)
             {
-                Optional<UserInfo> temp=userDao.findById(i.getStudentID());
-                if (temp.isPresent())
-                {
-                    UserInfo userInfo=new UserInfo(temp.get());
-                    userInfos.add(userInfo);
-                }
+                if (i.getStudentID()!=null)
+                    userIDs.add(i.getStudentID());
             }
-            return userInfos;
+            return userIDs.size()>0?userDao_m.findByUserID(userIDs):new ArrayList<>();
         }
         else
             return null;
@@ -1082,6 +1094,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public CourseName addCourseName(String courseName)
     {
         if (courseNameDao.getByCourseName(courseName)==null)//检查是否名称冲突
@@ -1101,6 +1114,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer alertCourseName(CourseName courseName)
     {
         Optional<CourseName> temp=courseNameDao.findById(courseName.getCourseNameID());
@@ -1133,6 +1147,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer addCourseRelation(Integer courseNameID, Integer preCourseNameID)
     {
         if(courseRelationDao.findByCourseNameIDAndPreCourseNameID(courseNameID,preCourseNameID)==null)//如果不存在该关系
@@ -1149,6 +1164,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer addChapterRelation(Integer chapterID, Integer preChapterID)
     {
         if(chapterRelationDao.findByChapterIDAndPreChapterID(chapterID,preChapterID)==null)//如果不存在该关系
@@ -1164,6 +1180,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer deleteChapterRelation(Integer chapterID, Integer preChapterID)
     {
         ChapterRelation temp=chapterRelationDao.findByChapterIDAndPreChapterID(chapterID,preChapterID);
@@ -1177,6 +1194,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer deleteCourseRelation(Integer courseNameID, Integer preCourseNameID)
     {
         CourseRelation temp=courseRelationDao.findByCourseNameIDAndPreCourseNameID(courseNameID,preCourseNameID);
@@ -1348,6 +1366,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer addStudentComment(Integer chapterID, Integer studentID, String comment, Integer rate)throws Exception
     {
         StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterID,studentID);
@@ -1367,6 +1386,7 @@ public class CourseServiceImp implements CourseService
     }
 
     @Override
+    @Transactional
     public Integer addClassComment(Integer courseClassID, Integer studentID, String comment, Integer rate)
     {
         Takes takes=takesDao.findByStudentIDAndCourseClassID(studentID,courseClassID);

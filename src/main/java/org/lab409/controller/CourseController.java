@@ -1,6 +1,8 @@
 package org.lab409.controller;
 
+import org.lab409.dao.ChapterContentDao;
 import org.lab409.dao.StudentChapterDao;
+import org.lab409.dao.StudentScoreRateDao_m;
 import org.lab409.entity.*;
 import org.lab409.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.*;
 import java.util.*;
 
 @RestController
@@ -20,6 +21,10 @@ public class CourseController
     private StudentChapterDao studentChapterDao;
     @Autowired
     private UserController userController;
+    @Autowired
+    private ChapterContentDao chapterContentDao;
+    @Autowired
+    private StudentScoreRateDao_m studentScoreRateDao;
     @PostMapping(value = "/addCourse")
     public ResultEntity addNewCourse(CourseInfo courseInfo)
     {
@@ -526,6 +531,29 @@ public class CourseController
     @GetMapping(value = "/dosome")
     public void dosome()
     {
+        ArrayList<Map>tempList=new ArrayList<>();
+        ArrayList<ChapterNode>chapterNodes=chapterContentDao.findByCourseIDAndParentID(100010,0);
+        ArrayList<UserInfo> students=courseService.getStudentsByClassID(41);
+        for(UserInfo u:students) {
+            ArrayList<StudentScoreRate> temp = new ArrayList<>();
+            for (ChapterNode c : chapterNodes) {
+                Map<String,Integer> tempMap=new HashMap();
+                tempMap.put("chapterID",c.getId());
+                tempMap.put("studentID",u.getUserID());
+                tempList.add(tempMap);
+            }
+        }
+        students=courseService.getStudentsByClassID(42);
+        for(UserInfo u:students) {
+            ArrayList<StudentScoreRate> temp = new ArrayList<>();
+            for (ChapterNode c : chapterNodes) {
+                Map<String,Integer> tempMap=new HashMap();
+                tempMap.put("chapterID",c.getId());
+                tempMap.put("studentID",u.getUserID());
+                tempList.add(tempMap);
+            }
+        }
+
         /*
         for (int i=0;i<200;i++)
         {
@@ -539,5 +567,151 @@ public class CourseController
             userController.register(u);
         }
         */
+        /*
+        ArrayList<Integer>arr=new ArrayList<>();
+        ArrayList<Integer>arr2=new ArrayList<>();
+        arr.add(28);
+        arr.add(32);
+
+        arr2.add(53);
+        arr2.add(54);
+        arr2.add(59);
+        arr2.add(60);
+        for (int i=1;i<202;i++)
+        {
+
+                joinCourse(i, arr.get(i % 2));
+
+
+
+        }
+        */
+        /*
+        Random random = new Random();
+        ArrayList<Integer> arr=new ArrayList();
+        ArrayList<Integer> arr2=new ArrayList<>();
+        arr.add(1281);
+        arr.add(1287);
+        arr.add(1293);
+        arr.add(1304);
+        arr.add(1315);
+        arr.add(1324);
+        arr.add(1330);
+        arr.add(1337);
+        arr.add(1347);
+        arr.add(1354);
+        arr.add(1363);
+        arr.add(1368);
+        arr.add(1377);
+        arr.add(1383);
+        arr.add(1395);
+        arr.add(1404);
+        arr.add(1413);
+        arr.add(1419);
+        arr.add(1430);
+        arr.add(1439);
+        arr.add(1446);
+        arr.add(1462);
+        arr.add(1472);
+        arr.add(1480);
+        arr.add(1488);
+        arr.add(1494);
+        arr2.add(4665);
+        arr2.add(4674);
+        arr2.add(4684);
+        arr2.add(4692);
+        arr2.add(4697);
+        arr2.add(4706);
+        arr2.add(4713);
+        arr2.add(4720);
+        arr2.add(4726);
+        arr2.add(4734);
+        arr2.add(4742);
+        arr2.add(4750);
+        arr2.add(4758);
+        arr2.add(4770);
+        arr2.add(4776);
+        arr2.add(4784);
+        arr2.add(4794);
+        arr2.add(4804);
+        arr2.add(4815);
+        arr2.add(4823);
+        arr2.add(4834);
+        arr2.add(4843);
+        arr2.add(4849);
+        arr2.add(4858);
+        arr2.add(4867);
+        arr2.add(4875);
+        arr2.add(4887);
+        arr2.add(4895);
+        arr2.add(4904);
+        arr2.add(4915);
+        arr2.add(4924);
+        arr2.add(4931);
+
+        for (int chapterID:arr)
+        {
+            for (int i=410;i<610;i++)
+            {
+                int scoreLow=30;
+                int rateLow=2;
+                if (i%5==0)
+                {
+                    scoreLow=70;
+                    rateLow=3;
+                }
+                if (i%10==0)
+                {
+                    scoreLow=80;
+                    rateLow=4;
+                }
+                int scoreRange=100-scoreLow;
+                int rateRange=6-rateLow;
+                StudentChapter studentChapter=new StudentChapter();
+                studentChapter.setStudentID(i);
+                if (i<510)
+                    studentChapter.setChapterID(chapterID+3174-1281);
+                else
+                    studentChapter.setChapterID(chapterID+3622-1281);
+                studentChapter.setTotalScore_1(scoreLow+random.nextInt(scoreRange));
+                studentChapter.setTotalScore_2(scoreLow+random.nextInt(scoreRange));
+                studentChapter.setRate(rateLow+random.nextInt(rateRange));
+                studentChapter.setComment("不错");
+                studentChapterDao.saveAndFlush(studentChapter);
+            }
+        }
+        for (int chapterID:arr2)
+        {
+            for (int i=410;i<610;i++)
+            {
+                int scoreLow=30;
+                int rateLow=2;
+                if (i%5==0)
+                {
+                    scoreLow=70;
+                    rateLow=3;
+                }
+                if (i%10==0)
+                {
+                    scoreLow=80;
+                    rateLow=4;
+                }
+                int scoreRange=100-scoreLow;
+                int rateRange=6-rateLow;
+                StudentChapter studentChapter=new StudentChapter();
+                studentChapter.setStudentID(i);
+                if (i<510)
+                    studentChapter.setChapterID(chapterID+4119-4665);
+                else
+                    studentChapter.setChapterID(chapterID+4938-4665);
+                studentChapter.setTotalScore_1(scoreLow+random.nextInt(scoreRange));
+                studentChapter.setTotalScore_2(scoreLow+random.nextInt(scoreRange));
+                studentChapter.setRate(rateLow+random.nextInt(rateRange));
+                studentChapter.setComment("不错");
+                studentChapterDao.saveAndFlush(studentChapter);
+            }
+        }
+        */
+
     }
 }
