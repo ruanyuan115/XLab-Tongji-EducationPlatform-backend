@@ -84,7 +84,7 @@ public class CourseServiceImp implements CourseService
     @Override
     public ArrayList<CourseAndClass> getStuCourseList(Integer studentID)throws CloneNotSupportedException
     {
-        if(studentID>0)
+        if(studentID!=null&&studentID>0)
         {
             ArrayList<CourseAndClass> courseList=new ArrayList<>();
             List<Takes> takesList=takesDao.findByStudentID(studentID);
@@ -340,6 +340,7 @@ public class CourseServiceImp implements CourseService
             return null;
     }
 
+    //加索引->Druid监控发现开了事务->关闭事务快了1/3->mybatis批量查询->关闭sql日志
     @Override
     @Cacheable(value = "getCourseClassAvgScore")
     public Map getCourseClassAvgScore(Integer courseID)
