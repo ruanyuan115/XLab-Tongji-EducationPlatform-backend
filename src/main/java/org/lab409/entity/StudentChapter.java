@@ -30,6 +30,10 @@ public class StudentChapter
     private Integer studentID;
     @Column(name = "chapter_id")
     private Integer chapterID;
+    @Column(name = "scored_1")
+    private Integer scored_1;
+    @Column(name = "scored_2")
+    private Integer scored_2;
     @Column(name = "total_score_1")
     private Integer totalScore_1;
     @Column(name = "total_score_2")

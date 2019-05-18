@@ -213,8 +213,15 @@ public class ExerciseController {
     public ResultEntity exerciseScore(Integer studentId,Integer chapterId,String type){
         ResultEntity resultEntity=new ResultEntity();
         if(studentId!=null&&chapterId!=null&&type!=null){
-            resultEntity.setData(exerciseService.exerciseScore(studentId,chapterId,type));
-            resultEntity.setState(1);
+            List<Integer> temp=exerciseService.exerciseScore(studentId,chapterId,type);
+            if(temp!=null){
+                resultEntity.setData(temp);
+                resultEntity.setState(1);
+            }
+            else{
+                resultEntity.setMessage("学生未答题");
+                resultEntity.setState(0);
+            }
         }
         else
         {

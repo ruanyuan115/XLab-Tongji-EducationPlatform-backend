@@ -313,22 +313,24 @@ public class ExerciseServiceImp implements ExerciseService{
                 type3=5;
                 type2=6;
             }
+            List<Integer> exerciseIds=new ArrayList<>();
             List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));
+                exerciseIds.add(exercise.getExerciseId());
             }
             exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type3);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise,exerciseChoiceDao.findByExerciseIdOrderByExerciceChoiceId(exercise.getExerciseId())));
+                exerciseIds.add(exercise.getExerciseId());
             }
             exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise));
             }
-            int count=0;
-            for(String answer:answers){
-                answerOne(answer,exerciseSets.get(count).getExercise().getExerciseId(),studentId);
-                count++;
+            int score=0;
+            for(Integer exerciseId:exerciseIds){
+                score+=studentExerciseScoreDao.findByExerciseIdAndStudentId(exerciseId,studentId).getExerciseScore();
             }
             StudentChapter studentChapter;
             if(!studentChapterDao.existsByChapterIDAndStudentID(chapterId,studentId)){
@@ -341,9 +343,17 @@ public class ExerciseServiceImp implements ExerciseService{
                 studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
                 studentChapter.setRate(rate);
                 studentChapter.setComment(comment);
+                studentChapter.setTotalScore_2(score);
+                studentChapter.setScored_2(0);
                 studentChapterDao.saveAndFlush(studentChapter);
                 studentChapterDao.setNLPRateByChapterIDAndStudentID(NLPUtil.getCommentNLPRate(comment),chapterId,studentId);
                 studentChapterDao.flush();
+            }
+            else{
+                studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
+                studentChapter.setTotalScore_1(score);
+                studentChapter.setScored_1(0);
+                studentChapterDao.saveAndFlush(studentChapter);
             }
             resultEntity.setState(1);
             resultEntity.setMessage("答题成功 ！");
@@ -452,11 +462,13 @@ public class ExerciseServiceImp implements ExerciseService{
             if(type.equals("preview")){
                 StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
                 studentChapter.setTotalScore_1(score);
+                studentChapter.setScored_1(1);
                 studentChapterDao.saveAndFlush(studentChapter);
             }
             else {
                 StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
                 studentChapter.setTotalScore_2(score);
+                studentChapter.setScored_2(1);
                 studentChapterDao.saveAndFlush(studentChapter);
             }
             resultEntity.setState(1);
@@ -739,6 +751,8 @@ public class ExerciseServiceImp implements ExerciseService{
         List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
         List<Integer> scores=new ArrayList<>();
         for (Exercise exercise:exercises){
+            if(!studentExerciseScoreDao.existsByExerciseIdAndStudentId(exercise.getExerciseId(),studentId))
+                return null;
             scores.add(studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getExerciseScore());
         }
         exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type3);
