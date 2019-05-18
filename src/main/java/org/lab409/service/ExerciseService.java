@@ -7,7 +7,7 @@ import java.util.List;
 public interface ExerciseService {
     ResultEntity findOneExerice(Integer exerciseId);
     ResultEntity addExercise(Exercise exercise);
-    ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate);
+    ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate) throws Exception;
     ResultEntity deleteExercise(Integer exerciseId);
     ResultEntity alterExercise(Exercise exercise);
     ResultEntity addExerciseChoice(ExerciseChoice exerciseChoice);

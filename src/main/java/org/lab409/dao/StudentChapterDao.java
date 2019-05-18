@@ -17,6 +17,7 @@ import java.util.Map;
 public interface StudentChapterDao extends JpaRepository<StudentChapter,Integer>
 {
     StudentChapter findByChapterIDAndStudentID(Integer chapterID,Integer studentID);
+    boolean existsByChapterIDAndStudentID(Integer chapterID,Integer studentID);
     List<StudentChapter> findByChapterIDBetweenAndStudentIDOrderByChapterIDDesc(Integer least,Integer most,Integer studentId);
     Integer countByChapterID(int chapterId);
     ArrayList<StudentChapter>findByChapterID(Integer chapterID);

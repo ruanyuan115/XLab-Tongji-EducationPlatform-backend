@@ -78,7 +78,7 @@ public class ExerciseController {
     }
 
     @PostMapping(value= "/answerAll")
-    public ResultEntity answerAll(@RequestParam(value = "answers")List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate){
+    public ResultEntity answerAll(@RequestParam(value = "answers")List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate) throws Exception{
         return exerciseService.answerAll(answers,studentId,chapterId,type,comment,rate);
     }
 

@@ -2,6 +2,7 @@ package org.lab409.service.implement;
 import org.lab409.dao.*;
 import org.lab409.entity.*;
 import org.lab409.service.ExerciseService;
+import org.lab409.util.NLPUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -295,7 +296,7 @@ public class ExerciseServiceImp implements ExerciseService{
     }
     @Override
     @Transactional
-    public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate){
+    public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate) throws Exception{
         ResultEntity resultEntity=new ResultEntity();
         if(answers!=null&&rate!=null&&chapterId!=null&&studentId!=null){
             List<ExerciseSet> exerciseSets=new ArrayList<>();
@@ -331,16 +332,21 @@ public class ExerciseServiceImp implements ExerciseService{
             }
             StudentChapter studentChapter;
             if(type.equals("preview")){
-                studentChapter=new StudentChapter();
-                studentChapter.setChapterID(chapterId);
-                studentChapter.setStudentID(studentId);
+                if(!studentChapterDao.existsByChapterIDAndStudentID(chapterId,studentId)){
+                    studentChapter=new StudentChapter();
+                    studentChapter.setChapterID(chapterId);
+                    studentChapter.setStudentID(studentId);
+                    studentChapterDao.saveAndFlush(studentChapter);
+                }
             }
             else{
                 studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
                 studentChapter.setRate(rate);
                 studentChapter.setComment(comment);
+                studentChapterDao.saveAndFlush(studentChapter);
+                studentChapterDao.setNLPRateByChapterIDAndStudentID(NLPUtil.getCommentNLPRate(comment),chapterId,studentId);
+                studentChapterDao.flush();
             }
-            studentChapterDao.saveAndFlush(studentChapter);
             resultEntity.setState(1);
             resultEntity.setMessage("答题成功 ！");
         }
