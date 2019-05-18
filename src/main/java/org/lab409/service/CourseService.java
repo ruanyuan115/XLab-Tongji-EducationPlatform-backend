@@ -56,5 +56,4 @@ public interface CourseService
     Map getCourseYearAvgScoreRate(Integer courseNameID,Integer teacherID);
     Map getCourseClassNLPRate(Integer courseID);
     Map getChapterNLPRate(Integer chapterID);
-    String getCommentNLPRate(String str)throws Exception;
 }

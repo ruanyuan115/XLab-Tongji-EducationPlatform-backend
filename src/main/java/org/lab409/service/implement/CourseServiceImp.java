@@ -4,6 +4,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.lab409.dao.*;
 import org.lab409.entity.*;
 import org.lab409.service.CourseService;
+import org.lab409.util.NLPUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -447,6 +448,8 @@ public class CourseServiceImp implements CourseService
                         int studentRateNum = 0;
 
                         ArrayList<StudentScoreRate>temp=studentScoreMap.get(u.getUserID());
+                        if (temp==null)
+                            continue;
                         for (StudentScoreRate s : temp) {
                             if (s.getTotalScore_1() != null) {
                                 studentScoreSum1 += s.getTotalScore_1();
@@ -1380,7 +1383,7 @@ public class CourseServiceImp implements CourseService
             studentChapter.setComment(comment);
             studentChapter.setRate(rate);
         studentChapterDao.saveAndFlush(studentChapter);
-        String nlpRate=getCommentNLPRate(comment);
+        String nlpRate=NLPUtil.getCommentNLPRate(comment);
         nlpRate=nlpRate!=null?nlpRate:"0";
         studentChapterDao.setNLPRateByChapterIDAndStudentID(nlpRate,chapterID,studentID);
         return 1;
@@ -1495,18 +1498,5 @@ public class CourseServiceImp implements CourseService
         }
         else
             return null;
-    }
-
-    @Override
-    public String getCommentNLPRate(String str)throws Exception
-    {
-        //设置命令行传入的参数
-        String[] arg = new String[]{"python", "NLP_test/nlpTest.py",str};
-        Process pr = Runtime.getRuntime().exec(arg);
-        BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-        String line=in.readLine();
-        in.close();
-        pr.waitFor();
-        return line;
     }
 }
