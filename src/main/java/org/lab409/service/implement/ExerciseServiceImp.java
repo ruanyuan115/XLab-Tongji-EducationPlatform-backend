@@ -331,15 +331,13 @@ public class ExerciseServiceImp implements ExerciseService{
                 count++;
             }
             StudentChapter studentChapter;
-            if(type.equals("preview")){
-                if(!studentChapterDao.existsByChapterIDAndStudentID(chapterId,studentId)){
-                    studentChapter=new StudentChapter();
-                    studentChapter.setChapterID(chapterId);
-                    studentChapter.setStudentID(studentId);
-                    studentChapterDao.saveAndFlush(studentChapter);
-                }
+            if(!studentChapterDao.existsByChapterIDAndStudentID(chapterId,studentId)){
+                studentChapter=new StudentChapter();
+                studentChapter.setChapterID(chapterId);
+                studentChapter.setStudentID(studentId);
+                studentChapterDao.saveAndFlush(studentChapter);
             }
-            else{
+            if(!type.equals("preview")){
                 studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);
                 studentChapter.setRate(rate);
                 studentChapter.setComment(comment);
