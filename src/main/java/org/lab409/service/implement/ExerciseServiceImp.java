@@ -347,8 +347,7 @@ public class ExerciseServiceImp implements ExerciseService{
                 studentChapter.setTotalScore_2(score);
                 studentChapter.setScored_2(0);
                 studentChapterDao.saveAndFlush(studentChapter);
-                studentChapterDao.setNLPRateByChapterIDAndStudentID(NLPUtil.getCommentNLPRate(comment),chapterId,studentId);
-                studentChapterDao.flush();
+                new NLPUtil().setCommentNLPRate(comment,chapterId,studentId);
             }
             else{
                 studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterId,studentId);

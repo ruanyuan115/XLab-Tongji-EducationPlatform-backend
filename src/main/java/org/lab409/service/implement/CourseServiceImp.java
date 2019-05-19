@@ -7,6 +7,7 @@ import org.lab409.service.CourseService;
 import org.lab409.util.NLPUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -1383,9 +1384,7 @@ public class CourseServiceImp implements CourseService
             studentChapter.setComment(comment);
             studentChapter.setRate(rate);
         studentChapterDao.saveAndFlush(studentChapter);
-        String nlpRate=NLPUtil.getCommentNLPRate(comment);
-        nlpRate=nlpRate!=null?nlpRate:"0";
-        studentChapterDao.setNLPRateByChapterIDAndStudentID(nlpRate,chapterID,studentID);
+        new NLPUtil().setCommentNLPRate(comment,chapterID,studentID);
         return 1;
     }
 
