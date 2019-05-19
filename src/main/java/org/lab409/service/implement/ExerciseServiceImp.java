@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Service(value="exerciseService")
@@ -516,14 +517,41 @@ public class ExerciseServiceImp implements ExerciseService{
             resultEntity.setData(exerciseSets);
             if (resultEntity.getData()!=null)
             {
-                if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
-                {
-                    resultEntity.setState(1);
-                    resultEntity.setMessage("查看成功！");
+                if(type.equals("preview")){
+                    if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
+                    {
+                        Timestamp now = new Timestamp(new Date().getTime());
+                        if(now.before(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1())){
+                            resultEntity.setState(4);
+                            resultEntity.setMessage("习题已过deadline！");
+                        }
+                        else{
+                            resultEntity.setState(1);
+                            resultEntity.setMessage("查看成功！");
+                        }
+                    }
+                    else {
+                        resultEntity.setState(2);
+                        resultEntity.setMessage("习题当前设置为不可见！");
+                    }
                 }
-                else {
-                    resultEntity.setState(2);
-                    resultEntity.setMessage("习题当前设置为不可见！");
+                else{
+                    if(chapterContentDao.findById(chapterId).get().getExerciseVisible_2())
+                    {
+                        Timestamp now = new Timestamp(new Date().getTime());
+                        if(now.before(chapterContentDao.findById(chapterId).get().getExerciseDeadline_2())){
+                            resultEntity.setState(4);
+                            resultEntity.setMessage("习题已过deadline！");
+                        }
+                        else{
+                            resultEntity.setState(1);
+                            resultEntity.setMessage("查看成功！");
+                        }
+                    }
+                    else {
+                        resultEntity.setState(2);
+                        resultEntity.setMessage("习题当前设置为不可见！");
+                    }
                 }
             }
             else
