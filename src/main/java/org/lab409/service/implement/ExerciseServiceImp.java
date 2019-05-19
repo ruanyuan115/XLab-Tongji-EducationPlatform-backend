@@ -516,13 +516,20 @@ public class ExerciseServiceImp implements ExerciseService{
             resultEntity.setData(exerciseSets);
             if (resultEntity.getData()!=null)
             {
-                resultEntity.setState(1);
-                resultEntity.setMessage("查看成功！");
+                if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
+                {
+                    resultEntity.setState(1);
+                    resultEntity.setMessage("查看成功！");
+                }
+                else {
+                    resultEntity.setState(2);
+                    resultEntity.setMessage("习题当前设置为不可见！");
+                }
             }
             else
             {
-                resultEntity.setMessage("查看失败！");
-                resultEntity.setState(0);
+                resultEntity.setMessage("无题目！");
+                resultEntity.setState(3);
             }
         }
         else
