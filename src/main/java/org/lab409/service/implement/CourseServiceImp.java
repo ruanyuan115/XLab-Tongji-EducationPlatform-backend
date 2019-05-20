@@ -1404,6 +1404,7 @@ public class CourseServiceImp implements CourseService
             return 0;
     }
     @Override
+    @Cacheable(value = "getCourseYearAvgScoreRate")
     public Map getCourseYearAvgScoreRate(Integer courseNameID,Integer teacherID)
     {
         ArrayList<CourseInfo>courseInfos=new ArrayList<>();

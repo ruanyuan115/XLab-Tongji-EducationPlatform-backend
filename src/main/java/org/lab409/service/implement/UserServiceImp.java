@@ -8,6 +8,7 @@ import org.lab409.entity.UserInfo;
 import org.lab409.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,7 +21,7 @@ public class UserServiceImp implements UserService
     @Autowired
     private UserAuthorityDao userAuthorityDao;
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private PasswordEncoder passwordEncoder;
     @Override
     @Transactional(rollbackOn = Exception.class)
     public ResultEntity addUser(UserInfo userInfo)
@@ -30,7 +31,7 @@ public class UserServiceImp implements UserService
         {
             if(userDao.findByMail(userInfo.getMail())==null)
             {
-                userInfo.setPassword(bCryptPasswordEncoder.encode(userInfo.getPassword()));
+                userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
 
                 UserInfo result=new UserInfo(userDao.saveAndFlush(userInfo));
                 UserAuthority authorityResult=addUserAuthority(result.getUserID(),result.getRole().equals("学生")?1:(result.getRole().equals("老师")?2:3));
