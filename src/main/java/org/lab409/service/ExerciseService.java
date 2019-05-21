@@ -3,6 +3,7 @@ package org.lab409.service;
 import org.lab409.entity.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ExerciseService {
     ResultEntity findOneExerice(Integer exerciseId);
@@ -33,4 +34,6 @@ public interface ExerciseService {
     List<String> getCoursesName(List<CourseRelation> courseRelations);
     boolean learnBad(int studentId,int courseId);
     String getCourseName(int courseId);
+    Map<String,Float> userLabel(int studentId);
+    List<CourseInfo> currentCourse(int year,String semester);
 }

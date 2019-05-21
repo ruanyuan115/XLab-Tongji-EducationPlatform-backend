@@ -236,7 +236,6 @@ public class ExerciseController {
         ResultEntity resultEntity=new ResultEntity();
         if(courseId!=null&&studentId!=null){
             if(exerciseService.learnBad(studentId,courseId)){
-                String a=exerciseService.getCourseName(courseId);
                 List<List<String>> temp=exerciseService.getPrecourse(exerciseService.getCourseName(courseId));
                 if(temp!=null)
                 {
@@ -255,6 +254,43 @@ public class ExerciseController {
                 resultEntity.setState(1);
             }
 
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @GetMapping(value = "/userLabel")
+    public ResultEntity userLabel(Integer studentId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(studentId!=null){
+            resultEntity.setState(1);
+            resultEntity.setData(exerciseService.userLabel(studentId));
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
+
+    @GetMapping(value = "/currentCourse")
+    public ResultEntity currentCourse(Integer year,String semester){
+        ResultEntity resultEntity=new ResultEntity();
+        if(year!=null&&semester!=null){
+            List<CourseInfo> courseInfos=exerciseService.currentCourse(year,semester);
+            if (!courseInfos.isEmpty()){
+                resultEntity.setState(1);
+                resultEntity.setData(courseInfos);
+            }
+            else{
+                resultEntity.setState(0);
+                resultEntity.setMessage("未找到相应课程");
+            }
         }
         else
         {

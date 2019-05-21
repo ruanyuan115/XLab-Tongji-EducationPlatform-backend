@@ -9,6 +9,7 @@ import java.util.ArrayList;
 @Repository
 public interface CourseClassDao extends JpaRepository<CourseClass,Integer>
 {
+    CourseClass findById(int id);
     CourseClass findByClassCode(String classCode);
     ArrayList<CourseClass>findByCourseID(Integer courseID);
     CourseClass findByCourseIDAndClassNum(Integer courseID,Integer classNum);

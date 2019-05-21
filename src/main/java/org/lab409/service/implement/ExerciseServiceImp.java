@@ -31,6 +31,10 @@ public class ExerciseServiceImp implements ExerciseService{
     private ChapterRelationDao chapterRelationDao;
     @Autowired
     private CourseRelationDao courseRelationDao;
+    @Autowired
+    private TakesDao takesDao;
+    @Autowired
+    private CourseClassDao courseClassDao;
     @Override
     @Transactional
     public ResultEntity findOneExerice(Integer exerciseId){
@@ -858,27 +862,31 @@ public class ExerciseServiceImp implements ExerciseService{
         for(int i=0;i<studentChapters.size();i++){
             if(studentChapters.get(i).getComment()!=null){
                 chapterId1=studentChapters.get(i).getChapterID();
-                if(i+1>=studentChapters.size())
-                    chapterId2=chapterId1;
-                else
-                    chapterId2=studentChapters.get(i+1).getChapterID();
+                chapterId2=chapterId1;
+                for(int j=i+1;j<studentChapters.size();j++){
+                    if(studentChapters.get(j).getComment()!=null){
+                        chapterId2=studentChapters.get(j).getChapterID();
+                        break;
+                    }
+                }
+                break;
             }
         }
         if(chapterId1==0)
-            return true;
-        List<StudentChapter> temp=studentChapterDao.findByChapterID(chapterId1);
+            return false;
+        List<StudentChapter> temp1=studentChapterDao.findByChapterID(chapterId1);
         List<Integer> scores1=new ArrayList<>();
-        for(StudentChapter i:temp){
+        for(StudentChapter i:temp1){
             scores1.add(i.getTotalScore_2());
         }
-        temp=studentChapterDao.findByChapterID(chapterId2);
+        List<StudentChapter> temp2=studentChapterDao.findByChapterID(chapterId2);
         List<Integer> scores2=new ArrayList<>();
-        for(StudentChapter i:temp){
+        for(StudentChapter i:temp2){
             scores2.add(i.getTotalScore_2());
         }
         Collections.sort(scores1);
         Collections.sort(scores2);
-        if(scores1.get((int)(0.4*studentChapterDao.countByChapterID(chapterId1)))>studentChapterDao.findByChapterIDAndStudentID(chapterId1,studentId).getTotalScore_2()&&scores2.get((int)(0.4*studentChapterDao.countByChapterID(chapterId2)))>studentChapterDao.findByChapterIDAndStudentID(chapterId2,studentId).getTotalScore_2())
+        if(scores1.get((int)(0.4*temp1.size()))>studentChapterDao.findByChapterIDAndStudentID(chapterId1,studentId).getTotalScore_2()&&scores2.get((int)(0.4*temp2.size()))>studentChapterDao.findByChapterIDAndStudentID(chapterId2,studentId).getTotalScore_2())
             return true;
         return false;
     }
@@ -887,5 +895,61 @@ public class ExerciseServiceImp implements ExerciseService{
     @Transactional
     public String getCourseName(int courseId){
         return courseNameDao.findByCourseNameID(Integer.parseInt(courseInfoDao.findByCourseID(courseId).getCourseName())).getCourseName();
+    }
+
+    @Override
+    @Transactional
+    public Map<String,Float> userLabel(int studentId){
+        List<Takes> takesList=takesDao.findByStudentID(studentId);
+        List<List<Integer>> courseList=new ArrayList<>();
+        List<Float> scores=new ArrayList<>();
+        TypeMapper typeMapper=new TypeMapper();
+        for(int i=0;i<4;i++){
+            courseList.add(new ArrayList<>());
+        }
+        for(Takes takes:takesList){
+            int temp=courseClassDao.findById(takes.getCourseClassID().intValue()).getCourseID();
+            int anotherTemp=Integer.parseInt(courseInfoDao.findByCourseID(temp).getCourseName());
+            if(typeMapper.getMapper().containsKey(anotherTemp)){
+                courseList.get(typeMapper.getMapper().get(anotherTemp)-1).add(temp);
+            }
+        }
+        for(int i=0;i<4;i++){
+            if(courseList.get(i).isEmpty()){
+                scores.add(-1.0f);
+                continue;
+            }
+            List<Integer> chapterList=new ArrayList<>();
+            for(Integer courseId:courseList.get(i)){
+                List<ChapterNode> chapterNodes=chapterContentDao.findByCourseID(courseId);
+                for(ChapterNode chapterNode:chapterNodes)
+                    chapterList.add(chapterNode.getId());
+            }
+            float count=0;
+            float total=0;
+            for(Integer integer:chapterList){
+                StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(integer,studentId);
+                if(studentChapter!=null&&studentChapter.getScored_2()!=null&&studentChapter.getScored_2()==1){
+                    count++;
+                    total+=100*studentChapter.getTotalScore_2()/chapterContentDao.findById(integer).get().getExerciseTotal_2();
+                }
+            }
+            if(count==0)
+                scores.add(-1.0f);
+            else
+                scores.add(total/count);
+        }
+        Map<String,Float> label=new HashMap<>();
+        label.put("软件工程理论能力",scores.get(0));
+        label.put("基本编程能力",scores.get(1));
+        label.put("实践能力",scores.get(2));
+        label.put("专业方向能力",scores.get(3));
+        return label;
+    }
+
+    @Override
+    @Transactional
+    public List<CourseInfo> currentCourse(int year,String semester){
+        return courseInfoDao.findByCourseYearAndCourseSemester(year,semester);
     }
 }
