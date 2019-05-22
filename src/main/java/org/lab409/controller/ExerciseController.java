@@ -299,4 +299,26 @@ public class ExerciseController {
         }
         return resultEntity;
     }
+
+    @GetMapping(value = "/getUnratedChapters")
+    public ResultEntity getUnratedChapters(Integer classId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(classId!=null){
+            List<UnratedChapter> unratedChapters=exerciseService.getUnratedChapters(classId);
+            if (!unratedChapters.isEmpty()){
+                resultEntity.setState(1);
+                resultEntity.setData(unratedChapters);
+            }
+            else{
+                resultEntity.setState(0);
+                resultEntity.setMessage("未找到相应章节");
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
 }

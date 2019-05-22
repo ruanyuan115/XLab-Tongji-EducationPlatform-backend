@@ -1,6 +1,7 @@
 package org.lab409.service.implement;
 import org.lab409.dao.*;
 import org.lab409.entity.*;
+import org.lab409.service.CourseService;
 import org.lab409.service.ExerciseService;
 import org.lab409.util.NLPUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ public class ExerciseServiceImp implements ExerciseService{
     private TakesDao takesDao;
     @Autowired
     private CourseClassDao courseClassDao;
+    @Autowired
+    private CourseService courseService;
     @Override
     @Transactional
     public ResultEntity findOneExerice(Integer exerciseId){
@@ -951,5 +954,33 @@ public class ExerciseServiceImp implements ExerciseService{
     @Transactional
     public List<CourseInfo> currentCourse(int year,String semester){
         return courseInfoDao.findByCourseYearAndCourseSemester(year,semester);
+    }
+
+    @Override
+    @Transactional
+    public List<UnratedChapter> getUnratedChapters(int classId){
+        List<UserInfo> userInfos=courseService.getStudentsByClassID(classId);
+        List<ChapterNode> chapterNodes=chapterContentDao.findByCourseID(courseClassDao.findById(classId).getCourseID());
+        List<ChapterNode> chapterNodeList=new ArrayList<>();
+        for(ChapterNode chapterNode:chapterNodes){
+            if(chapterNode.getExerciseTitle()!=null)
+                chapterNodeList.add(chapterNode);
+        }
+        List<UnratedChapter> unratedChapters=new ArrayList<>();
+        for(ChapterNode chapterNode:chapterNodeList){
+            for(UserInfo userInfo:userInfos){
+                StudentChapter studentChapter=studentChapterDao.findByChapterIDAndStudentID(chapterNode.getId(),userInfo.getUserID());
+                if(studentChapter!=null){
+                    Integer temp=studentChapter.getScored_2();
+                    if(temp!=null){
+                        if(temp==0){
+                            unratedChapters.add(new UnratedChapter(chapterNode,userInfo.getUserID()));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return unratedChapters;
     }
 }
