@@ -321,4 +321,25 @@ public class ExerciseController {
         }
         return resultEntity;
     }
+
+    @GetMapping(value = "/currentCourseByTeacherId")
+    public ResultEntity currentCourseByTeacherId(Integer teacherId){
+        ResultEntity resultEntity=new ResultEntity();
+        if(teacherId!=null) {
+            List<CourseInfo> courseInfos = exerciseService.currentCourseByTeacherId(teacherId);
+            if (!courseInfos.isEmpty()) {
+                resultEntity.setState(1);
+                resultEntity.setData(courseInfos);
+            } else {
+                resultEntity.setState(0);
+                resultEntity.setMessage("未找到相应课程");
+            }
+        }
+        else
+        {
+            resultEntity.setMessage("传入参数不全！");
+            resultEntity.setState(0);
+        }
+        return resultEntity;
+    }
 }

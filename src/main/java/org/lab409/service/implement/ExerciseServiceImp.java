@@ -983,4 +983,20 @@ public class ExerciseServiceImp implements ExerciseService{
         }
         return unratedChapters;
     }
+
+    @Override
+    @Transactional
+    public List<CourseInfo> currentCourseByTeacherId(int teacherId){
+        Calendar calendar=Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
+        if(month<=2)
+            year--;
+        String semester="";
+        if(month>=3&&month<=8)
+            semester="春季";
+        else
+            semester="秋季";
+        return courseInfoDao.findByTeacherIDAndCourseYearAndCourseSemester(teacherId,year,semester);
+    }
 }

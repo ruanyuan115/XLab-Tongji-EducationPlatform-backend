@@ -36,5 +36,6 @@ public interface ExerciseService {
     String getCourseName(int courseId);
     Map<String,Float> userLabel(int studentId);
     List<CourseInfo> currentCourse(int year,String semester);
+    List<CourseInfo> currentCourseByTeacherId(int teacherId);
     List<UnratedChapter> getUnratedChapters(int classId);
 }

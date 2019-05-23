@@ -16,4 +16,5 @@ public interface CourseInfoDao extends JpaRepository<CourseInfo,Integer>
     ArrayList<CourseInfo>findByCourseYear(Integer year);
     ArrayList<CourseInfo>findByCourseNameAndTeacherID(String courseNameID,Integer teacherID);
     ArrayList<CourseInfo>findByCourseYearAndCourseSemester(Integer year,String semester);
+    ArrayList<CourseInfo> findByTeacherIDAndCourseYearAndCourseSemester(Integer teacherId,Integer year,String semester);
 }
