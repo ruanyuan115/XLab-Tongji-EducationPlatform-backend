@@ -326,10 +326,10 @@ public class ExerciseController {
     public ResultEntity currentCourseByTeacherId(Integer teacherId){
         ResultEntity resultEntity=new ResultEntity();
         if(teacherId!=null) {
-            List<CourseInfo> courseInfos = exerciseService.currentCourseByTeacherId(teacherId);
-            if (!courseInfos.isEmpty()) {
+            List<CourseAndClassList> courseAndClassLists = exerciseService.currentCourseByTeacherId(teacherId);
+            if (!courseAndClassLists.isEmpty()) {
                 resultEntity.setState(1);
-                resultEntity.setData(courseInfos);
+                resultEntity.setData(courseAndClassLists);
             } else {
                 resultEntity.setState(0);
                 resultEntity.setMessage("未找到相应课程");

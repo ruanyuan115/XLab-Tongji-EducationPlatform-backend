@@ -986,7 +986,7 @@ public class ExerciseServiceImp implements ExerciseService{
 
     @Override
     @Transactional
-    public List<CourseInfo> currentCourseByTeacherId(int teacherId){
+    public  List<CourseAndClassList> currentCourseByTeacherId(int teacherId){
         Calendar calendar=Calendar.getInstance();
         int month = calendar.get(Calendar.MONTH) + 1;
         int year = calendar.get(Calendar.YEAR);
@@ -997,6 +997,10 @@ public class ExerciseServiceImp implements ExerciseService{
             semester="春季";
         else
             semester="秋季";
-        return courseInfoDao.findByTeacherIDAndCourseYearAndCourseSemester(teacherId,year,semester);
+        List<CourseInfo> courseInfos=courseInfoDao.findByTeacherIDAndCourseYearAndCourseSemester(teacherId,year,semester);
+        List<CourseAndClassList> courseAndClassLists=new ArrayList<>();
+        for(CourseInfo courseInfo:courseInfos)
+            courseAndClassLists.add(new CourseAndClassList(courseInfo,courseClassDao.findByCourseID(courseInfo.getCourseID())));
+        return courseAndClassLists;
     }
 }
