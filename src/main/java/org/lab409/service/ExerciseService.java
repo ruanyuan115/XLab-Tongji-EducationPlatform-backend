@@ -38,4 +38,5 @@ public interface ExerciseService {
     List<CourseInfo> currentCourse(int year,String semester);
     List<CourseAndClassList> currentCourseByTeacherId(int teacherId);
     List<UnratedChapter> getUnratedChapters(int classId);
+    List<CourseAndClassList> currentCourseByStudentId(int studentId);
 }

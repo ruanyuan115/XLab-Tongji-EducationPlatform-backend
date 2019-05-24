@@ -1007,7 +1007,34 @@ public class ExerciseServiceImp implements ExerciseService{
         List<CourseInfo> courseInfos=courseInfoDao.findByTeacherIDAndCourseYearAndCourseSemester(teacherId,year,semester);
         List<CourseAndClassList> courseAndClassLists=new ArrayList<>();
         for(CourseInfo courseInfo:courseInfos)
-            courseAndClassLists.add(new CourseAndClassList(courseInfo,courseClassDao.findByCourseID(courseInfo.getCourseID())));
+            courseAndClassLists.add(new CourseAndClassList(courseInfo,courseClassDao.findByCourseID(courseInfo.getCourseID()),courseNameDao.findByCourseNameID(Integer.parseInt(courseInfo.getCourseName())).getCourseName()));
+        return courseAndClassLists;
+    }
+
+    @Override
+    @Transactional
+    public List<CourseAndClassList> currentCourseByStudentId(int studentId){
+        Calendar calendar=Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
+        if(month<=2)
+            year--;
+        String semester="";
+        if(month>=3&&month<=8)
+            semester="春季";
+        else
+            semester="秋季";
+        List<Takes> takesList=takesDao.findByStudentID(studentId);
+        List<CourseClass> courseClasses=new ArrayList<>();
+        for(Takes takes:takesList)
+            courseClasses.add(courseClassDao.findById(takes.getCourseClassID()).get());
+        List<CourseAndClassList> courseAndClassLists=new ArrayList<>();
+        for(CourseClass courseClass:courseClasses){
+            CourseInfo courseInfo=courseInfoDao.findByCourseID(courseClass.getCourseID());
+            if(courseInfo.getCourseYear().equals(year)&&courseInfo.getCourseSemester().equals(semester)){
+                courseAndClassLists.add(new CourseAndClassList(courseInfo,courseClass,courseNameDao.findByCourseNameID(Integer.parseInt(courseInfo.getCourseName())).getCourseName()));
+            }
+        }
         return courseAndClassLists;
     }
 }
