@@ -306,7 +306,7 @@ public class ExerciseServiceImp implements ExerciseService{
     @Transactional
     public ResultEntity answerAll(List<String> answers, Integer studentId, Integer chapterId,String type, String comment,Integer rate) throws Exception{
         ResultEntity resultEntity=new ResultEntity();
-        if(answers!=null&&rate!=null&&chapterId!=null&&studentId!=null){
+        if(answers!=null&&type!=null&&chapterId!=null&&studentId!=null){
             List<ExerciseSet> exerciseSets=new ArrayList<>();
             int type1=0;
             int type2=0;
@@ -335,6 +335,9 @@ public class ExerciseServiceImp implements ExerciseService{
             exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
             for (Exercise exercise:exercises){
                 exerciseSets.add(new ExerciseSet(exercise));
+            }
+            for(int i=0;i<answers.size();i++){
+                answerOne(answers.get(i),exerciseSets.get(i).getExercise().getExerciseId(),studentId);
             }
             int score=0;
             for(Integer exerciseId:exerciseIds){
@@ -619,7 +622,11 @@ public class ExerciseServiceImp implements ExerciseService{
                 }
                 exerciseSets.add(new ExerciseSet(exercise,studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getStudentAnswer()));
             }
-            resultEntity.setData(exerciseSets);
+            int score=0;
+            List<Integer> scores=exerciseScore(studentId,chapterId,type);
+            for(Integer i:scores)
+                score+=i;
+            resultEntity.setData(new ExerciseSetsDetails(exerciseSets,score));
             if (resultEntity.getData()!=null)
             {
                 resultEntity.setState(1);
