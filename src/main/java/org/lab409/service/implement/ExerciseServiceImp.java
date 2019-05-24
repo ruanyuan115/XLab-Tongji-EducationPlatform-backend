@@ -622,11 +622,8 @@ public class ExerciseServiceImp implements ExerciseService{
                 }
                 exerciseSets.add(new ExerciseSet(exercise,studentExerciseScoreDao.findByExerciseIdAndStudentId(exercise.getExerciseId(),studentId).getStudentAnswer()));
             }
-            int score=0;
             List<Integer> scores=exerciseScore(studentId,chapterId,type);
-            for(Integer i:scores)
-                score+=i;
-            resultEntity.setData(new ExerciseSetsDetails(exerciseSets,score));
+            resultEntity.setData(new ExerciseSetsDetails(exerciseSets,scores));
             if (resultEntity.getData()!=null)
             {
                 resultEntity.setState(1);

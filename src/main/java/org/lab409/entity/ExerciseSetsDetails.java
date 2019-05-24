@@ -7,13 +7,13 @@ import java.util.List;
 @Data
 public class ExerciseSetsDetails {
     private List<ExerciseSet> exerciseSets;
-    private Integer score;
+    private List<Integer> scores;
 
     public ExerciseSetsDetails() {
     }
 
-    public ExerciseSetsDetails(List<ExerciseSet> exerciseSets, Integer score) {
+    public ExerciseSetsDetails(List<ExerciseSet> exerciseSets, List<Integer> scores) {
         this.exerciseSets = exerciseSets;
-        this.score = score;
+        this.scores = scores;
     }
 }
