@@ -60,7 +60,7 @@ public class CourseServiceImp implements CourseService
     {
         if (courseClass!=null&&courseClassDao.findByCourseIDAndClassNum(courseClass.getCourseID(),courseClass.getClassNum())==null)
         {
-            courseClass.setClassCode(""+new Date().hashCode());
+            courseClass.setClassCode(""+Math.abs(new Date().hashCode()%10000));
             return courseClassDao.saveAndFlush(courseClass).getId()!=null?1:0;
         }
         else
