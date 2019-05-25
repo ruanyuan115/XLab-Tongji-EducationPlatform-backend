@@ -1313,7 +1313,7 @@ public class CourseServiceImp implements CourseService
             semYearToRateMap.get(temp).add(i.getRate());
         }
         List<SemesterAndYear> sortedSemAndYear=new ArrayList<>(semYearToRateMap.keySet());
-        sortedSemAndYear.sort(Comparator.comparing(SemesterAndYear::getYear).reversed().thenComparing(SemesterAndYear::getSemester).reversed());
+        sortedSemAndYear.sort(Comparator.comparing(SemesterAndYear::getYear).thenComparing(SemesterAndYear::getSemester).reversed());
 
         ArrayList<Map>resultMap=new ArrayList<>();
         for(SemesterAndYear i:sortedSemAndYear)
