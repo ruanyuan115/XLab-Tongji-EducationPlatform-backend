@@ -1,6 +1,7 @@
 package org.lab409.service.implement;
 
 import org.apache.commons.lang.math.NumberUtils;
+import org.json.JSONObject;
 import org.lab409.dao.*;
 import org.lab409.entity.*;
 import org.lab409.service.CourseService;
@@ -1311,10 +1312,11 @@ public class CourseServiceImp implements CourseService
             semYearToRateMap.computeIfAbsent(temp,k->new ArrayList<>());
             semYearToRateMap.get(temp).add(i.getRate());
         }
-        Set<SemesterAndYear>semesterAndYears=semYearToRateMap.keySet();
+        List<SemesterAndYear> sortedSemAndYear=new ArrayList<>(semYearToRateMap.keySet());
+        sortedSemAndYear.sort(Comparator.comparing(SemesterAndYear::getYear).reversed().thenComparing(SemesterAndYear::getSemester).reversed());
 
         ArrayList<Map>resultMap=new ArrayList<>();
-        for(SemesterAndYear i:semesterAndYears)
+        for(SemesterAndYear i:sortedSemAndYear)
         {
             Map<String,Object>rateMap=new HashMap<>();
             Float sum=0F;
@@ -1491,9 +1493,22 @@ public class CourseServiceImp implements CourseService
                     num+=j;
                 tempMap.put("rate",num/tempList.size());
             }
-
-            resultMap.put("year",yearMap);
-            resultMap.put("semester",semesterMap);
+            List<Integer>sortedYear=new ArrayList<>(yearKey);
+            sortedYear.sort(Comparator.reverseOrder());
+            LinkedHashMap<String,Map<String,Object>> sortedYearMap=new LinkedHashMap<>();
+            for (Integer i:sortedYear)
+            {
+                sortedYearMap.put(i+"年",yearMap.get(i));
+            }
+            List<String>sortedSem=new ArrayList<>(semesterKey);
+            sortedSem.sort((s1,s2)->Integer.parseInt(s1.substring(0,4))<Integer.parseInt(s2.substring(0,4))?1:Integer.parseInt(s1.substring(0,4))==Integer.parseInt(s2.substring(0,4))?s1.substring(4).equals("春季")?1:-1:-1);
+            LinkedHashMap<String,Map<String,Object>>sortedSemMap=new LinkedHashMap<>();
+            for(String i:sortedSem)
+            {
+                sortedSemMap.put(i,semesterMap.get(i));
+            }
+            resultMap.put("year",sortedYearMap);
+            resultMap.put("semester",sortedSemMap);
             return resultMap;
         }
         else
