@@ -39,4 +39,5 @@ public interface ExerciseService {
     List<CourseAndClassList> currentCourseByTeacherId(int teacherId);
     List<UnratedChapter> getUnratedChapters(int classId);
     List<CourseAndClassList> currentCourseByStudentId(int studentId);
+    void setTotalScore(int chapterId,String type);
 }
