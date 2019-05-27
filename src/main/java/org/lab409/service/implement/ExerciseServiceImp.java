@@ -1063,15 +1063,17 @@ public class ExerciseServiceImp implements ExerciseService{
         exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
         temp.addAll(exercises);
         int total=0;
-        for(Exercise exercise:exercises)
+        for(Exercise exercise:temp)
             total+=exercise.getExercisePoint();
         if(type.equals("preview")){
             ChapterNode chapterNode=chapterContentDao.findById(chapterId).get();
             chapterNode.setExerciseTotal_1(total);
+            chapterContentDao.saveAndFlush(chapterNode);
         }
         else{
             ChapterNode chapterNode=chapterContentDao.findById(chapterId).get();
             chapterNode.setExerciseTotal_2(total);
+            chapterContentDao.saveAndFlush(chapterNode);
         }
     }
 }
