@@ -76,6 +76,10 @@ public class ExerciseServiceImp implements ExerciseService{
             resultEntity.setData(exerciseDao.saveAndFlush(exercise));
             if (resultEntity.getData()!=null)
             {
+                if(exercise.getExerciseType()<=3)
+                    setTotalScore(exercise.getChapterId(),"preview");
+                else
+                    setTotalScore(exercise.getChapterId(),"review");
                 resultEntity.setState(1);
                 resultEntity.setMessage("创建习题成功！");
             }
@@ -527,7 +531,7 @@ public class ExerciseServiceImp implements ExerciseService{
             if (resultEntity.getData()!=null)
             {
                 if(type.equals("preview")){
-                    if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
+                    if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1()!=null&&chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
                     {
                         Timestamp now = new Timestamp(new Date().getTime());
                         if(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1()!=null&&now.before(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1())){
@@ -1033,5 +1037,43 @@ public class ExerciseServiceImp implements ExerciseService{
             }
         }
         return courseAndClassLists;
+    }
+
+    @Override
+    @Transactional
+    public void setTotalScore(int chapterId,String type){
+        int type1=0;
+        int type2=0;
+        int type3=0;
+        if(type.equals("preview")){
+            type1=1;
+            type3=2;
+            type2=3;
+        }
+        else{
+            type1=4;
+            type3=5;
+            type2=6;
+        }
+        List<Exercise> exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type1);
+        List<Exercise> temp=new ArrayList<>();
+        temp.addAll(exercises);
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type3);
+        temp.addAll(exercises);
+        exercises=exerciseDao.findByChapterIdAndExerciseTypeOrderByExerciseNumber(chapterId,type2);
+        temp.addAll(exercises);
+        int total=0;
+        for(Exercise exercise:temp)
+            total+=exercise.getExercisePoint();
+        if(type.equals("preview")){
+            ChapterNode chapterNode=chapterContentDao.findById(chapterId).get();
+            chapterNode.setExerciseTotal_1(total);
+            chapterContentDao.saveAndFlush(chapterNode);
+        }
+        else{
+            ChapterNode chapterNode=chapterContentDao.findById(chapterId).get();
+            chapterNode.setExerciseTotal_2(total);
+            chapterContentDao.saveAndFlush(chapterNode);
+        }
     }
 }
