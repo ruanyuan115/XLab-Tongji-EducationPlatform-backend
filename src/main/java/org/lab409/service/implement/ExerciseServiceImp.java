@@ -531,7 +531,7 @@ public class ExerciseServiceImp implements ExerciseService{
             if (resultEntity.getData()!=null)
             {
                 if(type.equals("preview")){
-                    if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
+                    if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1()!=null&&chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
                     {
                         Timestamp now = new Timestamp(new Date().getTime());
                         if(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1()!=null&&now.before(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1())){
