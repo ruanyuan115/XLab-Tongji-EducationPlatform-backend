@@ -534,7 +534,7 @@ public class ExerciseServiceImp implements ExerciseService{
                     if(chapterContentDao.findById(chapterId).get().getExerciseVisible_1()!=null&&chapterContentDao.findById(chapterId).get().getExerciseVisible_1())
                     {
                         Timestamp now = new Timestamp(new Date().getTime());
-                        if(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1()!=null&&now.before(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1())){
+                        if(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1()!=null&&now.after(chapterContentDao.findById(chapterId).get().getExerciseDeadline_1())){
                             resultEntity.setState(4);
                             resultEntity.setMessage("习题已过deadline！");
                         }
@@ -552,7 +552,7 @@ public class ExerciseServiceImp implements ExerciseService{
                     if(chapterContentDao.findById(chapterId).get().getExerciseDeadline_2()!=null&&chapterContentDao.findById(chapterId).get().getExerciseVisible_2())
                     {
                         Timestamp now = new Timestamp(new Date().getTime());
-                        if(now.before(chapterContentDao.findById(chapterId).get().getExerciseDeadline_2())){
+                        if(chapterContentDao.findById(chapterId).get().getExerciseDeadline_2()!=null&&now.after(chapterContentDao.findById(chapterId).get().getExerciseDeadline_2())){
                             resultEntity.setState(4);
                             resultEntity.setMessage("习题已过deadline！");
                         }
