@@ -858,7 +858,8 @@ public class ExerciseServiceImp implements ExerciseService{
     public List<String> getCoursesName(List<CourseRelation> courseRelations){
         List<String> temp=new ArrayList<>();
         for(CourseRelation courseRelation:courseRelations){
-            temp.add(courseNameDao.findByCourseNameID(courseRelation.getPreCourseNameID()).getCourseName());
+            if(courseRelation.getPreCourseNameID()!=0)
+                temp.add(courseNameDao.findByCourseNameID(courseRelation.getPreCourseNameID()).getCourseName());
         }
         return temp;
     }
