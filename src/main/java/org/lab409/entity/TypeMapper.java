@@ -27,6 +27,7 @@ public class TypeMapper {
         mapper.put(20,1);
         mapper.put(21,1);
         mapper.put(22,2);
-        mapper.put(23,3);
+        mapper.put(23,4);
+        mapper.put(24,3);
     }
 }
