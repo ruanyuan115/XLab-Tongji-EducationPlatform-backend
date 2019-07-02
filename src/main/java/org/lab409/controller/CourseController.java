@@ -563,101 +563,53 @@ public class CourseController
         }
         */
         /*
-        ArrayList<Integer>arr=new ArrayList<>();
         ArrayList<Integer>arr2=new ArrayList<>();
-        arr.add(28);
-        arr.add(32);
-
-        arr2.add(53);
-        arr2.add(54);
-        arr2.add(59);
-        arr2.add(60);
-        for (int i=1;i<202;i++)
+        arr2.add(79);
+        arr2.add(80);
+        arr2.add(81);
+        arr2.add(82);
+        //210-410(409) 410-610(609)
+        for (int i=410;i<610;i++)
         {
-
-                joinCourse(i, arr.get(i % 2));
-
-
-
+            if (i<510)
+                joinCourse(i, arr2.get(i % 2));
+            else
+                joinCourse(i, arr2.get(i % 2+2));
         }
-        */
+
+         */
         /*
         Random random = new Random();
         ArrayList<Integer> arr=new ArrayList();
         ArrayList<Integer> arr2=new ArrayList<>();
-        arr.add(1281);
-        arr.add(1287);
-        arr.add(1293);
-        arr.add(1304);
-        arr.add(1315);
-        arr.add(1324);
-        arr.add(1330);
-        arr.add(1337);
-        arr.add(1347);
-        arr.add(1354);
-        arr.add(1363);
-        arr.add(1368);
-        arr.add(1377);
-        arr.add(1383);
-        arr.add(1395);
-        arr.add(1404);
-        arr.add(1413);
-        arr.add(1419);
-        arr.add(1430);
-        arr.add(1439);
-        arr.add(1446);
-        arr.add(1462);
-        arr.add(1472);
-        arr.add(1480);
-        arr.add(1488);
-        arr.add(1494);
-        arr2.add(4665);
-        arr2.add(4674);
-        arr2.add(4684);
-        arr2.add(4692);
-        arr2.add(4697);
-        arr2.add(4706);
-        arr2.add(4713);
-        arr2.add(4720);
-        arr2.add(4726);
-        arr2.add(4734);
-        arr2.add(4742);
-        arr2.add(4750);
-        arr2.add(4758);
-        arr2.add(4770);
-        arr2.add(4776);
-        arr2.add(4784);
-        arr2.add(4794);
-        arr2.add(4804);
-        arr2.add(4815);
-        arr2.add(4823);
-        arr2.add(4834);
-        arr2.add(4843);
-        arr2.add(4849);
-        arr2.add(4858);
-        arr2.add(4867);
-        arr2.add(4875);
-        arr2.add(4887);
-        arr2.add(4895);
-        arr2.add(4904);
-        arr2.add(4915);
-        arr2.add(4924);
-        arr2.add(4931);
+        arr.add(705);
+        arr.add(721);
+        arr.add(729);
+        arr.add(740);
+        arr.add(748);
+        arr.add(756);
+        arr.add(761);
+        arr.add(773);
+        arr.add(784);
+        arr.add(794);
+        arr.add(804);
+        arr.add(816);
+
 
         for (int chapterID:arr)
         {
             for (int i=410;i<610;i++)
             {
-                int scoreLow=30;
+                int scoreLow=14;
                 int rateLow=2;
                 if (i%5==0)
                 {
-                    scoreLow=70;
+                    scoreLow=57;
                     rateLow=3;
                 }
                 if (i%10==0)
                 {
-                    scoreLow=80;
+                    scoreLow=70;
                     rateLow=4;
                 }
                 int scoreRange=100-scoreLow;
@@ -665,16 +617,19 @@ public class CourseController
                 StudentChapter studentChapter=new StudentChapter();
                 studentChapter.setStudentID(i);
                 if (i<510)
-                    studentChapter.setChapterID(chapterID+3174-1281);
+                    studentChapter.setChapterID(chapterID+15676-705);
                 else
-                    studentChapter.setChapterID(chapterID+3622-1281);
+                    studentChapter.setChapterID(chapterID+15914-705);
                 studentChapter.setTotalScore_1(scoreLow+random.nextInt(scoreRange));
                 studentChapter.setTotalScore_2(scoreLow+random.nextInt(scoreRange));
                 studentChapter.setRate(rateLow+random.nextInt(rateRange));
-                studentChapter.setComment("不错");
+                studentChapter.setComment("very good");
                 studentChapterDao.saveAndFlush(studentChapter);
             }
         }
+
+         */
+        /*
         for (int chapterID:arr2)
         {
             for (int i=410;i<610;i++)
@@ -706,7 +661,7 @@ public class CourseController
                 studentChapterDao.saveAndFlush(studentChapter);
             }
         }
-        */
+         */
 
     }
 }

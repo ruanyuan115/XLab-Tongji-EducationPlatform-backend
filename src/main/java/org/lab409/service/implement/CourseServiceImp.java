@@ -1406,6 +1406,7 @@ public class CourseServiceImp implements CourseService
             return 0;
     }
     @Override
+    @SuppressWarnings("unchecked")
     @Cacheable(value = "getCourseYearAvgScoreRate")
     public Map getCourseYearAvgScoreRate(Integer courseNameID,Integer teacherID)
     {
@@ -1424,8 +1425,8 @@ public class CourseServiceImp implements CourseService
                 if(temp==null)
                     continue;
 
-                yearMap.computeIfAbsent(i.getCourseYear(),k->{Map tempMap=new HashMap();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
-                semesterMap.computeIfAbsent(i.getCourseYear()+i.getCourseSemester(),k->{Map tempMap=new HashMap();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
+                yearMap.computeIfAbsent(i.getCourseYear(),k->{Map<String,Object> tempMap=new HashMap<>();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
+                semesterMap.computeIfAbsent(i.getCourseYear()+i.getCourseSemester(),k->{Map<String,Object> tempMap=new HashMap<>();tempMap.put("score",new ArrayList<>());tempMap.put("rate",new ArrayList<>());return tempMap;});
 
                 Float boyScore=(Float) temp.get("courseBoyAvgScore");
                 Float girlScore=(Float) temp.get("courseGirlAvgScore");
@@ -1442,7 +1443,7 @@ public class CourseServiceImp implements CourseService
 
                 if(boyScore!=null)
                 {
-                    Map tempMap=yearMap.get(i.getCourseYear());
+                    Map<String,Object> tempMap=yearMap.get(i.getCourseYear());
                     ArrayList<Float>tempList=(ArrayList<Float>)tempMap.get("score");
                     tempList.add(0.5F*boyScore+0.5F*girlScore);
                     tempMap=semesterMap.get(i.getCourseYear()+i.getCourseSemester());
@@ -1465,20 +1466,20 @@ public class CourseServiceImp implements CourseService
             Set<String> semesterKey=semesterMap.keySet();
             Float num=0F;
             for (Integer i:yearKey)
-            {
-                num=0F;
-                Map tempMap=yearMap.get(i);
-                ArrayList<Float>tempList=(ArrayList<Float>)tempMap.get("score");
-                for (Float j:tempList)
-                    num+=j;
-                tempMap.put("score",num/tempList.size());
-                num=0F;
-                tempList=(ArrayList<Float>)tempMap.get("rate");
-                for (Float j:tempList)
-                    num+=j;
-                tempMap.put("rate",num/tempList.size());
+        {
+            num=0F;
+            Map tempMap=yearMap.get(i);
+            ArrayList<Float>tempList=(ArrayList<Float>)tempMap.get("score");
+            for (Float j:tempList)
+                num+=j;
+            tempMap.put("score",num/tempList.size());
+            num=0F;
+            tempList=(ArrayList<Float>)tempMap.get("rate");
+            for (Float j:tempList)
+                num+=j;
+            tempMap.put("rate",num/tempList.size());
 
-            }
+        }
             for (String i:semesterKey)
             {
                 num=0F;
@@ -1501,7 +1502,7 @@ public class CourseServiceImp implements CourseService
                 sortedYearMap.put(i+"年",yearMap.get(i));
             }
             List<String>sortedSem=new ArrayList<>(semesterKey);
-            sortedSem.sort((s1,s2)->Integer.parseInt(s1.substring(0,4))<Integer.parseInt(s2.substring(0,4))?1:Integer.parseInt(s1.substring(0,4))==Integer.parseInt(s2.substring(0,4))?s1.substring(4).equals("春季")?1:-1:-1);
+            sortedSem.sort((s1,s2)->Integer.parseInt(s1.substring(0,4))<Integer.parseInt(s2.substring(0,4))?1:Integer.parseInt(s1.substring(0,4))==Integer.parseInt(s2.substring(0,4))?s1.substring(4).equals("春季")?1:s1.equals(s2)?0:-1:-1);
             LinkedHashMap<String,Map<String,Object>>sortedSemMap=new LinkedHashMap<>();
             for(String i:sortedSem)
             {
